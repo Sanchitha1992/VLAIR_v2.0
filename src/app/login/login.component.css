@@ -1,0 +1,21 @@
+button {
+  font-size: 14px;
+  position: relative;
+  background-color: #460073;
+  border: 1px solid #460073;
+  padding: 5px 10px;
+  margin: 2px;
+  display: inline-flex;
+  color: #fff;
+}
+
+  button:hover {
+    font-size: 14px;
+    position: relative;
+    background-color: #fff;
+    border: 1px solid #460073;
+    padding: 5px 10px;
+    margin: 2px;
+    display: inline-flex;
+    color: #460073;
+  }

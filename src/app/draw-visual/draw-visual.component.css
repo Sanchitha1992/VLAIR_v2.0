@@ -1,0 +1,120 @@
+#mapperPopup{
+  position: absolute;
+  display: none;
+  z-index: 1;
+  background-color: #fff;
+}
+
+.rightPanelTextbox{
+    margin:1px;
+    width:50px;
+}
+
+.divHeader {
+  text-align: center;
+  font-weight: bold;
+  padding:4px;
+  font-size:14px
+}
+
+ul {
+  list-style-type: none;
+}
+
+th {
+  padding: 5px 5px;
+  font-size: 0.9em;
+  border-bottom: 1px dotted #ddd;
+  text-align: left;
+}
+
+td {
+  padding: 0px 5px;
+  font-size: 0.9em;
+  border-bottom: 1px dotted #ddd;
+  text-align: left;
+}
+
+ul, ol {
+  padding: 0;
+  margin: 0 0 5px 0px;
+}
+
+.menu li a {
+  padding: 7px 13px;
+  color: #460073;
+}
+
+.inlinediv {
+  display: inline-table;
+  box-shadow: 0 0 8px #96968c38;
+  background-color: #fff;
+  margin: 2px;
+  padding: 2px
+}
+
+body {
+  font-family: sans-serif;
+}
+
+button {
+  font-size: 14px;
+  position: relative;
+  background-color: #460073;
+  border: 1px solid #460073;
+  padding: 5px 10px;
+  margin: 2px;
+  display: inline-flex;
+  color: #fff;
+}
+
+.keys {
+  font-size: 14px;
+  position: relative;
+  background-color: #460073;
+  border: 1px solid #460073;
+  padding: 5px 10px;
+  margin: 2px;
+  display: inline-flex;
+  color: #fff;
+}
+
+.c-content::-webkit-scrollbar {
+  width: 10px
+}
+
+.c-content::-webkit-scrollbar-thumb {
+  background: #96968c;
+  border-radius: 16px
+}
+
+.c-content::-webkit-scrollbar-track {
+  background: #fff;
+  border: none;
+  border-radius: 16px;
+}
+
+.canvascss {
+  box-shadow: 0 0 8px #96968c38;
+}
+
+#menucontainer {
+  box-shadow: 0 0 8px #96968c38;
+}
+
+
+#comcontainer {
+  height: 100vh;
+  overflow: hidden
+}
+
+button:hover {
+  font-size: 14px;
+  position: relative;
+  background-color: #fff;
+  border: 1px solid #460073;
+  padding: 5px 10px;
+  margin: 2px;
+  display: inline-flex;
+  color: #460073;
+}

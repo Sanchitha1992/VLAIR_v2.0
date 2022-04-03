@@ -1,0 +1,122 @@
+<div class="container" style="padding-top:50px">
+  <div class="col form-group">
+    <input type="file" class="btn btn-primary btn-file" #file  placeholder="Upload file" accept=".csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+    <div style="margin-top:10px">
+      <div style="font-size:12px" class="divcontainer">
+        <div class="row">
+          <div class="col-sm-2">
+
+            <label>Validation: </label><input style="margin-left:5px;height:20px;width:30px" type="text" [(ngModel)]="validationPercent" (change)="addfile(file)" /> %
+          </div><div class="col-sm-3">
+            <label>Available rows:</label>
+            <select class="ml-2" [(ngModel)]="nrows" (change)="selectrows(nrows)">
+              <option value="f10">First 10 rows</option>
+              <option value="l10">Last 10 rows</option>
+              <option value="r10">Random 10 rows</option>
+              <option value="clear">All</option>
+            </select>
+          </div>
+                <div class="col-sm-3">
+                  <label>Select Label:</label>
+                  <select [(ngModel)]="selectedlabel" class="ml-2">
+                    <ng-container *ngFor="let item of rowData[0]|keyvalue">
+                      <option *ngIf="item.key.indexOf('type')==-1">
+                        {{item.key}}
+                      </option>
+                    </ng-container>
+                  </select>
+                </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="divcontainer" *ngIf="rowData!=null && transform==true">
+    <div style="display:flex">
+      <div style="flex:45%;box-shadow: 0 0 8px #96968ca3;padding-left:10px">
+        <div style="display:flex">
+          <div style="flex:50%">
+            <label>Actions for null values:</label><br>    
+            <label style="margin-left: 5px;">Fields:</label>
+            <select [(ngModel)]="fieldSelected" class="ml-2">
+              <ng-container *ngFor="let item of rowData[0]|keyvalue">
+                <option *ngIf="item.key.indexOf('type')==-1">
+                  {{item.key}}
+                </option>
+              </ng-container>
+            </select>
+          </div>
+          <div style="flex:50%">
+            <select [(ngModel)]="fieldAction" style="margin-top:20px" class="mt-2">
+              <option value="Remove entire row">Remove entire row</option>
+              <option value="Replace with Mean">Replace with Mean</option>
+              <option value="Replace with Median">Replace with Median</option>
+            </select>
+            <button (click)="removeReplace()">Remove/Replace</button>
+          </div>
+        </div>
+      </div>
+      <div style="flex:45%;box-shadow: 0 0 8px #96968ca3;padding-left:10px">
+        <div style="display:flex">
+        <div style="flex:50%">
+          <label>Create Computed Column:</label><br>
+          <label>Column Name: </label>
+          <input type="text" [(ngModel)]="computeName" />
+        </div>
+        <div style="flex:50%;margin-top:10px">
+          <label>Formula: </label>
+          <input type="text" [(ngModel)]="computationFormula" />
+          <button (click)="addComputed()">Compute</button>
+        </div>
+        </div>
+      </div>
+      </div>
+
+  </div>
+  <br>
+  <table *ngIf="rowData!=null">
+    <tr>
+      <ng-container *ngFor="let column of columns">
+        <th *ngIf="column.headerName.indexOf('type')==-1" [style.background-color]="transform && column.invalid==true?'lightyellow':'#e6dcff'">
+          <span class="pointer" *ngIf="column.headerName.indexOf('type')==-1" (click)="sort(column)">{{column.headerName}}</span>
+          <div>
+            <select [(ngModel)]="column.finaltype"><option *ngFor="let dt of datatypes">{{dt}}</option></select>
+            <i class="fa fa-arrow-down" style="float: right;" [style.display]="column.sort=='asc'?'block':'none'"></i>
+            <i class="fa fa-arrow-up" style="float: right;" [style.display]="column.sort=='desc'?'block':'none'"></i>
+          </div>
+        </th>
+      </ng-container>
+    </tr>
+    <tbody>
+      <ng-container *ngFor="let row of rowData;let i=index">
+        <tr *ngIf="visible[i]==true">
+
+          <ng-container *ngFor="let column of columns">
+            <td *ngIf="column.headerName.indexOf('type')==-1" [style.background-color]="transform && (row[column.headerName+'valid']=='' || row[column.headerName+'type']!=column.finaltype)?'lightyellow':'white'" (click)='transform==true && row[column.headerName+"textVisible"]=true;makeTextBoxFocus(cell)'>
+              <span *ngIf="(row[column.headerName+'textVisible']==null || row[column.headerName+'textVisible']==false) ">{{row[column.headerName]}}</span>
+              <input #cell [style.display]="row[column.headerName+'textVisible']?'block':'none'" (focusout)="row[column.headerName+'textVisible']=false" type="text" [(ngModel)]="row[column.headerName]" />
+            </td>
+
+          </ng-container>
+          <!--td><button >Create Viz</button>
+          <button (click)="row.showViz=true">Show Viz</button></td-->
+        </tr>
+        <!--tr>
+          <td colspan="5">
+
+            <canvas width="1200" height="700" [id]="'canvas'+i" [style.display]="row.showViz==true?'block':'none'" ></canvas>
+          </td>
+        </tr-->
+      </ng-container>
+    </tbody>
+  </table>
+  <div *ngIf="rowData!=null">
+    <button *ngIf="transform==false" style="margin-right: 10px;" type="button" class="btn btn-default btn-sm" (click)="transform=true"> Transform Data</button>
+    <button style="margin-right: 10px;" type="button" class="btn btn-default btn-sm" (click)="applyChanges()">Visualize</button>
+
+    <button style="margin-right: 10px;" *ngIf="transform==true" type="button" class="btn btn-default btn-sm" (click)="transform=false">Cancel</button>
+    <button type="button" class="btn btn-default btn-sm" *ngIf="transform==true" (click)="validation()">Re-evaluate</button>
+
+  </div>
+</div>
+
+

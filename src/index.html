@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>VLAIR</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.css">
+  <meta charset="UTF8">
+
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+  <link rel="stylesheet" type="text/css" href="assets/css/main.css" />
+  <link rel="stylesheet" type="text/css" href="assets/css/kickstart.css" media="all" />
+  <link rel="stylesheet" type="text/css" href="styles.css" media="all" />
+  <link rel="stylesheet" type="text/css" href="assets/css/operators.css" />
+  <link rel="stylesheet" type="text/css" href="assets/css/functions.css" />        
+  <link rel="stylesheet" type="text/css" href="assets/css/collections.css" />        
+  <link rel="stylesheet" type="text/css" href="assets/css/values.css" />        
+  <link rel="stylesheet" type="text/css" href="assets/css/marks.css" />    
+  <link rel="stylesheet" type="text/css" href="assets/css/generators.css" />    
+  <link rel="stylesheet" type="text/css" href="assets/css/rangeGenerator.css" />    
+  <link rel="stylesheet" type="text/css" href="assets/css/fonts/fontawesome/css/font-awesome.css" media="all" />
+  <link rel="stylesheet" type="text/css" href="assets/css/fonts/font-awesome-4.4.0/css/font-awesome.css" media="all" />
+  <link rel="stylesheet" href="assets/js/alertify.js-0.3.11/themes/alertify.core.css" />
+  <link rel="stylesheet" href="assets/js/alertify.js-0.3.11/themes/alertify.default.css" />
+  <link rel="stylesheet" type="text/css" href="assets/css/tooltipster.css" />
+    
+  <script type="text/javascript" src="assets/js/jquery-ui-1.10.4/js/jquery-1.10.2.js"></script>
+  <script type="text/javascript" src="assets/js/jquery-ui-1.10.4/js/jquery.ajaxfileupload.js"></script>        
+  <script type="text/javascript" src="assets/js/jquery-ui-1.10.4/js/jquery-ui-1.10.4.min.js"></script>
+  <script type="text/javascript" src="assets/js/jquery-ui-1.10.4/js/jquery.path.js"></script>
+  <script type="text/javascript" src="assets/js/kickstart.js"></script>
+  <script type="text/javascript" src="assets/js/fabric.js-1.6.0-rc.1/dist/fabric.js"></script>
+  <script type="text/javascript" src="assets/js/moment.js"></script>
+  <script type="text/javascript" src="assets/js/alertify.js-0.3.11/lib/alertify.js"></script>
+  <script type="text/javascript" src="assets/js/tooltipster/js/jquery.tooltipster.js"></script>
+  <script type="text/javascript" src="assets/js/jquery.ui.touch-punch.min.js"></script>
+  <script type="text/javascript" src="assets/js/globals.js"></script>
+  <script type="text/javascript" src="assets/js/util/generalFunctions.js"></script>
+  <script type="text/javascript" src="assets/js/project/Project.js"></script>
+  <script type="text/javascript" src="assets/js/interaction/canvasEvents.js"></script>
+  <script type="text/javascript" src="assets/js/interaction/objectsEvents.js"></script>
+  <script type="text/javascript" src="assets/js/interaction/widgetsEvents.js"></script>
+  <script type="text/javascript" src="assets/js/interaction/blobsCounter.js"></script>
+  <script type="text/javascript" src="assets/js/hammer.js/hammer.js"></script>
+  <script type="text/javascript" src="assets/js/jsts/javascript.util.js"></script>
+  <script type="text/javascript" src="assets/js/jsts/jsts.js"></script>        
+  <script type="text/javascript" src="assets/js/simplify.js/simplify.js"></script>
+  <script type="text/javascript" src="assets/js/classes/operators/Operator.js"></script>
+  <script type="text/javascript" src="assets/js/classes/operators/AdditionOperator.js"></script>
+  <script type="text/javascript" src="assets/js/classes/operators/SubtractionOperator.js"></script>
+  <script type="text/javascript" src="assets/js/classes/operators/MultiplicationOperator.js"></script>
+  <script type="text/javascript" src="assets/js/classes/operators/DivisionOperator.js"></script>
+  <script type="text/javascript" src="assets/js/classes/Connector.js"></script>
+  <script type="text/javascript" src="assets/js/classes/iconPaths.js"></script>
+  <script type="text/javascript" src="assets/js/classes/VisualProperty.js"></script>
+  <script type="text/javascript" src="assets/js/classes/marks/Mark.js"></script>
+  <script type="text/javascript" src="assets/js/classes/marks/EllipticMark.js"></script>
+  <script type="text/javascript" src="assets/js/classes/marks/CircularMark.js"></script>
+  <script type="text/javascript" src="assets/js/classes/marks/SquaredMark.js"></script>
+  <script type="text/javascript" src="assets/js/classes/marks/RectangularMark.js"></script>
+  <script type="text/javascript" src="assets/js/classes/marks/FatFontMark.js"></script>
+  <script type="text/javascript" src="assets/js/classes/marks/SVGPathGroupMark.js"></script>
+  <script type="text/javascript" src="assets/js/classes/marks/SVGPathMark.js"></script>
+  <script type="text/javascript" src="assets/js/classes/marks/PathMark.js"></script>
+  <script type="text/javascript" src="assets/js/classes/extractors/Extractor.js"></script>
+  <script type="text/javascript" src="assets/js/classes/extractors/SVGPathExtractor.js"></script>
+  <script type="text/javascript" src="assets/js/classes/extractors/SamplerExtractor.js"></script>
+  <script type="text/javascript" src="assets/js/classes/extractors/TextualExtractor.js"></script>
+  <script type="text/javascript" src="assets/js/classes/extractors/SVGText.js"></script>
+  <script type="text/javascript" src="assets/js/classes/selection/SquaredSelection.js"></script>
+  <script type="text/javascript" src="assets/js/classes/LabeledRect.js"></script>
+  <script type="text/javascript" src="assets/js/classes/DataWidget.js"></script>        
+  <script type="text/javascript" src="assets/js/classes/Locator.js"></script>
+  <script type="text/javascript" src="assets/js/classes/types/Value.js"></script>
+  <script type="text/javascript" src="assets/js/classes/types/VisualValue.js"></script>
+  <script type="text/javascript" src="assets/js/classes/types/NumericData.js"></script>
+  <script type="text/javascript" src="assets/js/classes/types/StringData.js"></script>
+  <script type="text/javascript" src="assets/js/classes/types/DateAndTimeData.js"></script>
+  <script type="text/javascript" src="assets/js/classes/types/DurationData.js"></script>
+  <script type="text/javascript" src="assets/js/classes/types/ColorData.js"></script>
+  <script type="text/javascript" src="assets/js/classes/types/ShapeData.js"></script>
+  <script type="text/javascript" src="assets/js/js-quantities/src/quantities.js"></script>
+  <script type="text/javascript" src="assets/js/classes/functions/CollectionGetter.js"></script>
+  <script type="text/javascript" src="assets/js/classes/functions/CollectionAttributeSelector.js"></script>
+  <script type="text/javascript" src="assets/js/classes/functions/Mapper.js"></script>
+  <script type="text/javascript" src="assets/js/classes/functions/VerticalCollection.js"></script>
+  <script type="text/javascript" src="assets/js/classes/functions/NumericCollectionGenerator.js"></script>
+  <script type="text/javascript" src="assets/js/classes/functions/MapperInput.js"></script>
+  <script type="text/javascript" src="assets/js/classes/functions/MapperOutput.js"></script>
+  <script type="text/javascript" src="assets/js/classes/functions/NumberGenerator.js"></script>
+  <script type="text/javascript" src="assets/js/classes/functions/DateGenerator.js"></script>
+  <script type="text/javascript" src="assets/js/classes/rangeGenerators/Range.js"></script>
+  <script type="text/javascript" src="assets/js/classes/rangeGenerators/RangeLimit.js"></script>
+  <script type="text/javascript" src="assets/js/classes/rangeGenerators/RangeOutput.js"></script>
+  <script type="text/javascript" src="assets/js/classes/functions/NumberGeneratorOutput.js"></script>
+  <script type="text/javascript" src="assets/js/classes/functions/NumericFunction.js"></script>
+  <script type="text/javascript" src="assets/js/classes/functions/NumericFunctionInput.js"></script>
+  <script type="text/javascript" src="assets/js/classes/functions/NumericFunctionOutput.js"></script>
+  <script type="text/javascript" src="assets/js/classes/functions/FunctionDrawingCanvas.js"></script>
+  <script type="text/javascript" src="assets/js/classes/functions/FunctionValuesCollection.js"></script>
+  <script type="text/javascript" src="assets/js/colors.js"></script>
+  <script type="text/javascript" src="assets/js/jsGradient.js"></script>
+  <script type="text/javascript" src="assets/js/PapaParse/papaparse.min.js"></script>
+  <script type="text/javascript" src="assets/js/FileSaver/FileSaver.min.js"></script>
+  <script type="text/javascript" src="assets/js/mathjs/dist/math.min.js"></script>
+  <script type="text/javascript" src="assets/js/colormix-1.0.0.min.js"></script>
+  <script type="text/javascript" src="assets/js/webcamjs/webcam.js"></script>
+  <script type="text/javascript" src="assets/js/h5utils.js"></script>
+  <script type="text/javascript" src="assets/js/jquery.xdomainajax.js"></script>
+  <script type="text/javascript" src="assets/js/resizeEvents/jquery.resize.js"></script>
+  <script type="text/javascript" src="assets/js/jquery.drag.resize.js"></script>
+  <script type="text/javascript" src="assets/js/toPathTransformations.js"></script>
+  <script type="text/javascript" src="assets/js/path-data-polyfill.js"></script>
+
+
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>
