@@ -175,27 +175,39 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       this.positionX = pointer.x;
       this.positionY = pointer.y;
       console.log(event.target)
-      if(event.target.type=='operator'){
-        operator=document.createElement("div");
-         operator.innerText="+"
-         operator.style.position='absolute'
-         operator.style.left=(this.positionX)+'px';
-         operator.style.top=(this.bottomcanvas._offset.top+this.positionY)+'px';
-         document.body.append(operator)
-        isoperatorselected=true;
+      if (event.target.type == 'operator') {
+         //operator=document.createElement("div");
+         //operator.innerText="+"
+         //operator.style.position='absolute'
+         //operator.style.left=(this.positionX)+'px';
+         //operator.style.top=(this.bottomcanvas._offset.top+this.positionY)+'px';
+         //document.body.append(operator)
+        //operator.draggable();
+        operator = $("<div class='keys' style='display:inline-block;position:absolute;left:" + (this.positionX) + 'px' + ";top:" + (this.bottomcanvas._offset.top + this.positionY) + 'px' + ";font-size: 14px;background-color:#460073;border: 1px solid #460073;padding: 5px 10px;margin: 2px;display: inline - flex;color: #fff;'>column1</div>")
+        operator.appendTo(document.body)
+        operator.draggable()
+         isoperatorselected=true;
       }
     });
-
-    document.addEventListener("mousemove",(event)=>{
-      if(isoperatorselected){
-        operator.style.left=(event.pageX)+'px';
-        operator.style.top=(event.pageY)+'px';
+    
+    document.addEventListener("mousemove", (event) => {
+      if (isoperatorselected) {
+        operator[0].style.left = (event.pageX)+20 + 'px';
+        operator[0].style.top = (event.pageY)+20 + 'px';
       }
     })
 
-    document.addEventListener("mouseup",e=>{
-      if(isoperatorselected){
-        $('#keytab').append('<div style="display:inline-block" class="keys" id="operatorkey">operator</div>');
+    document.addEventListener("mouseup", evnt => {
+      console.log(evnt)
+      let positionX = evnt.pageX;
+      let positionY = evnt.pageY;
+      console.log(document.elementFromPoint(positionX, positionY))
+
+      if (isoperatorselected && document.elementFromPoint(positionX, positionY).id == 'keytab') {
+        operator[0].style.position = 'relative';
+        operator[0].style.left = '0px';
+        operator[0].style.top = '0px';
+        $('#keytab').append(operator);
         isoperatorselected=false
       }
     })
@@ -213,7 +225,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         let line=new fabric.Line([this.positionX, this.positionY, pointer.x, pointer.y], {stroke: 'black'});
         this.bottomcanvas.add(line);
         }
-        if(event.target.mappedto.indexOf('mapper')>-1){
+        if(event.target!=null && event.target.mappedto.indexOf('mapper')>-1){
           $('#mapperPopup').css('display','block')
           $('#mapperPopup').css('left',event.target.left+20+'px')
           $('#mapperPopup').css('top',this.bottomcanvas._offset.top+event.target.top+'px')
@@ -347,15 +359,18 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         }
         else if (ui.draggable[0].id == 'addition-operator') 
         {
-          this.bottomcanvas.add(new fabric.IText('+', {
+          let plusoperator = new fabric.IText('+', {
             left: ui.offset.left,
-            top: ui.offset.top-this.bottomcanvas._offset.top,
+            top: ui.offset.top - this.bottomcanvas._offset.top,
             fontFamily: 'arial',
             fill: '#460073',
             fontSize: 50,
-            type:'operator',
+            type: 'operator',
             selectable: false,
-          }));
+          })
+          plusoperator.on('mousedown', e => { console.log('down');console.log(e) })
+          this.bottomcanvas.add(plusoperator);
+
         }
         else if (ui.draggable[0].id == 'mapperWidget') {
           let shape = new fabric.Rect({
