@@ -1,5 +1,7 @@
 <div id="mapperPopup">
-  <div><input type="text" id="mappedPopuptext" /></div>
+  <div>
+    <input type="text" id="mappedPopuptext" />
+  </div>
   <div><button id="mappedPopupbutton">Enter</button></div>
   <input type="hidden" id="mappedtoPopuphidden" />
   <input type="hidden" id="mappedidPopuphidden" />
@@ -73,8 +75,8 @@
           <div class="divHeader">
             Color: C1
           </div>
-          <div style="display:flex">
-            <div style="flex:50%;padding:20px"><input type="color" (ngModelChange)="changeColor($event)" [ngModel]="color" /></div>
+          <div style="display:flex" >
+            <div style="flex:50%;padding:20px"><input id="colorPanel" type="color" (ngModelChange)="changeColor($event)" [ngModel]="color" /></div>
           </div>
         </div>
         <div style="text-align:center" *ngIf="visibility!=null && visibility['length']==true">
@@ -133,7 +135,6 @@
       <div style="flex:20%">
         <div>
           <ul id="operatorsList" class="horizontalButtomsRow">
-            <button (click)="calculateMapping()">calculate mapping</button>
             <li id="division-operator" draggable="true" class="dragElement circularBorder" style="margin-right: 1px;"><a><i class="operator-divisonIcon" style="font-size: 24px; color: #460073;"></i></a></li>
             <li id="multiplication-operator" draggable="true" class="dragElement circularBorder" style="margin-right: 2px;"><a><i class="operator-multiplicationIcon" style="font-size: 24px; color: #460073;"></i></a></li>
             <li id="subtraction-operator" draggable="true" class="dragElement circularBorder" style="margin-right: 2px;"><a><i class="operator-subtractionIcon" style="font-size: 24px; color: #460073;"></i></a></li>
