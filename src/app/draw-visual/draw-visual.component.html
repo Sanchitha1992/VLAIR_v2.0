@@ -136,10 +136,10 @@
       </div>
     </div>
     <div style="display:flex">
-      <div style="flex:80%">
+      <div style="flex:85%">
         <canvas ondblclick="alert()" id="bottomcanvas" style="width:100%;height:100%"></canvas>
       </div>
-      <div style="flex:20%">
+      <div style="flex:15%; border-left: black 1px solid;border-bottom: black 1px solid;">
         <div>
           <ul id="operatorsList" class="horizontalButtomsRow">
             <li id="division-operator" draggable="true" class="dragElement circularBorder" style="margin-right: 1px;"><a><i class="operator-divisonIcon" style="font-size: 24px; color: #460073;"></i></a></li>
@@ -149,22 +149,18 @@
           </ul>
           <div class="divHeader">Operators</div>
         </div>
+        <hr>
         <div style="text-align:center;">
           <ul>
             <li id="mapperWidget" draggable="true" class="dragElement circularBorder" style="margin-right: 10px; margin-bottom: 0px;margin-left:10px"><a><i class="collections-mapper" style="font-size: 25px; color: #460073;"></i></a></li>
           </ul>
           <div style="text-align:center;font-weight:bold">Mapper Widget</div>
+          <hr>
           <ul class="horizontalButtomsRow">
             <li id="isNumericData" draggable="true" class="dragElement circularBorder"><a><i class="value-number" style="font-size: 25px;color: #460073;"></i></a></li>
             <li id="isColorData" draggable="true" class="dragElement circularBorder"><a><i class="value-color" style="font-size: 25px;color: #460073;"></i></a></li>
             <li id="isStringData" draggable="true" class="dragElement circularBorder"><a><i class="value-string" style="font-size: 25px;color: #460073;"></i></a></li>
           </ul>
-        </div>
-        <div style="text-align:center;">
-          <span style="text-align:center;font-weight:bold">
-            Color:
-          </span>
-          <input type="checkbox" style="display:inline;margin:10px" />
         </div>
       </div>
     </div>
