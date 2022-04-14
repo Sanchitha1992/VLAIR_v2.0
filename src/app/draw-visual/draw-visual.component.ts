@@ -475,6 +475,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         else if ($(ui.draggable).hasClass("keys")) {
           let mappers = this.bottomcanvas.getObjects().filter(x => x.type.indexOf('mapper') > -1)
           let mapping = false;
+          
           for (let k = 0; k < mappers.length; k++) {
             if (Math.abs(ui.offset.left - mappers[k].left+10) < 50) {
               mappers[k].column = ui.draggable[0].id.replace('id', '')
@@ -487,17 +488,17 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
               top: ui.offset.top - this.bottomcanvas._offset.top,
               originX: 'left',
               originY: 'top',
-              width: 80,
-              height: 20,
-              fill: 'transparent',
+              width: $(ui.draggable)[0].offsetWidth,
+              height: $(ui.draggable)[0].offsetHeight,
+              fill: '#460073',
               transparentCorners: false
             })
             let b = new fabric.IText(ui.draggable[0].id.replace('id', ''), {
-              left: ui.offset.left + 5,
-              top: ui.offset.top - this.bottomcanvas._offset.top + 5,
-              fontFamily: 'arial',
-              fill: '#460073',
-              fontSize: 10,
+              left: ui.offset.left + 15,
+              top: ui.offset.top - this.bottomcanvas._offset.top + 10,
+              fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+              fill: 'white',
+              fontSize: 13,
             })
             let objs = [a, b];
             let element = new fabric.Group(objs);
