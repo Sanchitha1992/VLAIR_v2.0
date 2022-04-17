@@ -1,11 +1,10 @@
 <div id="mapperPopup">
-  <div>
-    <input type="text" id="mappedPopuptext" />
+  <div style="padding:5px;border:black 1px solid">
+    <div>Enter Value:</div>
+    <div style="padding: 2px;">
+    <input type="text" id="mappedPopuptext"  />
   </div>
-  <div><button id="mappedPopupbutton">Enter</button></div>
-  <input type="hidden" id="mappedtoPopuphidden" />
-  <input type="hidden" id="mappedidPopuphidden" />
-  
+</div>
 </div>
 <div [style.display]="experimentVisible==false?'block':'none'">
 
@@ -76,7 +75,7 @@
           <div class="divHeader">
             Color: C1
           </div>
-          <div style="display:flex" >
+          <div style="display:flex" id="colorPaneldiv">
             <div style="flex:50%;padding:5px"><input id="colorPanel" type="color" (ngModelChange)="changeColor($event)" [ngModel]="color" /></div>
           </div>
        
@@ -87,7 +86,7 @@
             <div class="divHeader">Length: L1</div>
           </div>
           <div>
-            <div id="length"><span>X:</span><input type="text"  class="rightPanelTextbox" [(ngModel)]="length" /></div>
+            <div id="divlength"><span>X:</span><input id="length" type="text"  class="rightPanelTextbox" [(ngModel)]="length" /></div>
           </div>
           <hr>
         </div>
@@ -96,7 +95,7 @@
             Width: W1
           </div>
           <div>
-            <div id="width"><span>Y:</span><input type="text" class="rightPanelTextbox" [(ngModel)]="width" /></div>
+            <div id="divwidth"><span>Y:</span><input id="width" type="text" class="rightPanelTextbox" [(ngModel)]="width" /></div>
           </div>
           <hr>
         </div>
@@ -105,7 +104,7 @@
             Side: S1
           </div>
           <div>
-            <div id="side"><span>S:</span><input type="text" class="rightPanelTextbox" [(ngModel)]="side" /></div>
+            <div id="divside"><span>S:</span><input id="side" type="text" class="rightPanelTextbox" [(ngModel)]="side" /></div>
           </div>
           <hr>
         </div>
@@ -114,7 +113,7 @@
             Radius: R1
           </div>
           <div>
-            <div id="radius"><span>R:</span><input type="text" class="rightPanelTextbox" [(ngModel)]="radius" /></div>
+            <div id="divradius"><span>R:</span><input id="radius" type="text" class="rightPanelTextbox" [(ngModel)]="radius" /></div>
           </div>
           <hr>
         </div>
