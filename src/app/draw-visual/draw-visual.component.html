@@ -129,7 +129,7 @@
   
     <div style="display: flex; border: 1px solid black; border-left-width: 0px; border-right-width: 0px">
       <div style="flex:100%" id="keytab">
-        <div style="display:inline-block" class="keys" *ngFor="let key of keys" [id]="'id'+key">
+        <div style="display:inline-block" class="keys" *ngFor="let key of keys;let i=index" [id]="'id'+keyid[i]">
           {{key}}
         </div>
       </div>
