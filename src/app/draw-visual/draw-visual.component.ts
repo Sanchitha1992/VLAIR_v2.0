@@ -357,8 +357,11 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       }
     });
     let selectedPopupElement;
-    $("#mappedPopuptext").change(function(){
+    $("#mappedPopuptext").change(()=>{
       selectedPopupElement.value = $('#mappedPopuptext').val()
+      selectedPopupElement.fill = selectedPopupElement.value;
+      selectedPopupElement.stroke = selectedPopupElement.value;
+      this.bottomcanvas.renderAll();
     });
 
     $("#isNumericData").draggable({
@@ -499,6 +502,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
                   if (rightmapper.items.length == 1) {
                     let firstrightitem = this.cloneObject(letter)
                     firstrightitem.type = 'firstrightitem'
+                    firstrightitem.fill = '#460073'
+                    firstrightitem.stroke = 'black'
                     firstrightitem.left = mappers[i].left + 290
                     firstrightitem.top = mappers[i].top + 60;
                     this.bottomcanvas.add(firstrightitem)
@@ -517,10 +522,23 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             fill: '#460073',
             fontSize: 50,
             type: 'operator',
-            selectable: false
-          })
-          this.bottomcanvas.add(plusoperator);
-
+          });
+          let circle = new fabric.Circle({
+            left: ui.offset.left-5 ,
+            top: ui.offset.top - this.bottomcanvas._offset.top+5 ,
+            originX: 'left',
+            originY: 'top',
+            radius: 20,
+            fill: 'transparent',
+            strokeWidth: .5,
+            stroke: "black",
+          });
+          let objs = [plusoperator, circle];
+          let element = new fabric.Group(objs);
+          element.type = 'operator'
+          element.text='+'
+          element.selectable = false;
+          this.bottomcanvas.add(element);
         }
         else if (ui.draggable[0].id == 'mapperWidget') {
           let shape = new fabric.Rect({
@@ -601,12 +619,13 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
               fill: '#460073',
               transparentCorners: false
             })
-            let b = new fabric.IText(ui.draggable[0].id.replace('id', ''), {
+            let b = new fabric.IText(ui.draggable[0].innerText, {
               left: ui.offset.left + 15,
               top: ui.offset.top - this.bottomcanvas._offset.top + 10,
               fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
               fill: 'white',
               fontSize: 13,
+              editable:false
             })
             let objs = [a, b];
             let element = new fabric.Group(objs);
