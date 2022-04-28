@@ -333,7 +333,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         this.bottomcanvas.add(line);
         source = null;
       }
-      if (source != null && source.type == 'operator' && event.target != null && event.target.type == 'mapper') {
+      if (source != null && source.type == 'operator' && event.target != null && (event.target.type == 'mapper' || event.target.type == 'firstleftitem' )) {
         let pointer = this.bottomcanvas.getPointer(event.e);
         let line = new fabric.Line([this.positionX, this.positionY, pointer.x, pointer.y], { stroke: 'black', selectable: false });
         this.bottomcanvas.add(line);
@@ -486,7 +486,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
                   leftmapper.items.push(letter)
                   if (leftmapper.items.length == 1) {
                     let firstleftitem = this.cloneObject(letter)
-                    firstleftitem.type=''
+                    firstleftitem.type='firstleftitem'
                     firstleftitem.left = mappers[i].left + 10
                     firstleftitem.top = mappers[i].top + 60;
                     this.bottomcanvas.add(firstleftitem)
@@ -498,7 +498,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
                   rightmapper.items.push(letter)
                   if (rightmapper.items.length == 1) {
                     let firstrightitem = this.cloneObject(letter)
-                    firstrightitem.type = ''
+                    firstrightitem.type = 'firstrightitem'
                     firstrightitem.left = mappers[i].left + 290
                     firstrightitem.top = mappers[i].top + 60;
                     this.bottomcanvas.add(firstrightitem)
