@@ -40,6 +40,9 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   markToolboxVisible: boolean = false;
   operatorToolboxVisible: boolean = false;
   valuesToolboxVisible: boolean = false;
+    lengthTitle: any='';
+    widthTitle: any='';
+    keybg: any=[];
 
   constructor(private route: ActivatedRoute, private dataService: DataService, private router: Router) { }
   public selection: boolean;
@@ -80,11 +83,13 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       Object.keys(this.rowData[0]).forEach((element) => {
         this.keys.push(element);
         this.keyid.push(element);
+        this.keybg.push('#460073')
       })
       this.rowData.forEach(a => { this.highlight.push(false) })
     }
     this.canvas = new fabric.Canvas("maincanvas");
     this.canvas.setDimensions({ width: 800, height: 220 });
+    this.canvas.name='canvas'
 
     this.bottomcanvas = new fabric.Canvas("bottomcanvas");
     this.bottomcanvas.setDimensions({ width: 800, height: 220 });
@@ -93,6 +98,89 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
     //this.loaddata(0);
     this.loadUndoRedo();
+    this.loadSelector();
+
+  }
+  loadSelector() {
+    let isDown, origX, origY, rect;
+      this.canvas.on('mouse:down', o => {
+        if (rect != null) {
+          this.canvas.setActiveObject(rect);
+        }
+        if (this.selection == true && rect == null) {
+          isDown = true;
+          var pointer = this.canvas.getPointer(o.e);
+          origX = pointer.x;
+          origY = pointer.y;
+          var pointer = this.canvas.getPointer(o.e);
+          rect = new fabric.Rect({
+            left: origX,
+            top: origY,
+            originX: 'left',
+            originY: 'top',
+            width: 0,
+            height: 0,
+            angle: 0,
+            fill: 'rgba(0,0,0,0)',
+            transparentCorners: false
+          });
+
+          this.canvas.add(rect);
+
+          this.canvas.setActiveObject(rect);
+          rect.name = 'selectionrect';
+
+          //document.getElementById('selectionPanel').style.display = 'block';
+          //document.getElementById('selectionPanel').style.left = origX + 'px';
+          //document.getElementById('selectionPanel').style.top = origY + 'px';
+        }
+        if (o.target.typename == 'graph') {
+          this.graph=o.target
+        }
+      });
+
+      this.canvas.on('object:moving', function (e) {
+        if (e.target.name == 'selectionrect') {
+         // document.getElementById('selectionPanel').style.left = e.target.getLeft() + 'px';
+         // document.getElementById('selectionPanel').style.top = e.target.getTop() + 'px';
+
+        }
+      });
+
+      this.canvas.on('mouse:move', (o) => {
+        if (this.selection == true) {
+          if (!isDown) return;
+          var pointer = this.canvas.getPointer(o.e);
+
+          if (origX > pointer.x) {
+            rect.set({ left: Math.abs(pointer.x) });
+          }
+          if (origY > pointer.y) {
+            rect.set({ top: Math.abs(pointer.y) });
+          }
+
+          rect.set({ width: Math.abs(origX - pointer.x) });
+          rect.set({ height: Math.abs(origY - pointer.y) });
+          this.canvas.remove(rect);
+          this.canvas.add(rect);
+          this.canvas.setActiveObject(rect);
+
+          this.canvas.renderAll();
+
+          //(document.getElementById('selectionWidth') as any).value = rect.width;
+          //(document.getElementById('selectionHeight') as any).value = rect.height;
+        }
+      });
+
+      this.canvas.on('mouse:up', (o) => {
+        if (this.selection == true) {
+          isDown = false;
+        }
+      });
+  }
+
+  createCoordinate() {
+    this.drawgraph(this.canvas, .7, true, 350, 50);
   }
 
   loadUndoRedo() {
@@ -133,12 +221,14 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
 
 
-  clearAll() {
-    this.canvas.getObjects().forEach((obj) => {
-      this.canvas.remove(obj);
-      this.canvas.renderAll();
+  clearAll(canvas) {
+    canvas.getObjects().forEach((obj) => {
+      canvas.remove(obj);
+      canvas.renderAll();
     });
-    this.drawgraph(this.canvas);
+    if (canvas.name == 'canvas') {
+      this.drawgraph(canvas);
+    }
   }
 
   changeColor(value) {
@@ -184,6 +274,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   }
 
   changeRow(value) {
+    this.rowIndex = value;
     this.canvas.getObjects().forEach(obj => {
       if (obj.heightColumn != null && obj.widthColumn != null) {
         obj.height = eval(obj.heightColumn);
@@ -191,6 +282,9 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       }
       this.canvas.renderAll()
     })
+    let obj = this.canvas.getActiveObject();
+    this.length = eval(obj.heightColumn.split('*')[0].split('/')[0])
+    this.width = eval(obj.widthColumn.split('*')[0].split('/')[0])
 
     //alert(JSON.stringify(this.rowData[value]))
   }
@@ -199,14 +293,13 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   positionX: number;
   positionY: number;
   visibility: any;
-  radius: number;
-  side: number;
+  radius: any;
+  side: any;
   widthOperator: any='*';
   widthOperand: any=10;
   lengthOperator: any='*';
   lengthOperand: any = 10;
   rowIndex: number = 0;
-
 
   draganddropFunction() {
 
@@ -232,16 +325,29 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           this.xposition = this.selectedObject.left;
           this.yposition = this.selectedObject.top;
           this.color = this.selectedObject.fill;
-          this.length = this.selectedObject.height;
-          this.width = this.selectedObject.width;
-          this.area = this.length * this.width;
+          let obj = this.canvas.getActiveObject();
+          if (obj.heightColumn != null) {
+            this.length = eval(obj.heightColumn.split('*')[0].split('/')[0])
+            this.lengthTitle = obj.mappedheight;
+          }
+          else { this.length = 'Not Mapped'; }
+          if (obj.widthColumn != null) {
+            this.width = eval(obj.widthColumn.split('*')[0].split('/')[0])
+            this.widthTitle = obj.mappedwidth;
+          }
+          else { this.width = 'Not Mapped'; }
+            this.area = this.length * this.width;
           this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': true, 'width': true, 'side': false, 'radius': false }
         }
         else if (this.selectedObject.typename == 'square') {
           this.xposition = this.selectedObject.left;
           this.yposition = this.selectedObject.top;
           this.color = this.selectedObject.fill;
-          this.side = this.selectedObject.height;
+          let obj = this.canvas.getActiveObject();
+          if (obj.heightColumn != null) {
+            this.side = eval(obj.heightColumn.split('*')[0].split('/')[0])
+          }
+          else { this.side = 'Not Mapped'; }
           this.area = this.side * this.side;
           this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': false, 'width': false, 'side': true, 'radius': false }
         }
@@ -249,7 +355,12 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           this.xposition = this.selectedObject.left;
           this.yposition = this.selectedObject.top;
           this.color = this.selectedObject.fill;
-          this.radius = this.selectedObject.radius;
+          let obj = this.canvas.getActiveObject();
+          if (obj.heightColumn != null) {
+            this.radius = eval(obj.radiusColumn.split('*')[0].split('/')[0])
+          }
+          else { this.radius = 'Not Mapped'; }
+          //this.radius = this.selectedObject.radius;
           this.area = 3.14 * this.radius * this.radius;
           this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': false, 'width': false, 'side': false, 'radius': true }
         }
@@ -265,7 +376,6 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     let ismidmapperselected;
     let ismidoperatorselected;
     this.bottomcanvas.on("mouse:down", (event) => {
-      source = event.target
       let pointer = this.bottomcanvas.getPointer(event.e);
       this.positionX = pointer.x;
       this.positionY = pointer.y;
@@ -282,18 +392,22 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         ismapperselected = false;
         ismidmapperselected = false;
         ismidoperatorselected = false;
+        source = event.target
+
       }
-      else if (event.target != null && event.target.typename== 'mapper') {
+      else if (event.target != null && event.target.typename== 'firstrightitem') {
         isoperatorselected = false;
         ismapperselected = true;
         ismidmapperselected = false;
         ismidoperatorselected = false;
+        source = event.target.parent
       }
       else {
         isoperatorselected = false;
         ismapperselected = false;
         ismidmapperselected = false;
         ismidoperatorselected = false;
+        source = event.target
       }
     });
 
@@ -324,6 +438,9 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         ismidoperatorselected = true;
         source = evnt;
       }
+      else if (evnt.srcElement.className.indexOf('keys')>-1) {
+        source = evnt.srcElement;
+      }
     })
 
     document.addEventListener("mouseup", evnt => {
@@ -341,6 +458,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         //$('#keytab').append(operator);
         this.keys.push(this.calculateMapping(source))
         this.keyid.push("key" + (this.keyid.length))
+        this.keybg.push('#460073');
         setTimeout(() => {
           $("#idkey" + (this.keyid.length - 1)).draggable({
             cursorAt: { top: 18.5, left: 60 },
@@ -360,16 +478,19 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         let evaluatable = source.column;
         for (let i = 0; i < this.keys.length; i++) {
           evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[0]["' + this.keys[i] + '"])');
-          evaluatable = '(' + evaluatable + ')'
         }
+        evaluatable = '(' + evaluatable + ')'
 
         let color = colVal(parseInt(eval(evaluatable)))
         color = '#' + color.match(/\d+/g).map(function (x) {
           x = parseInt(x).toString(16);
           return (x.length == 1) ? "0" + x : x;
         }).join("");
-        let colorelement = $("<div class='colormidpanel' style='display:inline-block'><button style='height:20px;width:50px;background-color:" + color + "'/><input type='hidden' value=" + source.name + "><input type='hidden' value=" + color + "></div>");
-        $('#keytab').append(colorelement);
+        //let colorelement = $("<div class='colormidpanel' style='display:inline-block'><button style='height:20px;width:50px;background-color:" + color + "'/><input type='hidden' value=" + source.name + "><input type='hidden' value=" + color + "></div>");
+        //$('#keytab').append(colorelement);
+        this.keyid.push("key" + (this.keyid.length))
+        this.keybg.push(color);
+        this.keys.push(color);
       }
       else if (ismidmapperselected && this.selectedObject != null) {
         this.selectedObject.mapper = this.bottomcanvas.getObjects().filter(a => a.name == source.path[1].children[1].value)
@@ -385,16 +506,17 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         if (document.elementFromPoint(positionX, positionY).id == 'length') {
           for (let i = 0; i < this.keys.length; i++) {
             evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[0]["' + this.keys[i] + '"])');
-            evaluatable = '(' + evaluatable + ')'
           }
+          evaluatable = '(' + evaluatable + ')'
+
           this.length = eval(evaluatable)
           this.selectedObject.height = this.length
         }
         else if (document.elementFromPoint(positionX, positionY).id == 'width') {
           for (let i = 0; i < this.keys.length; i++) {
             evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[0]["' + this.keys[i] + '"])');
-            evaluatable = '(' + evaluatable + ')'
           }
+          evaluatable = '(' + evaluatable + ')'
           this.width = eval(evaluatable)
           this.selectedObject.width = this.width
         }
@@ -427,21 +549,30 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         event.target.column = this.calculateMapping(source);
       }
 
-      if (event.target != null && event.target.typename!= null && event.target.typename.indexOf('Data') > -1) {
+      if (event.target != null && event.target.typename != null && (event.target.typename.indexOf('Data') > -1 || event.target.typename == 'firstleftitem')) {
 
         $('#mapperPopup').css('display', 'block')
         $('#mapperPopup').css('left', event.target.left+$('#leftpanel').width() + 30 + 'px')
         $('#mapperPopup').css('top', this.bottomcanvas._offset.top + event.target.top + 'px')
-        if (event.target.typename== 'isColorData') {
+        if (event.target.typename == 'isColorData') {
           $('#mappedPopuptext').attr('type', 'color')
+          $('#mappedPopuptext').val(event.target.value)
+          $('#mappedPopuptext').attr('readonly', false);
         }
-        else {
+        else if (event.target.typename == 'isNumericData') {
           $('#mappedPopuptext').attr('type', 'text')
+          $('#mappedPopuptext').attr('readonly', false);
+          $('#mappedPopuptext').val(event.target.value)
         }
-        $('#mappedPopuptext').val(event.target.value)
+        else if (event.target.typename == 'firstleftitem') {
+          $('#mappedPopuptext').attr('type', 'text')
+          $('#mappedPopuptext').attr('readonly', true);
+          $('#mappedPopuptext').val(event.target.column)
+        }
         selectedPopupElement = event.target;
       }
     });
+
     let selectedPopupElement;
     $("#mappedPopuptext").change(() => {
       selectedPopupElement.value = $('#mappedPopuptext').val()
@@ -483,14 +614,17 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       drop: (ev, ui) => {
         console.log(ui.draggable[0])
         let evaluatable = ui.draggable[0].innerText;
-        let value = 0;
+        let value = 0; 
         for (let i = 0; i < this.keys.length; i++) {
-          evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[value]["' + this.keys[i] + '"])');
-          evaluatable = '(' + evaluatable+')'
+          evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[this.rowIndex]["' + this.keys[i] + '"])');
         }
+        evaluatable = '(' + evaluatable + ')'
+
         this.length = eval(evaluatable)
         this.selectedObject.height = eval(evaluatable + this.lengthOperator + this.lengthOperand);
         this.selectedObject.heightColumn = evaluatable + this.lengthOperator + this.lengthOperand;
+        this.selectedObject.mappedheight = ui.draggable[0].innerText;
+        this.lengthTitle = ui.draggable[0].innerText;
         this.canvas.renderAll()
       }
     });
@@ -499,12 +633,14 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         let evaluatable = ui.draggable[0].innerText;
         let value = 0;
         for (let i = 0; i < this.keys.length; i++) {
-          evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[value]["' + this.keys[i] + '"])');
-          evaluatable = '(' + evaluatable + ')'
+          evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[this.rowIndex]["' + this.keys[i] + '"])');
         }
+        evaluatable = '(' + evaluatable + ')'
         this.width = eval(evaluatable)
         this.selectedObject.width = eval(evaluatable + this.widthOperator + this.widthOperand);
         this.selectedObject.widthColumn = evaluatable + this.widthOperator + this.widthOperand;
+        this.selectedObject.mappedwidth = ui.draggable[0].innerText;
+        this.widthTitle = ui.draggable[0].innerText;
         this.canvas.renderAll()
       }
     });
@@ -592,6 +728,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
                   firstleftitem.typename= 'firstleftitem'
                   firstleftitem.left = mappers[i].left + 12
                   firstleftitem.top = mappers[i].top + 60;
+                  mappers[i].leftitem = firstleftitem;
                   this.bottomcanvas.add(firstleftitem)
                 }
               }
@@ -606,6 +743,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
                   firstrightitem.stroke = 'black'
                   firstrightitem.left = mappers[i].left + 290
                   firstrightitem.top = mappers[i].top + 60;
+                  mappers[i].rightitem = firstrightitem;
+                  firstrightitem.parent=mappers[i]
                   this.bottomcanvas.add(firstrightitem)
                 }
               }
@@ -702,12 +841,36 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         else if ($(ui.draggable).hasClass("keys")) {
           let mappers = this.bottomcanvas.getObjects().filter(x => x.typename.indexOf('mapper') > -1)
           let mapping = false;
+          let mapper;
           console.log(ui.draggable[0])
           for (let k = 0; k < mappers.length; k++) {
             if (Math.abs(ui.offset.left -$('#leftpanel').width()- mappers[k].left + 10) < 50) {
               mappers[k].column = ui.draggable[0].innerText;
+              mapper = mappers[k];
+              if (mappers[k].leftitem != null) {
+                mappers[k].leftitem.column = ui.draggable[0].innerText;
+              }
               mapping = true
             }
+          }
+          if (mapping == true) {
+            if (mapper._objects==null || mapper._objects[0] == null || mapper._objects[1] == null) {return}
+            let leftitems = mapper._objects[0].items.map(a => parseInt(a.value));
+            let rightitems = mapper._objects[1].items.map(a => a.value);
+            let colVal = d3.scaleLinear().domain([d3.min(leftitems), d3.max(leftitems)]).range(rightitems)
+            let evaluatable = source.innerText;
+            for (let i = 0; i < this.keys.length; i++) {
+              evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[0]["' + this.keys[i] + '"])');
+            }
+            evaluatable = '(' + evaluatable + ')'
+
+            let color = colVal(parseInt(eval(evaluatable)))
+            color = '#' + color.match(/\d+/g).map(function (x) {
+              x = parseInt(x).toString(16);
+              return (x.length == 1) ? "0" + x : x;
+            }).join("");
+            mapper.rightitem.fill = color;
+            this.bottomcanvas.renderAll();
           }
           if (mapping == false) {
             let a = new fabric.Rect({
@@ -787,6 +950,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           this.radius = shape.radius;
         }
         this.canvas.add(shape);
+        this.canvas.setActiveObject(shape);
       }
     });
     this.canvas.on('object:moving', (event) => {
@@ -828,10 +992,10 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     }
   }
 
-  length: number;
-  width: number;
+  length: any;
+  width: any;
   area: number
-  drawgraph(canvas) {
+  drawgraph(canvas,scale=1,select=false,left=250,top=50) {
     var xaxis = new fabric.Line([250, 50, 250, 200], {
       stroke: 'black'
     });
@@ -858,7 +1022,12 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
     let objs = [xaxis, yaxis, xtriangle, ytriangle];
     this.graph = new fabric.Group(objs);
-    this.graph.selectable = false;
+    this.graph.selectable = select;
+    this.graph.scaleX = scale
+    this.graph.scaleY = scale
+    this.graph.left = left;
+    this.graph.top = top;
+    this.graph.typename='graph'
     canvas.add(this.graph);
     canvas.renderAll();
   }

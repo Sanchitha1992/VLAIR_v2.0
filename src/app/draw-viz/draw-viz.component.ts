@@ -142,7 +142,6 @@ export class DrawVizComponent implements OnInit, AfterViewInit {
 
     canvas.on('mouse:up', (o) => {
       if (this.selection == true) {
-
         isDown = false;
       }
     });

@@ -1,6 +1,5 @@
 <div id="mapperPopup">
   <div style="padding:5px;border:black 1px solid">
-    <div>Enter Value:</div>
     <div style="padding: 2px;">
       <input type="text" id="mappedPopuptext" />
     </div>
@@ -20,7 +19,7 @@
             </th>
           </tr>
           <tr *ngFor="let row of rowData;let i =index">
-            <td><input type="radio" name="rowIndex" [value]="i" [ngModel]="rowIndex" (ngModelChange)="changeRow($event)"/></td>
+            <td><input type="radio" name="rowIndex" [value]="i" [ngModel]="rowIndex" (ngModelChange)="changeRow($event)" /></td>
             <td *ngFor="let val of row|keyvalue">
               {{val.value}}
             </td>
@@ -40,7 +39,7 @@
             </div>
             <div class="inlinediv" style="padding-left:15px;padding-right:15px;cursor:default">
               <ul>
-                <li><img src="assets/images/coordinates.png" width="25" height="25" style="margin-left:10px" /></li>
+                <li><img src="assets/images/coordinates.png" width="25" height="25" style="margin-left:10px" (click)="createCoordinate()" /></li>
               </ul>
               <div style="text-align:center">Coordinates</div>
             </div>
@@ -51,7 +50,7 @@
 
               <div style="text-align:center">Undo</div>
             </div>
-            <div class="inlinediv" style="padding-left:15px;padding-right:15px;cursor:pointer" (click)="clearAll()">
+            <div class="inlinediv" style="padding-left:15px;padding-right:15px;cursor:pointer" (click)="clearAll(canvas)">
               <ul>
                 <li><img src="assets/images/clear all.jpg" width="25" height="25" style="margin-left:10px" /></li>
               </ul>
@@ -74,6 +73,16 @@
                   <li id="ellipsePrototype" draggable="true" class="dragElement circularBorder" style="margin-right: 12px; margin-bottom: 3px;"><a><i class="mark-ellipse" style="font-size: 28px;"></i></a></li>
                 </ul>
               </div>
+            </div>
+            <div class="inlinediv" style="padding-top: 20px; padding-bottom: 25px;padding-left:5px;padding-right:5px">
+              <ul class="menu nonSelection" >
+                <li>
+                  <select style="font-size:10px">
+                    <option>Single</option>
+                    <option>Collective</option>
+                  </select>
+                </li>
+              </ul>
             </div>
             <canvas id="maincanvas" style="width:100%;height:100%"></canvas>
 
@@ -107,12 +116,13 @@
               <div>
                 <div id="divlength">
                   <span>X:</span>
-                  <input id="length" type="text" class="rightPanelTextbox" [ngModel]="length" (ngModelChange)="changelength($event)" />
+                  <input id="length" [title]="lengthTitle" type="text" class="rightPanelTextbox" [ngModel]="length" (ngModelChange)="changelength($event)" />
                   &nbsp;<select [(ngModel)]="lengthOperator">
                     <option>*</option>
                     <option>/</option>
                   </select>
                   &nbsp;<select [(ngModel)]="lengthOperand">
+                    <option>1</option>
                     <option>10</option>
                     <option>100</option>
                     <option>1000</option>
@@ -127,12 +137,13 @@
               </div>
               <div>
                 <div id="divwidth">
-                  <span>Y:</span><input  id="width" type="text" class="rightPanelTextbox" [ngModel]="width" (ngModelChange)="changewidth($event)" />
+                  <span>Y:</span><input id="width" [title]="widthTitle" type="text" class="rightPanelTextbox" [ngModel]="width" (ngModelChange)="changewidth($event)" />
                   &nbsp;<select [(ngModel)]="widthOperator">
                     <option>*</option>
                     <option>/</option>
                   </select>
                   &nbsp;<select [(ngModel)]="widthOperand">
+                    <option>1</option>
                     <option>10</option>
                     <option>100</option>
                     <option>1000</option>
@@ -168,10 +179,9 @@
           </div>
         </div>
       </div>
-
       <div style="display: flex; border: 1px solid black; border-left-width: 0px; border-right-width: 0px">
         <div style="flex:100%" id="keytab">
-          <div style="display:inline-block" class="keys" *ngFor="let key of keys;let i=index" [id]="'id'+keyid[i]">
+          <div style="display:inline-block" [style.backgroundColor]="keybg[i]" class="keys" *ngFor="let key of keys;let i=index" [id]="'id'+keyid[i]">
             {{key}}
           </div>
         </div>
@@ -181,27 +191,45 @@
           <canvas id="bottomcanvas" style="width:100%;height:100%"></canvas>
         </div>
         <div style="flex:20%; border-left: black 1px solid;border-bottom: black 1px solid;">
-          <div>
-            <ul id="operatorsList" class="horizontalButtomsRow">
-              <li id="division-operator" draggable="true" class="dragElement circularBorder" style="margin-right: 1px;"><a><i class="operator-divisonIcon" style="font-size: 24px; color: #460073;"></i></a></li>
-              <li id="multiplication-operator" draggable="true" class="dragElement circularBorder" style="margin-right: 2px;"><a><i class="operator-multiplicationIcon" style="font-size: 24px; color: #460073;"></i></a></li>
-              <li id="subtraction-operator" draggable="true" class="dragElement circularBorder" style="margin-right: 2px;"><a><i class="operator-subtractionIcon" style="font-size: 24px; color: #460073;"></i></a></li>
-              <li id="addition-operator" draggable="true" class="dragElement circularBorder" style="margin-right: 2px;"><a><i class="operator-additionIcon" style="font-size: 24px; color: #460073;"></i></a></li>
-            </ul>
-            <div class="divHeader">Operators</div>
+          <div style="padding-left:10px">
+            <div id="addition-operator" draggable="true" style="border:black 1px solid;display:inline-block;border-radius:20px;padding:5px;margin:5px">
+              <i class="operator-additionIcon" style="font-size: 24px; color: #460073;"></i>
+            </div>
+
+            <div id="subtraction-operator" draggable="true" style="border: black 1px solid; display: inline-block; border-radius: 20px; padding: 5px; margin: 5px ">
+              <i class="operator-subtractionIcon" style="font-size: 24px; color: #460073;"></i>
+            </div>
+            <div id="multiplication-operator" draggable="true" style="border: black 1px solid; display: inline-block; border-radius: 20px; padding: 5px; margin: 5px">
+              <i class="operator-multiplicationIcon" style="font-size: 24px; color: #460073;"></i>
+            </div>
+            <div id="division-operator" draggable="true" style="border: black 1px solid; display: inline-block; border-radius: 20px; padding: 5px; margin: 5px">
+              <i class="operator-divisonIcon" style="font-size: 24px; color: #460073;"></i>
+            </div>
+          </div>
+          <div class="divHeader">Operators</div>
+          <hr>
+          <div style="text-align:center">
+            <div style="display:inline-block;padding:5px;cursor:pointer" (click)="clearAll(bottomcanvas)">
+
+              <img src="assets/images/clear all.jpg" width="15" height="15" style="margin-left:10px" />
+              <div style="text-align:center;padding-top:5px"><b>Clear All</b></div>
+            </div>
+            <div id="mapperWidget" draggable="true" style=" display: inline-block; border-radius: 20px; padding: 5px; margin: 5px;">
+              <i class="collections-mapper" style="font-size: 24px; color: #460073;"></i>
+              <div style="text-align:center;font-weight:bold">Mapper Widget</div>
+            </div>
           </div>
           <hr>
-          <div style="text-align:center;">
-            <ul>
-              <li id="mapperWidget" draggable="true" class="dragElement circularBorder" style="margin-right: 10px; margin-bottom: 0px;margin-left:10px"><a><i class="collections-mapper" style="font-size: 25px; color: #460073;"></i></a></li>
-            </ul>
-            <div style="text-align:center;font-weight:bold">Mapper Widget</div>
-            <hr>
-            <ul class="horizontalButtomsRow">
-              <li id="isNumericData" draggable="true" class="dragElement circularBorder"><a><i class="value-number" style="font-size: 25px;color: #460073;"></i></a></li>
-              <li id="isColorData" draggable="true" class="dragElement circularBorder"><a><i class="value-color" style="font-size: 25px;color: #460073;"></i></a></li>
-              <li id="isStringData" draggable="true" class="dragElement circularBorder"><a><i class="value-string" style="font-size: 25px;color: #460073;"></i></a></li>
-            </ul>
+          <div style="text-align:center">
+            <div id="isNumericData" draggable="true" style="border: black 1px solid; display: inline-block; border-radius: 20px; padding: 5px; margin: 5px">
+              <i class="value-number" style="font-size: 24px; color: #460073;"></i>
+            </div>
+            <div id="isColorData" draggable="true" style="border: black 1px solid; display: inline-block; border-radius: 20px; padding: 5px; margin: 5px">
+              <i class="value-color" style="font-size: 24px; color: #460073;"></i>
+            </div>
+            <div id="isStringData" draggable="true" style="border: black 1px solid; display: inline-block; border-radius: 20px; padding: 7px; margin: 5px">
+              <i class="value-string" style="font-size: 24px; color: #460073;"></i>
+            </div>
           </div>
         </div>
       </div>
