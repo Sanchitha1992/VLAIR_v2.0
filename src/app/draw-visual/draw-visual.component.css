@@ -10,10 +10,14 @@
     width:50px;
 }
 
+hr{
+    margin:5px
+}
+
 .divHeader {
   text-align: center;
   font-weight: bold;
-  padding:4px;
+  padding:2px;
   font-size:14px
 }
 

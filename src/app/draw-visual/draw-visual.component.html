@@ -8,7 +8,7 @@
 <div [style.display]="experimentVisible==false?'block':'none'">
 
 
-  <div style="display:flex">
+  <div style="display: flex; height: 100vh;overflow:hidden">
     <div style="flex:15%" id="leftpanel">
       <div style="width:200px;height:100vh;overflow:auto">
         <table *ngIf="rowData!=null">
@@ -27,10 +27,10 @@
         </table>
       </div>
     </div>
-    <div style="flex:85%">
+    <div style="flex:75%">
       <div style="height:320px;">
         <div style="display:flex;">
-          <div style="flex:80%;">
+          <div style="flex:77%;">
             <div class="inlinediv" style="padding-left:15px;padding-right:15px;cursor:default">
               <ul [style.background-color]="selection==true ? 'lightgrey' : null">
                 <li id="selectionPrototype" (click)="selection=!selection" class="circularBorder"><a><i class="fa fa-square" style="font-size:25px"></i></a></li>
@@ -77,17 +77,22 @@
             <div class="inlinediv" style="padding-top: 20px; padding-bottom: 25px;padding-left:5px;padding-right:5px">
               <ul class="menu nonSelection" >
                 <li>
-                  <select style="font-size:10px">
+                  <select style="font-size:10px" [ngModel]="canvasMode" (ngModelChange)="onCanvasMode($event)">
                     <option>Single</option>
                     <option>Collective</option>
                   </select>
                 </li>
               </ul>
             </div>
+            <div class="inlinediv" style="padding:7px">
+              <div style="display: inline-block; background-color: #460073;" class="keys" (click)="applyChanges()">
+                Apply All
+              </div>
+            </div>
             <canvas id="maincanvas" style="width:100%;height:100%"></canvas>
 
           </div>
-          <div style="flex:20%;height:320px;overflow:auto;border:black 1px solid;border-bottom: 0px;border-top:0px" *ngIf="selectedObject!=null">
+          <div style="flex:23%;height:320px;overflow:auto;border:black 1px solid;border-bottom: 0px;border-top:0px" *ngIf="selectedObject!=null">
             <div style="text-align:center">
               <div class="divHeader">
                 Coordinates
@@ -157,7 +162,7 @@
                 Side: S1
               </div>
               <div>
-                <div id="divside"><span>S:</span><input id="side" type="text" class="rightPanelTextbox" [ngModel]="side" (ngModelChange)="changeside($event)"></div>
+                <div id="divside"><span>S:</span><input id="side" type="text" class="rightPanelTextbox" [ngModel]="side" (ngModelChange)="changeside($event)" title="sideTitle"></div>
               </div>
               <hr>
             </div>
@@ -187,10 +192,10 @@
         </div>
       </div>
       <div style="display:flex">
-        <div style="flex:80%">
+        <div style="flex:77%">
           <canvas id="bottomcanvas" style="width:100%;height:100%"></canvas>
         </div>
-        <div style="flex:20%; border-left: black 1px solid;border-bottom: black 1px solid;">
+        <div style="flex:23%; border-left: black 1px solid;border-bottom: black 1px solid;">
           <div style="padding-left:10px">
             <div id="addition-operator" draggable="true" style="border:black 1px solid;display:inline-block;border-radius:20px;padding:5px;margin:5px">
               <i class="operator-additionIcon" style="font-size: 24px; color: #460073;"></i>
@@ -232,6 +237,11 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+    <div id="rightpanel" style="flex:10%;border-left:black 1px solid">
+      <div class="inlinediv" *ngFor="let key of keys;let i=index">
+        <canvas [id]="'canvas'+i" width="150" height="100"></canvas>
       </div>
     </div>
   </div>
