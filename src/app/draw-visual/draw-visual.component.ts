@@ -731,6 +731,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         this.selectedObject.widthColumn = evaluatable + this.widthOperator + this.widthOperand;
         this.selectedObject.mappedwidth = ui.draggable[0].innerText;
         this.widthTitle = ui.draggable[0].innerText;
+        this.area = this.width * this.length;
         this.canvas.renderAll()
       }
     });
@@ -748,6 +749,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         this.selectedObject.height = this.selectedObject.width;
         this.selectedObject.mappedwidth = ui.draggable[0].innerText;
         this.sideTitle = ui.draggable[0].innerText;
+        this.area = this.side * this.side;
         this.canvas.renderAll()
       }
     });

@@ -45,7 +45,7 @@
             </div>
             <div class="inlinediv" style="padding-left:15px;padding-right:15px;margin-top:10px;cursor:pointer" (click)="undo()">
               <ul>
-                <li><img src="assets/images/undo.png" width="25" height="25" style="margin-left:10px" /></li>
+                <li><img src="assets/images/undo_new.png" width="25" height="25" style="margin-left:10px" /></li>
               </ul>
 
               <div style="text-align:center">Undo</div>
@@ -60,7 +60,7 @@
               <ul class="menu nonSelection">
                 <li id="rectanglePrototype" draggable="true" class="dragElement circularBorder"><a><i class="mark-rectangle" style="font-size: 25px;"></i></a></li>
                 <li id="squarePrototype" draggable="true" class="dragElement circularBorder"><a><i class="mark-square" style="font-size: 25px;"></i></a></li>
-                <li id="circlePrototype" draggable="true" class="dragElement circularBorder" style="margin-right: 15px; margin-bottom: 3px;"><a><i class="mark-circle" style="font-size: 28px;"></i></a></li>
+                <li id="circlePrototype" draggable="true" class="dragElement circularBorder" style="margin-right: 15px; margin-bottom: 1px;"><a><i class="mark-circle" style="font-size: 25px;"></i></a></li>
               </ul>
               <div style="text-align:center">Shapes</div>
               <div style="text-align:center" (click)="markToolboxVisible=!markToolboxVisible">
@@ -211,17 +211,17 @@
               <i class="operator-divisonIcon" style="font-size: 24px; color: #460073;"></i>
             </div>
           </div>
-          <div class="divHeader">Operators</div>
+          <div style="text-align:center">Operators</div>
           <hr>
           <div style="text-align:center">
             <div style="display:inline-block;padding:5px;cursor:pointer" (click)="clearAll(bottomcanvas)">
 
-              <img src="assets/images/clear all.jpg" width="15" height="15" style="margin-left:10px" />
-              <div style="text-align:center;padding-top:5px"><b>Clear All</b></div>
+              <img src="assets/images/clear all.jpg" width="25" height="25"  />
+              <div style="text-align:center;padding-top:5px">Clear All</div>
             </div>
             <div id="mapperWidget" draggable="true" style=" display: inline-block; border-radius: 20px; padding: 5px; margin: 5px;">
               <i class="collections-mapper" style="font-size: 24px; color: #460073;"></i>
-              <div style="text-align:center;font-weight:bold">Mapper Widget</div>
+              <div style="text-align:center">Mapper Widget</div>
             </div>
           </div>
           <hr>
@@ -235,6 +235,7 @@
             <div id="isStringData" draggable="true" style="border: black 1px solid; display: inline-block; border-radius: 20px; padding: 7px; margin: 5px">
               <i class="value-string" style="font-size: 24px; color: #460073;"></i>
             </div>
+            <div style="text-align:center">Input Values</div>
           </div>
         </div>
       </div>
