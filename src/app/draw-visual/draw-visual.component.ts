@@ -250,7 +250,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     }
   }
 
-  canvasMode: string;
+  canvasMode: string = 'Single';
   onCanvasMode(val) {
     if (val == 'Collective') {
       this.canvas.getObjects().forEach((obj) => {
