@@ -97,7 +97,9 @@
               <div>
                 <div style="font-weight:bold;font-size:14px">Shape</div>
                 <div><span style="font-size:12px">Type: {{selectedObject.typename}}</span></div>
-                <div><span style="font-size:12px">ID: {{selectedObject.ID}}</span></div>
+                <div><span style="font-size:12px">ID:
+                  <input type="text" [(ngModel)]="selectedObject.ID" style="width:70px" />
+                  </span></div>
               </div>
               <hr />
               <div class="divHeader">

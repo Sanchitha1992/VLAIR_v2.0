@@ -510,6 +510,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     let source;
     let isoperatorselected;
     let ismapperselected;
+    let iskeyselected;
     let operator;
     let ismidmapperselected;
     let ismidoperatorselected;
@@ -517,34 +518,37 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       let pointer = this.bottomcanvas.getPointer(event.e);
       this.positionX = pointer.x;
       this.positionY = pointer.y;
-      //console.log(event.target)
-      if (event.target != null && event.target.typename == 'outputrect') {
-        //operator=document.createElement("div");
-        //operator.innerText="+"
-        //operator.style.position='absolute'
-        //operator.style.left=(this.positionX)+'px';
-        //operator.style.top=(this.bottomcanvas._offset.top+this.positionY)+'px';
-        //document.body.append(operator)
-        //operator.draggable();
+      console.log(event)
+      if (event.target != null && event.target.typename == 'outputport') {
         isoperatorselected = true;
         ismapperselected = false;
+        iskeyselected = false;
         ismidmapperselected = false;
         ismidoperatorselected = false;
         source = event.target
-
       }
       else if (event.target != null && event.target.typename == 'firstrightitem') {
         isoperatorselected = false;
         ismapperselected = true;
         ismidmapperselected = false;
         ismidoperatorselected = false;
+        iskeyselected = false;
         source = event.target.parent
+      }
+      else if (event.target != null && event.target.typename == 'key') {
+        isoperatorselected = false;
+        ismapperselected = false;
+        ismidmapperselected = false;
+        ismidoperatorselected = false;
+        iskeyselected = true;
+        source = event.target;
       }
       else {
         isoperatorselected = false;
         ismapperselected = false;
         ismidmapperselected = false;
         ismidoperatorselected = false;
+        iskeyselected = false;
         source = event.target
       }
     });
@@ -582,7 +586,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     })
 
     document.addEventListener("mouseup", evnt => {
-      //console.log(evnt)
+      console.log(evnt)
+      let target: any = evnt.target;
       let positionX = evnt.pageX;
       let positionY = evnt.pageY;
       //console.log(document.elementFromPoint(positionX, positionY))
@@ -590,7 +595,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       if (isoperatorselected && document.elementFromPoint(positionX, positionY).id == 'keytab') {
 
         let key = "idkey" + ($('#keytab')[0].children.length)
-        let keyelement = $("<div  id='" + key + "' style='display:inline-block;font-size: 14px;padding: 5px 10px;margin: 2px;display: inline - flex;color: #fff;background-color:#460073'>" + source._objects[1].text + "<input type='hidden' value='" + source.typename + "'><input type='hidden' value='" + this.bottomcanvases.length + "'></div>");
+        let keyelement = $("<div  id='" + key + "' style='display:inline-block;font-size: 14px;padding: 5px 10px;margin: 2px;display: inline - flex;color: #fff;background-color:#460073'>" + source.value + "<input type='hidden' value='" + source.belongsto + "'><input type='hidden' value='" + this.bottomcanvases.length + "'></div>");
         $('#keytab').append(keyelement);
         setTimeout(() => {
           $('#' + key).draggable({
@@ -611,7 +616,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
         this.bottomcanvases.push(JSON.stringify(this.bottomcanvas))
       }
-      else if (ismapperselected && document.elementFromPoint(positionX, positionY) != null && document.elementFromPoint(positionX, positionY).id == 'keytab') {
+      else if (ismapperselected && target.id == 'keytab') {
         let leftitems = source._objects[0].items.map(a => parseInt(a.value));
         let rightitems = source._objects[1].items.map(a => a.value);
         let colVal = d3.scaleLinear().domain([d3.min(leftitems), d3.max(leftitems)]).range(rightitems)
@@ -700,12 +705,116 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       //  this.bottomcanvas.add(line);
       //  source = null;
       //}
-      if (source != null && source.typename == 'operator' && event.target != null && (event.target.typename == 'mapper' || event.target.typename == 'firstleftitem')) {
+      if (source != null && (source.typename == 'key' || source.typename=='outputport') && (event.target.typename == 'topline' || event.target.typename == 'bottomline')) {
+        event.target.column = source.fieldName;
+
         let pointer = this.bottomcanvas.getPointer(event.e);
         let line = new fabric.Line([this.positionX, this.positionY, pointer.x, pointer.y], { stroke: 'black', selectable: false });
         this.bottomcanvas.add(line);
 
-        event.target.column = this.calculateMapping(source);
+        let outputline = this.bottomcanvas.getObjects().find(x => x.belongsto == event.target.belongsto && x.typename == 'outputline')
+        let topline = this.bottomcanvas.getObjects().find(x => x.belongsto == event.target.belongsto && x.typename == 'topline')
+        let bottomline = this.bottomcanvas.getObjects().find(x => x.belongsto == event.target.belongsto && x.typename == 'bottomline')
+        let operator= this.bottomcanvas.getObjects().find(x => x.belongsto == event.target.belongsto && x.typename == 'operator')
+        if (bottomline.column != null && topline.column!=null) {
+          let a = new fabric.Rect({
+            left: outputline.left+25,
+            top: outputline.top-10,
+            originX: 'left',
+            originY: 'top',
+            width: 100,
+            height: 60,
+            fill: '#460073',
+            transparentCorners: false, selectable: false
+          })
+          let b = new fabric.IText(bottomline.column +'\n' + operator.text +'\n'+ topline.column, {
+            left: outputline.left+25,
+            top: outputline.top-10,
+            originX: 'left',
+            originY: 'top',
+            fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+            fill: 'white',
+            fontSize: 13,
+            selectable: false,
+          })
+          let c = new fabric.Circle({
+            left: outputline.left + a.width+25,
+            top: outputline.top ,
+            originX: 'left',
+            originY: 'top',
+            radius: 7,
+            fill: '#460073',
+            selectable: false,editable:false,
+            typename: 'outputport',
+            belongsto:'operator',
+            value: bottomline.column + '\n' + operator.text + '\n' + topline.column,
+          })
+          this.bottomcanvas.add(a)
+          this.bottomcanvas.add(b)
+          this.bottomcanvas.add(c)
+        }
+      }
+
+      if (source != null && (source.typename == 'outputport' || source.typename == 'key') && event.target != null && (event.target.typename == 'mapper' || event.target.typename == 'firstleftitem')) {
+        let pointer = this.bottomcanvas.getPointer(event.e);
+        let line = new fabric.Line([this.positionX, this.positionY, pointer.x, pointer.y], { stroke: 'black', selectable: false });
+        this.bottomcanvas.add(line);
+
+        event.target.column = source.fieldName;//this.calculateMapping(source);
+        let item= this.bottomcanvas.getObjects().find(x=>x.typename==event.target.belongsto)
+        let leftitems = item._objects[0].items.map(a => parseInt(a.value));
+        let rightitems = item._objects[1].items.map(a => a.value);
+        let colVal = d3.scaleLinear().domain([d3.min(leftitems), d3.max(leftitems)]).range(rightitems)
+        let evaluatable = source.fieldName;
+        for (let i = 0; i < this.keys.length; i++) {
+          evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[0]["' + this.keys[i] + '"])');
+        }
+        evaluatable = '(' + evaluatable + ')'
+
+        let color = colVal(parseInt(eval(evaluatable)))
+        color = '#' + color.match(/\d+/g).map(function (x) {
+          x = parseInt(x).toString(16);
+          return (x.length == 1) ? "0" + x : x;
+        }).join("");
+
+        let rightfirstitem = this.bottomcanvas.getObjects().find(x=>x.belongsto==event.target.belongsto && x.typename=='firstrightitem')
+        let a = new fabric.Rect({
+          left: rightfirstitem.left + 60,
+          top: rightfirstitem.top,
+          originX: 'left',
+          originY: 'top',
+          width: 100,
+          height: 30,
+          fill: '#460073',
+          transparentCorners: false, selectable: false
+        })
+        let b = new fabric.IText(color, {
+          left: rightfirstitem.left + 75,
+          top: rightfirstitem.top+5 ,
+          originX: 'left',
+          originY: 'top',
+          fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+          fill: 'white',
+          fontSize: 13,
+          selectable: false,
+        })
+        let c = new fabric.Circle({
+          left: a.left + a.width ,
+          top: rightfirstitem.top+5,
+          originX: 'left',
+          originY: 'top',
+          radius: 7,
+          fill: '#460073',
+          selectable: false,
+          editable: false,
+          typename: 'outputport',
+          value:color
+        })
+        line = new fabric.Line([rightfirstitem.left + 20, rightfirstitem.top+5, a.left, a.top+5], { stroke: 'black', selectable: false });
+        this.bottomcanvas.add(line);
+        this.bottomcanvas.add(a)
+        this.bottomcanvas.add(b)
+        this.bottomcanvas.add(c)
       }
 
       if (event.target != null && event.target.typename != null && (event.target.typename.indexOf('Data') > -1 || event.target.typename == 'firstleftitem')) {
@@ -943,6 +1052,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
                   firstleftitem.typename = 'firstleftitem'
                   firstleftitem.left = mappers[i].left + 12
                   firstleftitem.top = mappers[i].top + 60;
+                  firstleftitem.belongsto = mappers[i].typename
+
                   mappers[i].leftitem = firstleftitem;
                   this.bottomcanvas.add(firstleftitem)
                 }
@@ -958,6 +1069,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
                   firstrightitem.stroke = 'black'
                   firstrightitem.left = mappers[i].left + 240
                   firstrightitem.top = mappers[i].top + 60;
+                  firstrightitem.belongsto=mappers[i].typename
                   mappers[i].rightitem = firstrightitem;
                   firstrightitem.parent = mappers[i]
                   this.bottomcanvas.add(firstrightitem)
@@ -970,6 +1082,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         }
         else if (ui.draggable[0].id == 'addition-operator') {
 
+          let belongto = this.bottomcanvas.getObjects().filter(x => x.typename == 'operator').length;
           let plusoperator = new fabric.IText('+', {
             left: ui.offset.left - $('#leftpanel').width() + 50,
             top: ui.offset.top - this.bottomcanvas._offset.top,
@@ -977,6 +1090,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             fill: '#460073',
             fontSize: 50,
             typename: 'operator',
+            belongsto: belongto
           });
           let circle = new fabric.Circle({
             left: ui.offset.left - $('#leftpanel').width() + 45,
@@ -987,31 +1101,32 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             fill: 'transparent',
             strokeWidth: .5,
             stroke: "black",
+            belongsto: belongto
           });
-          let topline = new fabric.Line([ui.offset.left - 215, ui.offset.top - this.bottomcanvas._offset.top - 5, ui.offset.left - 150, ui.offset.top - this.bottomcanvas._offset.top - 5], {
-            stroke: 'black', angle: 20, typename: 'topline'
-          });
-          let bottomline = new fabric.Line([ui.offset.left - 215, ui.offset.top - this.bottomcanvas._offset.top + 55, ui.offset.left - 150, ui.offset.top - this.bottomcanvas._offset.top + 55], {
-            stroke: 'black', angle: -20, typename: 'bottomline'
-          });
-          let outputline = new fabric.Line([ui.offset.left - 115, ui.offset.top - this.bottomcanvas._offset.top + 25, ui.offset.left - 50, ui.offset.top - this.bottomcanvas._offset.top + 25], {
-            stroke: 'black', typename: 'outputline'
-          });
+          let topline = new fabric.Path('M16,20V16H1V9H16V5l8,7.5Z', { left: ui.offset.left - 170, top: ui.offset.top - this.bottomcanvas._offset.top, typename: 'topline',belongsto: belongto });
+          let bottomline = new fabric.Path('M16,20V16H1V9H16V5l8,7.5Z', { left: ui.offset.left - 170, top: ui.offset.top - this.bottomcanvas._offset.top + 30, typename: 'bottomline', belongsto: belongto });
+          let outputline = new fabric.Path('M16,20V16H1V9H16V5l8,7.5Z', { left: ui.offset.left - 115, top: ui.offset.top - this.bottomcanvas._offset.top + 15, typename: 'outputline', belongsto: belongto });
+          //let topline = new fabric.Line([ui.offset.left - 215, ui.offset.top - this.bottomcanvas._offset.top - 5, ui.offset.left - 150, ui.offset.top - this.bottomcanvas._offset.top - 5], {
+          // stroke: 'black', angle: 20, typename: 'topline'
 
-          let objs = [plusoperator, circle, topline, bottomline, outputline];
-          let element = new fabric.Group(objs);
-          element.typename = 'operator'
-          element.text = '+'
-          element.selectable = false;
-          for (let k1 = 0; k1 < this.bottomcanvas.getObjects().length; k1++) {
-            if (this.bottomcanvas.getObjects()[k1] != null && this.bottomcanvas.getObjects()[k1].typename == 'outputrect') {
-              if (Math.abs(this.bottomcanvas.getObjects()[k1].left - (topline.originalLeft) + 50) < 50 && Math.abs(ui.offset.top - this.bottomcanvas._offset.top - topline.originalTop) < 20) {
-                element.topfieldColumn = this.bottomcanvas.getObjects()[k1]._objects[1].text;
-                element.topfield = 'topfield'
-              }
-            }
-          }
-          this.bottomcanvas.add(element);
+          //let bottomline = new fabric.Line([ui.offset.left - 215, ui.offset.top - this.bottomcanvas._offset.top + 55, ui.offset.left - 150, ui.offset.top - this.bottomcanvas._offset.top + 55], {
+          //stroke: 'black', angle: -20, typename: 'bottomline'
+          //});
+          //let outputline = new fabric.Line([ui.offset.left - 115, ui.offset.top - this.bottomcanvas._offset.top + 25, ui.offset.left - 50, ui.offset.top - this.bottomcanvas._offset.top + 25], {
+          //stroke: 'black', typename: 'outputline'
+          //});
+
+          //let objs = [plusoperator, circle, topline, bottomline, outputline];
+          //let element = new fabric.Group(objs);
+          //element.typename = 'operator'
+          //element.text = '+'
+          //element.selectable = false;
+          this.bottomcanvas.add(plusoperator)
+          this.bottomcanvas.add(circle);
+          this.bottomcanvas.add(topline);
+          this.bottomcanvas.add(bottomline);
+          this.bottomcanvas.add(outputline);
+
         }
         else if (ui.draggable[0].id == 'mapperWidget') {
           let shape = new fabric.Rect({
@@ -1076,7 +1191,6 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           let mapping = false;
           let mapper;
 
-
           console.log(ui.draggable[0])
           for (let k = 0; k < mappers.length; k++) {
             if (Math.abs(ui.offset.left - $('#leftpanel').width() - mappers[k].left + 10) < 50) {
@@ -1108,19 +1222,84 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             this.bottomcanvas.renderAll();
           }
           if (mapping == false) {
-            let plusoperators = this.bottomcanvas.getObjects().filter(x => x.text != null && x.text == '+')
-            for (let k = 0; k < plusoperators.length; k++) {
-              let plustopline = plusoperators[k]._objects.find(x => x.typename != null && x.typename == 'topline')
-              let plusbottomline = plusoperators[k]._objects.find(x => x.typename != null && x.typename == 'bottomline')
-              let a = new fabric.Rect({
+            // let plusoperators = this.bottomcanvas.getObjects().filter(x => x.text != null && x.text == '+')
+            // for (let k = 0; k < plusoperators.length; k++) {
+            //   let plustopline = plusoperators[k]._objects.find(x => x.typename != null && x.typename == 'topline')
+            //   let plusbottomline = plusoperators[k]._objects.find(x => x.typename != null && x.typename == 'bottomline')
+            let a = new fabric.Rect({
+              left: ui.offset.left-$('#leftpanel').width() ,
+              top: ui.offset.top - this.bottomcanvas._offset.top,
+              originX: 'left',
+              originY: 'top',
+              width: $(ui.draggable)[0].offsetWidth,
+              height: $(ui.draggable)[0].offsetHeight,
+              fill: '#460073',
+              transparentCorners: false, selectable:false
+            })
+            let b = new fabric.IText(ui.draggable[0].innerText, {
+              left: ui.offset.left - $('#leftpanel').width()+10 ,
+              top: ui.offset.top - this.bottomcanvas._offset.top+10,
+              originX: 'left',
+              originY: 'top',
+              fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+              fill: 'white',
+              fontSize: 13,
+              selectable: false
+            })
+            let c = new fabric.Circle({
+              left: ui.offset.left - $('#leftpanel').width()+120,
+              top: ui.offset.top - this.bottomcanvas._offset.top+5,
+              originX: 'left',
+              originY: 'top',
+              radius:10,
+              fill: '#460073',
+              selectable: false
+            })
+            //let objs: any = [a, b,c];
+            //let element = new fabric.Group(objs, { subTargetCheck: true });
+
+            //element.fieldName = ui.draggable[0].innerText;
+            //c.on('mousedown', e => { console.log(e) })
+            c.fieldName = ui.draggable[0].innerText;
+            c.typename='key'
+            this.bottomcanvas.add(a)
+            this.bottomcanvas.add(b)
+            this.bottomcanvas.add(c)
+
+
+            /* if (Math.abs(ui.offset.left - ($('#leftpanel').width() + plustopline.originalLeft) + 50) < 50 && Math.abs(ui.offset.top - this.bottomcanvas._offset.top - plustopline.originalTop) < 20) {
+               a.left = plustopline.originalLeft - $('#leftpanel').width() + 50
+               a.top = plustopline.originalTop - 40
+               b.left = plustopline.originalLeft - $('#leftpanel').width() + 60
+               b.top = plustopline.originalTop - 35
+               plusoperators[k].topfieldColumn = ui.draggable[0].innerText;
+               plusoperators[k].topfield = 'topfield'
+               this.bottomcanvas.add(element)
+             }
+
+             if (Math.abs(ui.offset.left - ($('#leftpanel').width() + plusbottomline.originalLeft) + 50) < 50 && Math.abs(ui.offset.top - this.bottomcanvas._offset.top - plusbottomline.originalTop) < 20) {
+               a.left = plusbottomline.originalLeft - $('#leftpanel').width() + 50
+               a.top = plusbottomline.originalTop - 40
+               b.left = plusbottomline.originalLeft - $('#leftpanel').width() + 60
+               b.top = plusbottomline.originalTop - 35
+               plusoperators[k].bottomfield = 'bottomfield'
+               plusoperators[k].bottomfieldColumn = ui.draggable[0].innerText;
+               this.bottomcanvas.add(element)
+             }*/
+
+            /*if (plusoperators[k].topfield != null && plusoperators[k].bottomfield != null) {
+              let outputrect = new fabric.Rect({
+                left: plusoperators[k].left + 150,
+                top: plusoperators[k].top + 10,
                 originX: 'left',
                 originY: 'top',
                 width: $(ui.draggable)[0].offsetWidth,
-                height: $(ui.draggable)[0].offsetHeight,
                 fill: '#460073',
                 transparentCorners: false
               })
-              let b = new fabric.IText(ui.draggable[0].innerText, {
+              let outputrectext = new fabric.IText(plusoperators[k].topfieldColumn + '\n' + plusoperators[k].text + '\n' + plusoperators[k].bottomfieldColumn, {
+                left: plusoperators[k].left + 155,
+                top: plusoperators[k].top + 12,
                 originX: 'left',
                 originY: 'top',
                 fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
@@ -1128,60 +1307,15 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
                 fontSize: 13,
                 editable: false
               })
-              let objs: any = [a, b];
-              let element = new fabric.Group(objs);
-
-              element.fieldName = ui.draggable[0].innerText;
-
-              if (Math.abs(ui.offset.left - ($('#leftpanel').width() + plustopline.originalLeft) + 50) < 50 && Math.abs(ui.offset.top - this.bottomcanvas._offset.top - plustopline.originalTop) < 20) {
-                a.left = plustopline.originalLeft - $('#leftpanel').width() + 50
-                a.top = plustopline.originalTop - 40
-                b.left = plustopline.originalLeft - $('#leftpanel').width() + 60
-                b.top = plustopline.originalTop - 35
-                plusoperators[k].topfieldColumn = ui.draggable[0].innerText;
-                plusoperators[k].topfield = 'topfield'
-                this.bottomcanvas.add(element)
-              }
-
-              if (Math.abs(ui.offset.left - ($('#leftpanel').width() + plusbottomline.originalLeft) + 50) < 50 && Math.abs(ui.offset.top - this.bottomcanvas._offset.top - plusbottomline.originalTop) < 20) {
-                a.left = plusbottomline.originalLeft - $('#leftpanel').width() + 50
-                a.top = plusbottomline.originalTop - 40
-                b.left = plusbottomline.originalLeft - $('#leftpanel').width() + 60
-                b.top = plusbottomline.originalTop - 35
-                plusoperators[k].bottomfield = 'bottomfield'
-                plusoperators[k].bottomfieldColumn = ui.draggable[0].innerText;
-                this.bottomcanvas.add(element)
-              }
-
-              if (plusoperators[k].topfield != null && plusoperators[k].bottomfield != null) {
-                let outputrect = new fabric.Rect({
-                  left: plusoperators[k].left + 150,
-                  top: plusoperators[k].top + 10,
-                  originX: 'left',
-                  originY: 'top',
-                  width: $(ui.draggable)[0].offsetWidth,
-                  fill: '#460073',
-                  transparentCorners: false
-                })
-                let outputrectext = new fabric.IText(plusoperators[k].topfieldColumn + '\n' + plusoperators[k].text + '\n' + plusoperators[k].bottomfieldColumn, {
-                  left: plusoperators[k].left + 155,
-                  top: plusoperators[k].top + 12,
-                  originX: 'left',
-                  originY: 'top',
-                  fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-                  fill: 'white',
-                  fontSize: 13,
-                  editable: false
-                })
-                outputrect.height = outputrectext.text.split('+').length * 30;
-                let outputrectobjs: any = [outputrect, outputrectext];
-                let outputrectelement = new fabric.Group(outputrectobjs);
-                outputrectelement.typename = 'outputrect'
-                outputrectelement.selectable = false
-                this.bottomcanvas.add(outputrectelement)
-              }
-              this.bottomcanvas.renderAll();
-            }
+              outputrect.height = outputrectext.text.split('+').length * 30;
+              let outputrectobjs: any = [outputrect, outputrectext];
+              let outputrectelement = new fabric.Group(outputrectobjs);
+              outputrectelement.typename = 'outputrect'
+              outputrectelement.selectable = false
+              this.bottomcanvas.add(outputrectelement)
+            }*/
+            this.bottomcanvas.renderAll();
+            //  }
 
           }
         }
