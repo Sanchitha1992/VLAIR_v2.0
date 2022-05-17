@@ -1338,7 +1338,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             transparentCorners: false
           });
           shape.typename = 'Rectangle'
-          shape.ID = 'Rect ' + (this.canvas.getObjects().filter(x => x.typename == 'Rectangle').length + 1);
+          shape.ID = 'rect ' + (this.canvas.getObjects().filter(x => x.typename == 'Rectangle').length + 1);
           //shape.name = 'rect 1';
           //this.xposition = shape.left - this.graph.left;
           //this.yposition = this.graph.top + this.graph.height - shape.top - shape.height;
@@ -1360,7 +1360,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             transparentCorners: false
           });
           shape.typename = 'Square'
-          shape.ID = 'Square ' + (this.canvas.getObjects().filter(x => x.typename == 'Square').length + 1);
+          shape.ID = 'square ' + (this.canvas.getObjects().filter(x => x.typename == 'Square').length + 1);
         }
         if (ui.draggable[0].id == 'circlePrototype') {
           shape = new fabric.Circle({
@@ -1371,7 +1371,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           });
           shape.typename = 'Circle'
           this.radius = shape.radius;
-          shape.ID = 'Circle ' + (this.canvas.getObjects().filter(x => x.typename == 'Circle').length + 1);
+          shape.ID = 'circle ' + (this.canvas.getObjects().filter(x => x.typename == 'Circle').length + 1);
         }
         this.canvas.add(shape);
         this.canvas.setActiveObject(shape);
