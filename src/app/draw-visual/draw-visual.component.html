@@ -231,7 +231,7 @@
             <div style="text-align:center">
               <div class="divHeader">Area: A1</div>
               <div>
-                <div><span>A:</span><input type="text" disabled class="rightPanelTextbox" [(ngModel)]="area" /></div>
+                <div><span>A:</span><input type="text" class="rightPanelTextbox" [ngModel]="area" (ngModelChange)="changeArea($event)" /></div>
               </div>
             </div>
           </div>

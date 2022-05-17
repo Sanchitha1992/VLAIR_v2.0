@@ -747,7 +747,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             selectable: false,editable:false,
             typename: 'outputport',
             belongsto:'operator',
-            value: bottomline.column + '\n' + operator.text + '\n' + topline.column,
+            value: b.text,
           })
           this.bottomcanvas.add(a)
           this.bottomcanvas.add(b)
@@ -1247,7 +1247,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
               selectable: false
             })
             let c = new fabric.Circle({
-              left: ui.offset.left - $('#leftpanel').width()+120,
+              left: ui.offset.left - $('#leftpanel').width()+a.width,
               top: ui.offset.top - this.bottomcanvas._offset.top+5,
               originX: 'left',
               originY: 'top',
@@ -1416,9 +1416,22 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     }
   }
 
+  changeArea(areaValue) {
+    let areadiff = this.area / areaValue;
+
+    if (this.lengthOperator == '*') {
+      this.length = this.length / Math.sqrt(areadiff)
+    }
+    if (this.widthOperator == '*') {
+      this.width = this.width / Math.sqrt(areadiff)
+    }
+    this.area = eval(this.length + this.lengthOperator + this.lengthOperand) * eval(this.width + this.widthOperator + this.widthOperand)
+  }
+
   length: any;
   width: any;
-  area: number
+  area: number;
+
   drawgraph(canvas, scale = 1, select = false, left = 250, top = 50) {
     var xaxis = new fabric.Line([250, 50, 250, 200], {
       stroke: 'black'
