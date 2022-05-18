@@ -747,7 +747,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             selectable: false,editable:false,
             typename: 'outputport',
             belongsto:'operator',
-            value: bottomline.column + '\n' + operator.text + '\n' + topline.column,
+            value: b.text,
           })
           this.bottomcanvas.add(a)
           this.bottomcanvas.add(b)
@@ -1247,7 +1247,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
               selectable: false
             })
             let c = new fabric.Circle({
-              left: ui.offset.left - $('#leftpanel').width()+120,
+              left: ui.offset.left - $('#leftpanel').width()+a.width,
               top: ui.offset.top - this.bottomcanvas._offset.top+5,
               originX: 'left',
               originY: 'top',

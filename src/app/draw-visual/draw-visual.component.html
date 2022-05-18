@@ -94,11 +94,10 @@
           </div>
           <div style="flex:23%;height:320px;overflow:auto;border:black 1px solid;border-bottom: 0px;border-top:0px" *ngIf="selectedObject!=null">
             <div>
-              <!--div style="text-align:left">
-                <div style="font-weight:bold;font-size:14px">Shape</div>
-                <div><span style="font-size:12px">Type: {{selectedObject.typename}}</span></div>
-                <div><span style="font-size:12px">ID:
-                  <input type="text" [(ngModel)]="selectedObject.ID" style="width:70px" />
+              <div style="text-align:left">
+                <div><span style="font-size:12px"><b>{{selectedObject.typename}} : </b></span>
+                <span style="font-size:12px"><b>
+                  <input type="text" [(ngModel)]="selectedObject.ID" style="width:70px" /></b>
                   </span></div>
               </div>
               <hr />
@@ -237,7 +236,7 @@
                 &nbsp;<b>Area:</b>
               </div>
               <div>
-                <div style="padding-left:30px"><input type="text" disabled class="rightPanelTextbox" [(ngModel)]="area" /></div>
+                <div><input type="text" class="rightPanelTextbox" [ngModel]="area" (ngModelChange)="changeArea($event)" /></div>
               </div>
             </div>
           </div>
