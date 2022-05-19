@@ -79,6 +79,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   yposition: number;
   color: string;
   bottomcanvas: any;
+  
   ngOnInit(): void {
     if (sessionStorage.getItem('rowdata') != null) {
       this.rowData = this.dataService.rowdata = JSON.parse(sessionStorage.getItem('rowdata'));
@@ -136,8 +137,9 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         //document.getElementById('selectionPanel').style.left = origX + 'px';
         //document.getElementById('selectionPanel').style.top = origY + 'px';
       }
-      if (o.target != null && o.target.typename == 'graph') {
-        this.graph = o.target
+      if (o.target != null && o.target.typename.indexOf('graph') >-1) {
+        //this.graph = o.target
+        
       }
     });
 
@@ -386,6 +388,13 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     //alert(JSON.stringify(this.rowData[value]))
   }
 
+  changeGraph(val) {
+    this.graph =  this.canvas.getObjects().find(x => x.ID == val);
+    this.selectedObject.graphname = val;
+    this.xposition = this.selectedObject.left - this.graph.left;
+    this.yposition = this.graph.top + this.graph.height - this.selectedObject.top - (this.selectedObject.height * this.selectedObject.scaleY);
+  }
+
   selectedObject: any;
   positionX: number;
   positionY: number;
@@ -423,9 +432,14 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     this.canvas.on({
       'object:selected': (e) => {
         this.selectedObject = e.target;
+        
         if (this.selectedObject.typename == 'Rectangle') {
-          this.xposition = this.selectedObject.left;
-          this.yposition = this.selectedObject.top;
+
+          this.graph = this.selectedObject.graphname == null ? this.canvas.getObjects().find(x => x.ID == 'Graph 1') : this.canvas.getObjects().find(x => x.ID == this.selectedObject.graphname);
+          this.selectedObject.graphname = this.graph.ID;
+          this.xposition = this.selectedObject.left-this.graph.left;
+          this.yposition = this.graph.top + this.graph.height - this.selectedObject.top - this.selectedObject.height;
+
           if (this.selectedObject.fill.indexOf('#') > -1) {
             this.color = this.selectedObject.fill
           }
@@ -1379,7 +1393,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     });
     this.canvas.on('object:moving', (event) => {
       this.xposition = event.target.left - this.graph.left;
-      this.yposition = this.graph.top + this.graph.height - event.target.top - event.target.height;
+      this.yposition = this.graph.top + (this.graph.height * this.graph.scaleY) - event.target.top - (event.target.height * event.target.scaleY);
     });
     this.canvas.on('object:scaling', (event) => {
       this.length = event.target.getHeight();
@@ -1464,11 +1478,13 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     this.graph.scaleY = scale
     this.graph.left = left;
     this.graph.top = top;
-    this.graph.typename = 'graph'
+    this.graph.typename = 'Graph' 
+    this.graph.ID = 'Graph '+ (canvas.getObjects().filter(a => a.ID != null && a.typename=='Graph').length + 1)
+    this.graphs.push(this.graph.ID)
     canvas.add(this.graph);
     canvas.renderAll();
   }
-
+  graphs: any=[];
   graph: any;
 
   //loadColorPanel() {

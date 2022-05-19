@@ -39,7 +39,7 @@
             </div>
             <div class="inlinediv" style="padding-left:15px;padding-right:15px;cursor:default">
               <ul>
-                <li><img src="assets/images/coordinates.PNG" width="25" height="25" style="margin-left:10px" (click)="createCoordinate()" /></li>
+                <li><img src="assets/images/coordinates.png" width="25" height="25" style="margin-left:10px" (click)="createCoordinate()" /></li>
               </ul>
               <div style="text-align:center">Coordinates</div>
             </div>
@@ -75,7 +75,7 @@
               </div>
             </div>
             <div class="inlinediv" style="padding-top: 20px; padding-bottom: 25px;padding-left:5px;padding-right:5px">
-              <ul class="menu nonSelection" >
+              <ul class="menu nonSelection">
                 <li>
                   <select style="font-size:10px" [ngModel]="canvasMode" (ngModelChange)="onCanvasMode($event)">
                     <option>Single</option>
@@ -97,9 +97,16 @@
               <div>
                 <div style="font-weight:bold;font-size:14px">Shape</div>
                 <div><span style="font-size:12px">Type: {{selectedObject.typename}}</span></div>
-                <div><span style="font-size:12px">ID:
-                  <input type="text" [(ngModel)]="selectedObject.ID" style="width:70px" />
-                  </span></div>
+                <div>
+                  <span style="font-size:12px">
+                    ID:
+                    <input type="text" [(ngModel)]="selectedObject.ID" style="width:70px" />
+                  </span>
+                </div>
+              </div>
+              <hr />
+              <div class="divHeader">
+                Coordinates
               </div>
               <hr />
               <div class="divHeader">
@@ -110,6 +117,24 @@
                 <div><span>X:</span><input type="text" class="rightPanelTextbox" [ngModel]="xposition" (ngModelChange)="changex($event)"></div>
                 <div><span>Y:</span><input type="text" class="rightPanelTextbox" [ngModel]="yposition" (ngModelChange)="changey($event)" /></div>
               </div>
+              <hr>
+            </div>
+            <div style="text-align:center">
+              <div class="divHeader">
+                Coordinates: C1
+              </div>
+              <div style="display:flex" id="colorPaneldiv">
+                <div style="flex:50%;padding:5px">
+                  <div>
+                    <select [ngModel]="selectedObject.graphname" (ngModelChange)="changeGraph($event)">
+                      <ng-container *ngFor="let graphname of graphs">
+                        <option *ngIf="(selectedObject.typename=='Graph' || 1==1) && selectedObject.ID!=graphname">{{graphname}}</option>
+                      </ng-container>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
               <hr>
             </div>
             <div style="text-align:center">
@@ -269,7 +294,7 @@
           <div style="text-align:center">
             <div style="display:inline-block;padding:5px;cursor:pointer" (click)="clearAll(bottomcanvas)">
 
-              <img src="assets/images/clear all.jpg" width="25" height="25"  />
+              <img src="assets/images/clear all.jpg" width="25" height="25" />
               <div style="text-align:center;padding-top:5px">Clear All</div>
             </div>
             <div id="mapperWidget" draggable="true" style=" display: inline-block; border-radius: 20px; padding: 5px; margin: 5px;">
