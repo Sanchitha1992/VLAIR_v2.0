@@ -42,6 +42,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   valuesToolboxVisible: boolean = false;
   lengthTitle: any = '';
   widthTitle: any = '';
+  areaTitle: any = '';
   keybg: any = [];
   sideTitle: string = '';
   radiusTitle: string = ''
@@ -136,8 +137,9 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         //document.getElementById('selectionPanel').style.left = origX + 'px';
         //document.getElementById('selectionPanel').style.top = origY + 'px';
       }
-      if (o.target != null && o.target.typename == 'graph') {
-        this.graph = o.target
+      if (o.target != null && o.target.typename.indexOf('graph') >-1) {
+        //this.graph = o.target
+        
       }
     });
 
@@ -386,6 +388,13 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     //alert(JSON.stringify(this.rowData[value]))
   }
 
+  changeGraph(val) {
+    this.graph =  this.canvas.getObjects().find(x => x.ID == val);
+    this.selectedObject.graphname = val;
+    this.xposition = this.selectedObject.left - this.graph.left;
+    this.yposition = this.graph.top + this.graph.height - this.selectedObject.top - (this.selectedObject.height * this.selectedObject.scaleY);
+  }
+
   selectedObject: any;
   positionX: number;
   positionY: number;
@@ -403,6 +412,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   radiusOperand: any = 10;
   rotationTitle: string = ''
   bottomcanvases: any = [];
+  areaOperator: any = '*';
+  areaOperand: any = 10;
   draganddropFunction() {
 
     for (let i = 0; i < this.keys.length; i++) {
@@ -424,8 +435,12 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       'object:selected': (e) => {
         this.selectedObject = e.target;
         if (this.selectedObject.typename == 'Rectangle') {
-          this.xposition = this.selectedObject.left;
-          this.yposition = this.selectedObject.top;
+
+          this.graph = this.selectedObject.graphname == null ? this.canvas.getObjects().find(x => x.ID == 'Graph 1') : this.canvas.getObjects().find(x => x.ID == this.selectedObject.graphname);
+          this.selectedObject.graphname = this.graph.ID;
+          this.xposition = this.selectedObject.left-this.graph.left;
+          this.yposition = this.graph.top + this.graph.height - this.selectedObject.top - this.selectedObject.height;
+
           if (this.selectedObject.fill.indexOf('#') > -1) {
             this.color = this.selectedObject.fill
           }
@@ -717,9 +732,22 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         let bottomline = this.bottomcanvas.getObjects().find(x => x.belongsto == event.target.belongsto && x.typename == 'bottomline')
         let operator= this.bottomcanvas.getObjects().find(x => x.belongsto == event.target.belongsto && x.typename == 'operator')
         if (bottomline.column != null && topline.column!=null) {
+          let d = new fabric.Circle({
+            left: outputline.left + 25,
+            top: outputline.top,
+            originX: 'left',
+            originY: 'top',
+            radius: 7,
+            fill: '#black',
+            selectable: false,editable:false,
+            typename: 'outputport',
+            belongsto:'operator',
+           // value: b.text,
+          })
+
           let a = new fabric.Rect({
-            left: outputline.left+25,
-            top: outputline.top-10,
+            left: outputline.left+25+(d.radius*2),
+            top: outputline.top-25,
             originX: 'left',
             originY: 'top',
             width: 100,
@@ -728,7 +756,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             transparentCorners: false, selectable: false
           })
           let b = new fabric.IText(bottomline.column +'\n' + operator.text +'\n'+ topline.column, {
-            left: outputline.left+25,
+            left: outputline.left+35+(d.radius*2),
             top: outputline.top-10,
             originX: 'left',
             originY: 'top',
@@ -738,17 +766,19 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             selectable: false,
           })
           let c = new fabric.Circle({
-            left: outputline.left + a.width+25,
-            top: outputline.top ,
+            left: outputline.left +(d.radius*2)+a.width+25,
+            top: outputline.top,
             originX: 'left',
             originY: 'top',
             radius: 7,
-            fill: '#460073',
+            fill: 'black',
             selectable: false,editable:false,
             typename: 'outputport',
             belongsto:'operator',
             value: b.text,
           })
+          
+          this.bottomcanvas.add(d)
           this.bottomcanvas.add(a)
           this.bottomcanvas.add(b)
           this.bottomcanvas.add(c)
@@ -968,6 +998,26 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         this.canvas.renderAll()
       }
     });
+    $("#divarea").droppable({
+      drop: (ev, ui) => {
+        console.log(ui.draggable[0])
+
+        let evaluatable = ui.draggable[0].innerText;
+        let value = this.rowIndex;
+        for (let i = 0; i < this.keys.length; i++) {
+          evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[value]["' + this.keys[i] + '"])');
+        }
+        evaluatable = '(' + evaluatable + ')'
+
+        this.area = eval(evaluatable)
+        this.selectedObject.area = eval(evaluatable + this.areaOperator + this.areaOperand);
+        this.selectedObject.areaColumn = evaluatable + this.areaOperator + this.areaOperand;
+        this.selectedObject.mappedarea = ui.draggable[0].innerText;
+        this.areaTitle = ui.draggable[0].innerText;
+        this.canvas.renderAll()
+      }
+    });
+
     $("#rectanglePrototype").draggable({
       cursorAt: { top: 18.5, left: 60 },
       cursor: 'none',
@@ -1085,27 +1135,29 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           let belongto = this.bottomcanvas.getObjects().filter(x => x.typename == 'operator').length;
           let plusoperator = new fabric.IText('+', {
             left: ui.offset.left - $('#leftpanel').width() + 50,
-            top: ui.offset.top - this.bottomcanvas._offset.top,
+            top: ui.offset.top - this.bottomcanvas._offset.top-2,
             fontFamily: 'arial',
-            fill: '#460073',
+            fontStyle: 'bold',
+            fill: '#3c1361',
             fontSize: 50,
             typename: 'operator',
             belongsto: belongto
           });
           let circle = new fabric.Circle({
-            left: ui.offset.left - $('#leftpanel').width() + 45,
-            top: ui.offset.top - this.bottomcanvas._offset.top + 5,
+            left: ui.offset.left - $('#leftpanel').width() + 46,
+            top: ui.offset.top - this.bottomcanvas._offset.top + 6,
             originX: 'left',
             originY: 'top',
-            radius: 20,
+            radius: 18,
             fill: 'transparent',
-            strokeWidth: .5,
+            border: 'black',
+            strokeWidth: .9,
             stroke: "black",
             belongsto: belongto
           });
           let topline = new fabric.Path('M16,20V16H1V9H16V5l8,7.5Z', { left: ui.offset.left - 170, top: ui.offset.top - this.bottomcanvas._offset.top, typename: 'topline',belongsto: belongto });
-          let bottomline = new fabric.Path('M16,20V16H1V9H16V5l8,7.5Z', { left: ui.offset.left - 170, top: ui.offset.top - this.bottomcanvas._offset.top + 30, typename: 'bottomline', belongsto: belongto });
-          let outputline = new fabric.Path('M16,20V16H1V9H16V5l8,7.5Z', { left: ui.offset.left - 115, top: ui.offset.top - this.bottomcanvas._offset.top + 15, typename: 'outputline', belongsto: belongto });
+          let bottomline = new fabric.Path('M16,20V16H1V9H16V5l8,7.5Z', { left: ui.offset.left - 170, top: ui.offset.top - this.bottomcanvas._offset.top + 32, typename: 'bottomline', belongsto: belongto });
+          let outputline = new fabric.Path('M16,20V16H1V9H16V5l8,7.5Z', { left: ui.offset.left - 118, top: ui.offset.top - this.bottomcanvas._offset.top + 15, typename: 'outputline', belongsto: belongto });
           //let topline = new fabric.Line([ui.offset.left - 215, ui.offset.top - this.bottomcanvas._offset.top - 5, ui.offset.left - 150, ui.offset.top - this.bottomcanvas._offset.top - 5], {
           // stroke: 'black', angle: 20, typename: 'topline'
 
@@ -1248,11 +1300,11 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             })
             let c = new fabric.Circle({
               left: ui.offset.left - $('#leftpanel').width()+a.width,
-              top: ui.offset.top - this.bottomcanvas._offset.top+5,
+              top: ui.offset.top - this.bottomcanvas._offset.top+8,
               originX: 'left',
               originY: 'top',
-              radius:10,
-              fill: '#460073',
+              radius:7,
+              fill: 'black',
               selectable: false
             })
             //let objs: any = [a, b,c];
@@ -1379,7 +1431,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     });
     this.canvas.on('object:moving', (event) => {
       this.xposition = event.target.left - this.graph.left;
-      this.yposition = this.graph.top + this.graph.height - event.target.top - event.target.height;
+      this.yposition = this.graph.top + (this.graph.height * this.graph.scaleY) - event.target.top - (event.target.height * event.target.scaleY);
     });
     this.canvas.on('object:scaling', (event) => {
       this.length = event.target.getHeight();
@@ -1416,9 +1468,21 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     }
   }
 
+  changeArea(areaValue) {
+    let areadiff = this.area / areaValue;
+
+    if (this.lengthOperator == '*') {
+      this.length = this.length / Math.sqrt(areadiff)
+    }
+    if (this.widthOperator == '*') {
+      this.width = this.width / Math.sqrt(areadiff)
+    }
+    this.area = eval(this.length + this.lengthOperator + this.lengthOperand) * eval(this.width + this.widthOperator + this.widthOperand)
+  }
+  
   length: any;
   width: any;
-  area: number
+  area: number;
   drawgraph(canvas, scale = 1, select = false, left = 250, top = 50) {
     var xaxis = new fabric.Line([250, 50, 250, 200], {
       stroke: 'black'
@@ -1451,11 +1515,13 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     this.graph.scaleY = scale
     this.graph.left = left;
     this.graph.top = top;
-    this.graph.typename = 'graph'
+    this.graph.typename = 'Graph' 
+    this.graph.ID = 'Graph '+ (canvas.getObjects().filter(a => a.ID != null && a.typename=='Graph').length + 1)
+    this.graphs.push(this.graph.ID)
     canvas.add(this.graph);
     canvas.renderAll();
   }
-
+  graphs: any=[];
   graph: any;
 
   //loadColorPanel() {
