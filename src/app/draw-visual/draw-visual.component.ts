@@ -435,10 +435,9 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     this.canvas.on({
       'object:selected': (e) => {
         this.selectedObject = e.target;
-        
-        if (this.selectedObject.typename == 'Rectangle') {
 
-          this.graph = this.selectedObject.graphname == null ? this.canvas.getObjects().find(x => x.ID == 'Graph 1') : this.canvas.getObjects().find(x => x.ID == this.selectedObject.graphname);
+        this.graph = this.selectedObject.graphname == null ? this.canvas.getObjects().find(x => x.ID == 'Graph 1') : this.canvas.getObjects().find(x => x.ID == this.selectedObject.graphname);
+        if (this.selectedObject.typename == 'Rectangle') {
           this.selectedObject.graphname = this.graph.ID;
           this.xposition = this.selectedObject.left-this.graph.left;
           this.yposition = this.graph.top + this.graph.height - this.selectedObject.top - this.selectedObject.height;
@@ -477,7 +476,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
               this.width = this.selectedObject.width * this.widthOperand;
             }
           }
-          this.area = this.selectedObject.width * this.selectedObject.height;
+          this.area = this.width * this.length;
+          this.areaOperand = this.widthOperand * this.lengthOperand;
           this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': true, 'width': true, 'side': false, 'radius': false }
         }
         else if (this.selectedObject.typename == 'Square') {
@@ -1011,7 +1011,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         }
         evaluatable = '(' + evaluatable + ')'
 
-        this.area = eval(evaluatable)
+        this.changeArea(eval(evaluatable))
         this.selectedObject.area = eval(evaluatable + this.areaOperator + this.areaOperand);
         this.selectedObject.areaColumn = evaluatable + this.areaOperator + this.areaOperand;
         this.selectedObject.mappedarea = ui.draggable[0].innerText;
@@ -1432,7 +1432,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       }
     });
     this.canvas.on('object:moving', (event) => {
-      this.xposition = event.target.left - this.graph.left;
+      this.xposition = event.target.left -  this.graph.left;
       this.yposition = this.graph.top + (this.graph.height * this.graph.scaleY) - event.target.top - (event.target.height * event.target.scaleY);
     });
     this.canvas.on('object:scaling', (event) => {
@@ -1479,7 +1479,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     if (this.widthOperator == '*') {
       this.width = this.width / Math.sqrt(areadiff)
     }
-    this.area = eval(this.length + this.lengthOperator + this.lengthOperand) * eval(this.width + this.widthOperator + this.widthOperand)
+    this.area = this.length * this.width
   }
   
   length: any;

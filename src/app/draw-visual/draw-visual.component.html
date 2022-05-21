@@ -253,10 +253,22 @@
               </div>
               <hr>
             </div>
-            <div style="text-align:center">
+            <div id="divarea" style="text-align:center">
               <div class="divHeader">Area: A1</div>
               <div>
-                <div><span>A:</span><input type="text" class="rightPanelTextbox" [ngModel]="area" (ngModelChange)="changeArea($event)" /></div>
+                <div>
+                  <span>A:</span><input type="text" class="rightPanelTextbox" [ngModel]="area" (ngModelChange)="changeArea($event)" />
+                  &nbsp;<select [(ngModel)]="areaOperator">
+                    <option>*</option>
+                    <option>/</option>
+                  </select>
+                  &nbsp;<select [(ngModel)]="areaOperand">
+                    <option>1</option>
+                    <option>10</option>
+                    <option>100</option>
+                    <option>1000</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
