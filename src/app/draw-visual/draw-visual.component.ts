@@ -1077,7 +1077,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       }
     });
     $("#mapperWidget").draggable({
-      cursorAt: { top: 18.5, left: 60 },
+      cursorAt: { top: 18.5, left: 80 },
       cursor: 'none',
       scroll: false,
       helper: (event) => {
@@ -1136,14 +1136,14 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
                 })
               }
               if (Math.abs(ui.offset.left - (mappers[i].left + 50) - $('#leftpanel').width()) < 50) {
-                letter.left = mappers[i].left + 70;
+                letter.left = mappers[i].left + 90;
                 letter.top = mappers[i].top + (leftmapper.items.length * 40) + 20;
                 leftmapper.items.push(letter)
                 if (leftmapper.items.length == 1) {
                   let firstleftitem = this.cloneObject(letter)
                   firstleftitem.typename = 'firstleftitem'
-                  firstleftitem.left = mappers[i].left + 12
-                  firstleftitem.top = mappers[i].top + 60;
+                  firstleftitem.left = mappers[i].left + 30
+                  firstleftitem.top = mappers[i].top + 61;
                   firstleftitem.belongsto = mappers[i].typename
 
                   mappers[i].leftitem = firstleftitem;
@@ -1159,8 +1159,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
                   firstrightitem.typename = 'firstrightitem'
                   firstrightitem.fill = '#460073'
                   firstrightitem.stroke = 'black'
-                  firstrightitem.left = mappers[i].left + 240
-                  firstrightitem.top = mappers[i].top + 60;
+                  firstrightitem.left = mappers[i].left + 238
+                  firstrightitem.top = mappers[i].top + 62;
                   firstrightitem.belongsto=mappers[i].typename
                   mappers[i].rightitem = firstrightitem;
                   firstrightitem.parent = mappers[i]
