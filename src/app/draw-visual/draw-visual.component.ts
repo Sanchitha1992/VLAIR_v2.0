@@ -92,11 +92,11 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       this.rowData.forEach(a => { this.highlight.push(false) })
     }
     this.canvas = new fabric.Canvas("maincanvas");
-    this.canvas.setDimensions({ width: 700, height: 220 });
+    this.canvas.setDimensions({ width: 650, height: 220 });
     this.canvas.typename = 'canvas'
 
     this.bottomcanvas = new fabric.Canvas("bottomcanvas");
-    this.bottomcanvas.setDimensions({ width: 700, height: 220 });
+    this.bottomcanvas.setDimensions({ width: 650, height: 220 });
 
     this.drawgraph(this.canvas);
 
@@ -108,9 +108,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   loadSelector() {
     let isDown, origX, origY, rect;
     this.canvas.on('mouse:down', o => {
-      if (rect != null) {
-        this.canvas.setActiveObject(rect);
-      }
+      
       if (this.selection == true && rect == null) {
         isDown = true;
         var pointer = this.canvas.getPointer(o.e);
@@ -130,25 +128,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         });
 
         this.canvas.add(rect);
-
-        this.canvas.setActiveObject(rect);
         rect.typename = 'selectionrect';
-
-        //document.getElementById('selectionPanel').style.display = 'block';
-        //document.getElementById('selectionPanel').style.left = origX + 'px';
-        //document.getElementById('selectionPanel').style.top = origY + 'px';
-      }
-      if (o.target != null && o.target.typename.indexOf('graph') > -1) {
-        //this.graph = o.target
-
-      }
-    });
-
-    this.canvas.on('object:moving', function (e) {
-      if (e.target.typename == 'selectionrect') {
-        // document.getElementById('selectionPanel').style.left = e.target.getLeft() + 'px';
-        // document.getElementById('selectionPanel').style.top = e.target.getTop() + 'px';
-
       }
     });
 
@@ -180,6 +160,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     this.canvas.on('mouse:up', (o) => {
       if (this.selection == true) {
         isDown = false;
+        this.selection = false;
       }
     });
   }
@@ -210,24 +191,6 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => { this.draganddropFunction(); }, 1000)
-
-    for (let i = 0; i < this.rowData.length; i++) {
-      let rightcanvas = new fabric.Canvas("canvas" + i);
-      rightcanvas.setDimensions({ width: 150, height: 100 });
-      let rect = new fabric.Rect({
-        left: 10,
-        top: 10,
-        originX: 'left',
-        originY: 'top',
-        width: 10,
-        height: 10,
-        angle: 0,
-        fill: 'rgba(0,0,0,0)',
-        transparentCorners: false
-      });
-
-      rightcanvas.add(rect);
-    }
   }
 
   undo() {
@@ -245,6 +208,9 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
 
   clearAll(canvas) {
+    if (canvas.typename == 'bottomcanvas') {
+      this.bottomcanvases.push(this.bottomcanvas)
+    }
     for (let i = canvas.getObjects().length; i >= 0; i--) {
       canvas.remove(canvas.getObjects()[i]);
     }
@@ -315,7 +281,62 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   }
 
   applyChanges() {
+    let selectionrect = this.canvas.getObjects().find(a => a.typename == 'selectionrect')
+    console.log(selectionrect.left)
 
+    for (let i = 0; i < this.rowData.length; i++) {
+      let rightcanvas = new fabric.Canvas("canvas" + i);
+      rightcanvas.setDimensions({ width: selectionrect.width, height: selectionrect.height });
+
+      let canvasObjects = this.canvas.getObjects();
+      for (let j = 0; j < canvasObjects.length; j++) {
+        let obj;
+        if (canvasObjects[j].typename == 'Rectangle' || canvasObjects[j].typename == 'Square') {
+          let height,width;
+          if (canvasObjects[j].heightColumn == null) {
+            height =canvasObjects[j].height * canvasObjects[j].scaleY
+          }
+          else {
+            let value=i
+            height = eval(canvasObjects[j].heightColumn)
+          }
+          if (canvasObjects[j].widthColumn == null) {
+            width = canvasObjects[j].width * canvasObjects[j].scaleX
+          }
+          else {
+            let value = i
+            width = eval(canvasObjects[j].widthColumn)
+          }
+           obj= new fabric.Rect({
+             left: canvasObjects[j].left - selectionrect.left, top: canvasObjects[j].top - selectionrect.top,
+             originX: 'left', originY: 'top', width: width, height: height, fill: '#460073'
+           })
+          rightcanvas.add(obj);
+        }
+        if (canvasObjects[j].mappername != null) {
+          let outputport = this.bottomcanvas.getObjects().find(x => x.belongsto == canvasObjects[j].mappername && x.typename == 'outputport')
+          let leftitems = outputport.leftitems.map(a => parseInt(a.value));
+          let rightitems = outputport.rightitems.map(a => a.value);
+          let colVal = d3.scaleLinear().domain([d3.min(leftitems), d3.max(leftitems)]).range(rightitems)
+          let evaluatable = outputport.column;
+          for (let i = 0; i < this.keys.length; i++) {
+            evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[i]["' + this.keys[i] + '"])');
+          }
+          evaluatable = '(' + evaluatable + ')'
+
+          let color = colVal(parseInt(eval(evaluatable)))
+          color = '#' + color.match(/\d+/g).map(function (x) {
+            x = parseInt(x).toString(16);
+            return (x.length == 1) ? "0" + x : x;
+          }).join("");
+          obj.fill = color;
+          obj.stroke = color;
+          rightcanvas.renderAll();
+        }
+      }
+
+      //rightcanvas.add(rect);
+    }
   }
 
 
@@ -345,6 +366,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
   changelength(value) {
     this.selectedObject.height = eval(parseFloat(value) + this.lengthOperator + this.lengthOperand);
+    this.selectedObject.heightColumn=null
     this.lengthTitle = ''
     this.canvas.renderAll();
     this.area = this.selectedObject.height * this.selectedObject.width
@@ -352,6 +374,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
   changewidth(value) {
     this.selectedObject.width = eval(parseFloat(value) + this.widthOperator + this.widthOperand);
+    this.selectedObject.widthColumn=null
     this.widthTitle = ''
     this.canvas.renderAll();
     this.area = this.selectedObject.height * this.selectedObject.width
@@ -595,15 +618,14 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     })
 
     document.addEventListener("mousedown", (evnt: any) => {
-      console.log(evnt)
-      if (evnt.srcElement != null && evnt.srcElement.className == 'colormidpanel') {
+      if ($(evnt.srcElement).siblings() != null && $(evnt.srcElement).siblings()[0] != null && $(evnt.srcElement).siblings()[0].value != null && $(evnt.srcElement).siblings()[0].value.indexOf('mapper') > -1) {
         ismidmapperselected = true;
         isoperatorselected = false;
         ismapperselected = false;
         ismidoperatorselected = false;
         source = evnt;
       }
-      else if (evnt.srcElement.innerText.indexOf('+') > -1 || evnt.srcElement.innerText.indexOf('-') > -1 || evnt.srcElement.innerText.indexOf('*') > -1 || evnt.srcElement.innerText.indexOf('/') > -1) {
+      else if ($(evnt.srcElement).siblings() != null && $(evnt.srcElement).siblings()[0]!=null && $(evnt.srcElement).siblings()[0].value!=null &&$(evnt.srcElement).siblings()[0].value.indexOf('operator')>-1) {
         ismidmapperselected = false;
         isoperatorselected = false;
         ismapperselected = false;
@@ -616,7 +638,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     })
 
     document.addEventListener("mouseup", evnt => {
-      console.log(evnt)
+      //console.log(evnt)
       let target: any = evnt.target;
       let positionX = evnt.pageX;
       let positionY = evnt.pageY;
@@ -626,7 +648,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
         let key = "idkey" + ($('#keytab')[0].children.length)
         let textkey = "idtextkey" + ($('#keytab')[0].children.length)
-        let keyelement = $("<span id='" + key + "' ><input type='text' id='" + textkey + "' style='width:100px;display:inline-block;font-size: 14px;padding: 5px 10px;margin: 2px;display: inline - flex;color: #fff;background-color:#460073' value='" + source.value + "'/><input type='hidden' value='" + source.value + "'/><input type='hidden' value='" + this.bottomcanvases.length + "'/></span>");
+        let keyelement = $("<span id='" + key + "' ><input type='text' id='" + textkey + "' style='width:100px;display:inline-block;font-size: 14px;padding: 5px 10px;margin: 2px;display: inline - flex;color: #fff;background-color:#460073' value='" + source.value + "'/><input type='hidden' value='" + source.belongsto + "'/><input type='hidden' value='" + this.bottomcanvases.length + "'/></span>");
         $('#keytab').append(keyelement);
         setTimeout(() => {
           $('#' + key).draggable({
@@ -659,7 +681,6 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           })
         }, 1000)
 
-        this.bottomcanvases.push(JSON.stringify(this.bottomcanvas))
       }
       else if (ismapperselected && target.id == 'keytab') {
         let leftitems = source._objects[0].items.map(a => parseInt(a.value));
@@ -705,35 +726,43 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             this.bottomcanvas.renderAll()
           })
         }, 1000)
-        this.bottomcanvases.push(JSON.stringify(this.bottomcanvas));
       }
       else if (ismidmapperselected && this.selectedObject != null) {
-        this.selectedObject.mapper = this.bottomcanvas.getObjects().filter(a => a.typename == source.srcElement.children[0].value)
-        this.color = '#' + source.srcElement.style['backgroundColor'].match(/\d+/g).map(function (x) {
-          x = parseInt(x).toString(16);
-          return (x.length == 1) ? "0" + x : x;
-        }).join("");
-        this.selectedObject.fill = source.srcElement.style['backgroundColor']
+        this.selectedObject.mappername = $(source.srcElement).siblings()[0].value;
+        this.selectedObject.bottomcanvasid = $(source.srcElement).siblings()[1].value;
+        this.selectedObject.fill = $(source.srcElement).val()
+        this.selectedObject.stroke = $(source.srcElement).val()
+
+        target.value = $(source.srcElement).val()
         this.canvas.renderAll()
       }
       else if (ismidoperatorselected && this.selectedObject != null) {
-        let evaluatable = source.srcElement.innerText;
+        let evaluatable = this.bottomcanvas.getObjects().find(x => x.typename == 'outputport' && x.belongsto == $(source.srcElement).siblings()[0].value).fieldName.replace("\n","");
         if (document.elementFromPoint(positionX, positionY).id == 'length') {
+          let value;
           for (let i = 0; i < this.keys.length; i++) {
-            evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[0]["' + this.keys[i] + '"])');
+            value = this.rowIndex;
+            evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[value]["' + this.keys[i] + '"])');
           }
           evaluatable = '(' + evaluatable + ')'
-
+          
           this.length = eval(evaluatable)
-          this.selectedObject.height = this.length
+          target.value = this.length
+          this.selectedObject.heightColumn = evaluatable + this.lengthOperator + this.lengthOperand;
+          this.selectedObject.height = eval(evaluatable + this.lengthOperator + this.lengthOperand)
+          this.canvas.renderAll()
         }
         else if (document.elementFromPoint(positionX, positionY).id == 'width') {
+          let evaluatable = this.bottomcanvas.getObjects().find(x => x.typename == 'outputport' && x.belongsto == $(source.srcElement).siblings()[0].value).fieldName.replace("\n", "");
           for (let i = 0; i < this.keys.length; i++) {
             evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[0]["' + this.keys[i] + '"])');
           }
           evaluatable = '(' + evaluatable + ')'
           this.width = eval(evaluatable)
-          this.selectedObject.width = this.width
+          target.value = this.width
+          this.selectedObject.widthColumn = evaluatable + this.widthOperator + this.widthOperand
+          this.selectedObject.width = eval(evaluatable + this.widthOperator + this.widthOperand)
+          this.canvas.renderAll()
         }
       }
       ismapperselected = false;
@@ -871,7 +900,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           selectable: false,
           editable: false,
           typename: 'outputport',
-          value: color
+          value: color,
+          belongsto:event.target.belongsto
         })
         line = new fabric.Line([outputport.left + 20, outputport.top + 5, a.left, a.top + 5], { stroke: 'black', selectable: false });
         this.bottomcanvas.add(line);

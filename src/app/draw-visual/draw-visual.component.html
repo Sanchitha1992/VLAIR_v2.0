@@ -27,12 +27,12 @@
         </table>
       </div>
     </div>
-    <div style="flex:75%">
+    <div style="flex:70%">
       <div style="height:320px;">
         <div style="display:flex;">
           <div style="flex:77%;">
             <div class="inlinediv" style="padding-left:15px;padding-right:15px;cursor:default">
-              <ul [style.background-color]="selection==true ? 'lightgrey' : null">
+              <ul [style.background-color]="selection==true ? 'lightgrey' : 'white'">
                 <li id="selectionPrototype" (click)="selection=!selection" class="circularBorder"><a><i class="fa fa-square" style="font-size:25px"></i></a></li>
               </ul>
               <div style="text-align:center">Select</div>
@@ -86,7 +86,7 @@
               </ul>
             </div>
             <div class="inlinediv" style="padding:7px">
-              <div style="display: inline-block; background-color: #460073;" class="keys" (click)="applyChanges()">
+              <div style="display: inline-block; background-color: #460073;padding:0px 0px" class="keys" (click)="applyChanges()">
                 Apply All
               </div>
             </div>
@@ -331,8 +331,8 @@
         </div>
       </div>
     </div>
-    <div id="rightpanel" style="flex:10%;border-left:black 1px solid">
-      <div class="inlinediv" *ngFor="let key of keys;let i=index">
+    <div id="rightpanel" style="flex:15%;border-left:black 1px solid;overflow:auto">
+      <div class="inlinediv" *ngFor="let key of rowData;let i=index">
         <canvas [id]="'canvas'+i" width="150" height="100"></canvas>
       </div>
     </div>
