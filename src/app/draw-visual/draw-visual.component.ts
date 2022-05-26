@@ -46,7 +46,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   keybg: any = [];
   sideTitle: string = '';
   radiusTitle: string = ''
-  rotation: any = '';
+  rotation: any;
   constructor(private route: ActivatedRoute, private dataService: DataService, private router: Router) { }
   public selection: boolean;
 
@@ -507,7 +507,12 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           }
           this.area = this.width * this.length;
           this.areaOperand = this.widthOperand * this.lengthOperand;
-          this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': true, 'width': true, 'side': false, 'radius': false }
+          this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': true, 'width': true, 'side': false, 'radius': false, 'area': true, 'rotation':true}
+        }
+        else if (this.selectedObject.typename == 'Graph') {
+          this.xposition = this.selectedObject.left;
+          this.yposition = this.selectedObject.top;
+          this.visibility = { 'xposition': true, 'yposition': true, 'color': false, 'length': false, 'width': false, 'side': false, 'radius': false, 'area': false, 'rotation':true }
         }
         else if (this.selectedObject.typename == 'Square') {
           this.xposition = this.selectedObject.left;
@@ -526,7 +531,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             }
           }
           this.area = this.selectedObject.width * this.selectedObject.width;
-          this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': false, 'width': false, 'side': true, 'radius': false }
+          this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': false, 'width': false, 'side': true, 'radius': false, 'area': true, 'rotation':true }
         }
         else if (this.selectedObject.typename == 'Circle') {
           this.xposition = this.selectedObject.left;
@@ -546,7 +551,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           }
           //this.radius = this.selectedObject.radius;
           this.area = 3.14 * this.selectedObject.radius * this.selectedObject.radius;
-          this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': false, 'width': false, 'side': false, 'radius': true }
+          this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': false, 'width': false, 'side': false, 'radius': true, 'area': true, 'rotation':true }
         }
         setTimeout(() => { this.draganddropFunction(); }, 1000)
 
@@ -1569,7 +1574,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   length: any;
   width: any;
   area: number;
-  drawgraph(canvas, scale = 1, select = false, left = 250, top = 50) {
+  
+  drawgraph(canvas, scale = 1, select = false, left = 100, top = 50) {
     var xaxis = new fabric.Line([250, 50, 250, 200], {
       stroke: 'black'
     });

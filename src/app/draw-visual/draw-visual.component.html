@@ -115,7 +115,7 @@
                 &nbsp;Coordinates:
               </div>
               <div style="display:flex" id="colorPaneldiv">
-                <div style="flex:50%;margin-left:10px;padding:5px">
+                <div style="flex:50%;margin-left:10px">
                   <div>
                     <select [ngModel]="selectedObject.graphname" (ngModelChange)="changeGraph($event)">
                       <ng-container *ngFor="let graphname of graphs">
@@ -128,22 +128,22 @@
 
               <hr>
             </div>
-            <div>
+            <div *ngIf="visibility!=null && visibility['color']==true">
               <div style="font-weight:bold;text-align:left">
                 &nbsp;Color:
               </div>
               <div style="display:flex" id="colorPaneldiv">
-                <div style="flex:50%;padding:5px;margin-left:10px"><input id="colorPanel" type="color" (ngModelChange)="changeColor($event)" [ngModel]="color" /></div>
+                <div style="flex:50%;margin-left:10px"><input id="colorPanel" type="color" (ngModelChange)="changeColor($event)" [ngModel]="color" /></div>
               </div>
 
               <hr>
             </div>
             <div>
-              <div style="font-weight:bold;text-align:left">
+              <div style="font-weight:bold;text-align:left" *ngIf="visibility!=null && visibility['rotation']==true">
                 &nbsp;Rotation:
               </div>
               <div style="display:flex" id="rotationPaneldiv">
-                <div style="flex:50%;padding:5px;margin-left:10px">
+                <div style="flex:50%;margin-left:10px">
                   <input id="rotationPanel" 
                   class="rightPanelTextbox" type="text" (ngModelChange)="changeRotation($event)" [ngModel]="rotation" />
                   &nbsp;<select [(ngModel)]="rotationOperator">
@@ -166,7 +166,7 @@
                 <div style="font-weight:bold;text-align:left">&nbsp;Length:</div>
               </div>
               <div>
-                <div id="divlength" style="padding:5px;margin-left:10px">
+                <div id="divlength" style="margin-left:10px">
                   <input id="length" [style.background-color]="lengthTitle!=''?'#3c1361':'white'" [style.color] = "lengthTitle!=''?'white':'black'"
                   [title]="lengthTitle" type="text" class="rightPanelTextbox" [ngModel]="length" (ngModelChange)="changelength($event)" />
                   &nbsp;<select [(ngModel)]="lengthOperator">
@@ -188,7 +188,7 @@
                 &nbsp;Width:
               </div>
               <div>
-                <div id="divwidth" style="padding:5px;margin-left:10px">
+                <div id="divwidth" style="margin-left:10px">
                   <input id="width" [style.background-color]="widthTitle!=''?'#3c1361':'white'" [style.color]="widthTitle!=''?'white':'black'"
                   [title]="widthTitle" type="text" class="rightPanelTextbox" [ngModel]="width" (ngModelChange)="changewidth($event)" />
                   &nbsp;<select [(ngModel)]="widthOperator">
@@ -210,7 +210,7 @@
                 &nbsp;Side:
               </div>
               <div>
-                <div id="divside" style="padding:5px;margin-left:10px">
+                <div id="divside" style="margin-left:10px">
                   <input id="side" [style.background-color]="sideTitle!=''?'#3c1361':'white'" [style.color]="sideTitle!=''?'white':'black'"
                   type="text" class="rightPanelTextbox" [ngModel]="side" (ngModelChange)="changeside($event)" title="sideTitle"> &nbsp;<select [(ngModel)]="sideOperator">
                     <option>*</option>
@@ -231,7 +231,7 @@
                 &nbsp;Radius:
               </div>
               <div>
-                <div id="divradius" style="padding:5px;margin-left:10px">
+                <div id="divradius" style="margin-left:10px">
                   <input [style.background-color]="radiusTitle!=''?'#3c1361':'white'" [style.color]="radiusTitle!=''?'white':'black'" 
                   id="radius" type="text" class="rightPanelTextbox" [ngModel]="radius" (ngModelChange)="changeradius($event)" />
                   &nbsp;<select [(ngModel)]="radiusOperator">
@@ -248,11 +248,12 @@
               </div>
               <hr>
             </div>
-            <div id="divarea">
+            <div id="divarea" *ngIf="visibility!=null && visibility['area']==true">
               <div style="font-weight:bold;text-align:left">&nbsp;Area:</div>
               <div>
-                <div style="padding:5px;margin-left:10px">
-                  <input type="text" class="rightPanelTextbox" [ngModel]="area" (ngModelChange)="changeArea($event)" />
+                <div style="margin-left:10px">
+                  <input type="text" [style.background-color]="areaTitle!=''?'#3c1361':'white'" [style.color]="areaTitle!=''?'white':'black'"
+                  class="rightPanelTextbox" [ngModel]="area" [title]="areaTitle" (ngModelChange)="changeArea($event)" />
                   &nbsp;<select [(ngModel)]="areaOperator">
                     <option>*</option>
                     <option>/</option>
@@ -282,7 +283,7 @@
         </div>
         <div style="flex:23%; border-left: black 1px solid;border-bottom: black 1px solid;">
           <div style="padding-left:10px">
-            <div id="addition-operator" draggable="true" style="border:black 1px solid;display:inline-block;border-radius:20px;padding:5px;margin:5px">
+            <div idrcvx="addition-operator" draggable="true" style="border:black 1px solid;display:inline-block;border-radius:20px;padding:5px;margin:5px">
               <i class="operator-additionIcon" style="font-size: 24px; color: #460073;"></i>
             </div>
 
