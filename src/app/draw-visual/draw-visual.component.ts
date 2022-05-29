@@ -108,7 +108,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   loadSelector() {
     let isDown, origX, origY, rect;
     this.canvas.on('mouse:down', o => {
-      
+
       if (this.selection == true && rect == null) {
         isDown = true;
         var pointer = this.canvas.getPointer(o.e);
@@ -292,12 +292,12 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       for (let j = 0; j < canvasObjects.length; j++) {
         let obj;
         if (canvasObjects[j].typename == 'Rectangle' || canvasObjects[j].typename == 'Square') {
-          let height,width;
+          let height, width;
           if (canvasObjects[j].heightColumn == null) {
-            height =canvasObjects[j].height * canvasObjects[j].scaleY
+            height = canvasObjects[j].height * canvasObjects[j].scaleY
           }
           else {
-            let value=i
+            let value = i
             height = eval(canvasObjects[j].heightColumn)
           }
           if (canvasObjects[j].widthColumn == null) {
@@ -307,10 +307,10 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             let value = i
             width = eval(canvasObjects[j].widthColumn)
           }
-           obj= new fabric.Rect({
-             left: canvasObjects[j].left - selectionrect.left, top: canvasObjects[j].top - selectionrect.top,
-             originX: 'left', originY: 'top', width: width, height: height, fill: '#460073'
-           })
+          obj = new fabric.Rect({
+            left: canvasObjects[j].left - selectionrect.left, top: canvasObjects[j].top - selectionrect.top,
+            originX: 'left', originY: 'top', width: width, height: height, fill: '#460073'
+          })
           rightcanvas.add(obj);
         }
         if (canvasObjects[j].mappername != null) {
@@ -366,7 +366,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
   changelength(value) {
     this.selectedObject.height = eval(parseFloat(value) + this.lengthOperator + this.lengthOperand);
-    this.selectedObject.heightColumn=null
+    this.selectedObject.heightColumn = null
     this.lengthTitle = ''
     this.canvas.renderAll();
     this.area = this.selectedObject.height * this.selectedObject.width
@@ -374,7 +374,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
   changewidth(value) {
     this.selectedObject.width = eval(parseFloat(value) + this.widthOperator + this.widthOperand);
-    this.selectedObject.widthColumn=null
+    this.selectedObject.widthColumn = null
     this.widthTitle = ''
     this.canvas.renderAll();
     this.area = this.selectedObject.height * this.selectedObject.width
@@ -507,12 +507,12 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           }
           this.area = this.width * this.length;
           this.areaOperand = this.widthOperand * this.lengthOperand;
-          this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': true, 'width': true, 'side': false, 'radius': false, 'area': true, 'rotation':true}
+          this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': true, 'width': true, 'side': false, 'radius': false, 'area': true, 'rotation': true }
         }
         else if (this.selectedObject.typename == 'Graph') {
           this.xposition = this.selectedObject.left;
           this.yposition = this.selectedObject.top;
-          this.visibility = { 'xposition': true, 'yposition': true, 'color': false, 'length': false, 'width': false, 'side': false, 'radius': false, 'area': false, 'rotation':true }
+          this.visibility = { 'xposition': true, 'yposition': true, 'color': false, 'length': false, 'width': false, 'side': false, 'radius': false, 'area': false, 'rotation': true }
         }
         else if (this.selectedObject.typename == 'Square') {
           this.xposition = this.selectedObject.left;
@@ -531,7 +531,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             }
           }
           this.area = this.selectedObject.width * this.selectedObject.width;
-          this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': false, 'width': false, 'side': true, 'radius': false, 'area': true, 'rotation':true }
+          this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': false, 'width': false, 'side': true, 'radius': false, 'area': true, 'rotation': true }
         }
         else if (this.selectedObject.typename == 'Circle') {
           this.xposition = this.selectedObject.left;
@@ -551,7 +551,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           }
           //this.radius = this.selectedObject.radius;
           this.area = 3.14 * this.selectedObject.radius * this.selectedObject.radius;
-          this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': false, 'width': false, 'side': false, 'radius': true, 'area': true, 'rotation':true }
+          this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': false, 'width': false, 'side': false, 'radius': true, 'area': true, 'rotation': true }
         }
         setTimeout(() => { this.draganddropFunction(); }, 1000)
 
@@ -630,7 +630,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         ismidoperatorselected = false;
         source = evnt;
       }
-      else if ($(evnt.srcElement).siblings() != null && $(evnt.srcElement).siblings()[0]!=null && $(evnt.srcElement).siblings()[0].value!=null &&$(evnt.srcElement).siblings()[0].value.indexOf('operator')>-1) {
+      else if ($(evnt.srcElement).siblings() != null && $(evnt.srcElement).siblings()[0] != null && $(evnt.srcElement).siblings()[0].value != null && $(evnt.srcElement).siblings()[0].value.indexOf('operator') > -1) {
         ismidmapperselected = false;
         isoperatorselected = false;
         ismapperselected = false;
@@ -684,8 +684,13 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             object.text = $(a.target).val();
             this.bottomcanvas.renderAll()
           })
-          let line = new fabric.Line([source.left, source.top+source.radius, source.left + 50, source.top + source.radius], { stroke: 'black', selectable: false });
-          let rect = new fabric.Rect({ left: line.left+line.width,top: line.top-10,
+
+        }, 1000)
+        if (source.belongsto.indexOf('operator') > -1) {
+
+          let line = new fabric.Line([source.left, source.top + source.radius, source.left + 50, source.top + source.radius], { stroke: 'black', selectable: false });
+          let rect = new fabric.Rect({
+            left: line.left + line.width, top: line.top - 10,
             originX: 'left',
             originY: 'top',
             width: 100,
@@ -696,7 +701,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           })
           let text = new fabric.IText(source.value, {
             left: rect.left + 20,
-            top: line.top ,
+            top: line.top,
             originX: 'left',
             originY: 'top',
             fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
@@ -706,12 +711,56 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             typename: 'text',
             belongsto: source.belongsto,
           })
-          if (source.belongsto.indexOf('Operator')>-1) {
-            this.bottomcanvas.add(line)
-            this.bottomcanvas.add(rect)
-            this.bottomcanvas.add(text)
+          this.bottomcanvas.add(line)
+          this.bottomcanvas.add(rect)
+          this.bottomcanvas.add(text)
+        }
+        if (source.belongsto.indexOf('mapper') > -1) {
+          let item = this.bottomcanvas.getObjects().find(x => x.belongsto == source.belongsto && x.typename == 'outputport')
+
+          let leftitems = item.leftitems.map(a => parseInt(a.value));
+          let rightitems = item.rightitems.map(a => a.value);
+          let colVal = d3.scaleLinear().domain([d3.min(leftitems), d3.max(leftitems)]).range(rightitems)
+          let evaluatable = item.column;
+          for (let i = 0; i < this.keys.length; i++) {
+            evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[0]["' + this.keys[i] + '"])');
           }
-        }, 1000)
+          evaluatable = '(' + evaluatable + ')'
+
+          let color = colVal(parseInt(eval(evaluatable)))
+          color = '#' + color.match(/\d+/g).map(function (x) {
+            x = parseInt(x).toString(16);
+            return (x.length == 1) ? "0" + x : x;
+          }).join("");
+
+          let outputport = this.bottomcanvas.getObjects().find(x => x.belongsto == source.belongsto && x.typename == 'outputport')
+          outputport.fill = color;
+          let a = new fabric.Rect({
+            left: outputport.left + 60,
+            top: outputport.top,
+            originX: 'left',
+            originY: 'top',
+            width: 100,
+            height: 30,
+            fill: '#460073',
+            transparentCorners: false, selectable: false
+          })
+          let b = new fabric.IText(source.value, {
+            left: outputport.left + 75,
+            top: outputport.top + 5,
+            originX: 'left',
+            originY: 'top',
+            fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+            fill: 'white',
+            fontSize: 13,
+            selectable: false,
+          })
+         
+          let line = new fabric.Line([outputport.left + 20, outputport.top + 5, a.left, a.top + 5], { stroke: 'black', selectable: false });
+          this.bottomcanvas.add(line);
+          this.bottomcanvas.add(a)
+          this.bottomcanvas.add(b)
+        }
 
       }
       else if (ismapperselected && target.id == 'keytab') {
@@ -762,22 +811,24 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       else if (ismidmapperselected && this.selectedObject != null) {
         this.selectedObject.mappername = $(source.srcElement).siblings()[0].value;
         this.selectedObject.bottomcanvasid = $(source.srcElement).siblings()[1].value;
-        this.selectedObject.fill = $(source.srcElement).val()
-        this.selectedObject.stroke = $(source.srcElement).val()
-
-        target.value = $(source.srcElement).val()
+       
+        let outputport = this.bottomcanvas.getObjects().find(a => a.typename == 'outputport' && a.belongsto == $(source.srcElement).siblings()[0].value)
+        this.selectedObject.fill = outputport.fill
+        this.selectedObject.stroke = outputport.fill
+        target.value = outputport.fill;
         this.canvas.renderAll()
       }
       else if (ismidoperatorselected && this.selectedObject != null) {
-        let evaluatable = this.bottomcanvas.getObjects().find(x => x.typename == 'outputport' && x.belongsto == $(source.srcElement).siblings()[0].value).fieldName.replace("\n","");
-        if (document.elementFromPoint(positionX, positionY).id == 'length') {
+        let evaluatable = this.bottomcanvas.getObjects().find(x => x.typename == 'outputport' && x.belongsto == $(source.srcElement).siblings()[0].value).fieldName.replace("\n", "");
+        if (target.id == 'length') {
+          this.lengthTitle = evaluatable
           let value;
           for (let i = 0; i < this.keys.length; i++) {
             value = this.rowIndex;
             evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[value]["' + this.keys[i] + '"])');
           }
           evaluatable = '(' + evaluatable + ')'
-          
+
           this.length = eval(evaluatable)
           target.value = this.length
           this.selectedObject.heightColumn = evaluatable + this.lengthOperator + this.lengthOperand;
@@ -786,6 +837,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         }
         else if (document.elementFromPoint(positionX, positionY).id == 'width') {
           let evaluatable = this.bottomcanvas.getObjects().find(x => x.typename == 'outputport' && x.belongsto == $(source.srcElement).siblings()[0].value).fieldName.replace("\n", "");
+          this.widthTitle = evaluatable
           for (let i = 0; i < this.keys.length; i++) {
             evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[0]["' + this.keys[i] + '"])');
           }
@@ -806,8 +858,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
     this.bottomcanvas.on("mouse:up", (event) => {
       console.log(event.target)
-      
-      if (source != null && (source.typename == 'key' || source.typename == 'outputport') && event.target != null  && (event.target.typename == 'topline' || event.target.typename == 'bottomline')) {
+
+      if (source != null && (source.typename == 'key' || source.typename == 'outputport') && event.target != null && (event.target.typename == 'topline' || event.target.typename == 'bottomline')) {
         event.target.column = source.fieldName;
 
         let pointer = this.bottomcanvas.getPointer(event.e);
@@ -823,7 +875,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           let a = new fabric.Path('M360.342,216.266L219.373,113.882c-9.783-7.106-22.723-8.121-33.498-2.63c-10.771,5.49-17.556,16.559-17.556,28.65V344.67    c0,12.092,6.784,23.158,17.556,28.646c4.61,2.348,9.611,3.506,14.6,3.506c6.666,0,13.301-2.07,18.898-6.138l140.969-102.383    c8.33-6.047,13.256-15.719,13.256-26.018C373.598,231.988,368.672,222.312,360.342,216.266z M242.285,0C108.688,0,0.004,108.689,0.004,242.283c0,133.592,108.686,242.283,242.281,242.283    c133.594,0,242.278-108.691,242.278-242.283C484.562,108.689,375.881,0,242.285,0z M242.285,425.027    c-100.764,0-182.744-81.979-182.744-182.744c0-100.766,81.98-182.742,182.744-182.742s182.745,81.976,182.745,182.742    C425.029,343.049,343.049,425.027,242.285,425.027z', {
             scaleX: .05, scaleY: .05,
             left: operator.left + operator.width + 7,
-            top: operator.top +(operator.height/3),
+            top: operator.top + (operator.height / 3),
             originX: 'left',
             originY: 'top',
             fill: '#black',
@@ -831,11 +883,11 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             belongsto: event.target.belongsto,
           })
 
-          let b = new fabric.Path('M16,20V16H1V9H16V5l8,7.5Z', { left: a.left + (a.width*a.scaleX), top: a.top + (a.height*a.scaleY/4), typename: 'outputline', belongsto: event.target.belongto });
+          let b = new fabric.Path('M16,20V16H1V9H16V5l8,7.5Z', { left: a.left + (a.width * a.scaleX), top: a.top + (a.height * a.scaleY / 4), typename: 'outputline', belongsto: event.target.belongto });
 
           let c = new fabric.Rect({
-            left: b.left+b.width,
-            top: operator.top+10 ,
+            left: b.left + b.width,
+            top: operator.top + 10,
             originX: 'left',
             originY: 'top',
             width: 50,
@@ -858,10 +910,10 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             fieldName: bottomline.column + '\n' + operator.text + '\n' + topline.column,
             belongsto: event.target.belongsto,
           })
-          let outputport = this.bottomcanvas.getObjects().filter(a=>a.typename=='outputport' && a.value!=null && a.value.indexOf('Operator')>-1)
+          let outputport = this.bottomcanvas.getObjects().filter(a => a.typename == 'outputport' && a.value != null && a.value.indexOf('Operator') > -1)
           let e = new fabric.Circle({
-            left: c.left +c.width,
-            top: c.top+(c.height/3),
+            left: c.left + c.width,
+            top: c.top + (c.height / 3),
             originX: 'left',
             originY: 'top',
             radius: 7,
@@ -870,7 +922,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             typename: 'outputport',
             belongsto: event.target.belongsto,
             fieldName: bottomline.column + '\n' + operator.text + '\n' + topline.column,
-            value: 'Operator ' + (outputport.length+1),
+            value: 'Operator ' + (outputport.length + 1),
           })
 
           this.bottomcanvas.add(a)
@@ -880,74 +932,20 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           this.bottomcanvas.add(e)
         }
       }
-      if (source != null && (source.typename == 'outputport' || source.typename == 'key') && event.target != null && event.target.typename == 'isNumericData') {
-        let line = new fabric.Line([source.left, source.top+(source.radius/2), event.target.left, event.target.top+(event.target.height/2)], { stroke: 'black', selectable: false });
-        event.target.value = this.rowData[this.rowIndex][source.fieldName];
-        this.bottomcanvas.add(line)
-      }
       if (source != null && (source.typename == 'outputport' || source.typename == 'key') && event.target != null && event.target.typename == 'firstleftitem') {
         let pointer = this.bottomcanvas.getPointer(event.e);
         let line = new fabric.Line([this.positionX, this.positionY, pointer.x, pointer.y], { stroke: 'black', selectable: false });
         this.bottomcanvas.add(line);
 
         let item = this.bottomcanvas.getObjects().find(x => x.belongsto == event.target.belongsto && x.typename == 'outputport')
-        item.column = source.fieldName;//this.calculateMapping(source);
-
-        let leftitems = item.leftitems.map(a => parseInt(a.value));
-        let rightitems = item.rightitems.map(a => a.value);
-        let colVal = d3.scaleLinear().domain([d3.min(leftitems), d3.max(leftitems)]).range(rightitems)
-        let evaluatable = source.fieldName;
-        for (let i = 0; i < this.keys.length; i++) {
-          evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[0]["' + this.keys[i] + '"])');
-        }
-        evaluatable = '(' + evaluatable + ')'
-
-        let color = colVal(parseInt(eval(evaluatable)))
-        color = '#' + color.match(/\d+/g).map(function (x) {
-          x = parseInt(x).toString(16);
-          return (x.length == 1) ? "0" + x : x;
-        }).join("");
-
-        let outputport = this.bottomcanvas.getObjects().find(x => x.belongsto == event.target.belongsto && x.typename == 'outputport')
-        let a = new fabric.Rect({
-          left: outputport.left + 60,
-          top: outputport.top,
-          originX: 'left',
-          originY: 'top',
-          width: 100,
-          height: 30,
-          fill: '#460073',
-          transparentCorners: false, selectable: false
-        })
-        let b = new fabric.IText(color, {
-          left: outputport.left + 75,
-          top: outputport.top + 5,
-          originX: 'left',
-          originY: 'top',
-          fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-          fill: 'white',
-          fontSize: 13,
-          selectable: false,
-        })
-        let c = new fabric.Circle({
-          left: a.left + a.width,
-          top: outputport.top + 5,
-          originX: 'left',
-          originY: 'top',
-          radius: 7,
-          fill: '#460073',
-          selectable: false,
-          editable: false,
-          typename: 'outputport',
-          value: color,
-          belongsto:event.target.belongsto
-        })
-        line = new fabric.Line([outputport.left + 20, outputport.top + 5, a.left, a.top + 5], { stroke: 'black', selectable: false });
-        this.bottomcanvas.add(line);
-        this.bottomcanvas.add(a)
-        this.bottomcanvas.add(b)
-        this.bottomcanvas.add(c)
+        item.column = source.fieldName;
       }
+      if (source != null && (source.typename == 'outputport' || source.typename == 'key') && event.target != null && event.target.typename == 'isNumericData') {
+        let line = new fabric.Line([source.left, source.top + (source.radius / 2), event.target.left, event.target.top + (event.target.height / 2)], { stroke: 'black', selectable: false });
+        event.target.value = this.rowData[this.rowIndex][source.fieldName];
+        this.bottomcanvas.add(line)
+      }
+
 
       if (event.target != null && event.target.typename != null && (event.target.typename.indexOf('Data') > -1 || event.target.typename == 'firstleftitem')) {
 
@@ -1164,13 +1162,13 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       drop: (ev, ui) => {
         if (ui.draggable[0].id == 'isNumericData' || ui.draggable[0].id == 'isColorData' || ui.draggable[0].id == 'isStringData') {
           // console.log(this.bottomcanvas.getObjects())
-          let mappers = this.bottomcanvas.getObjects().filter(x => x.typename != null && x.mainname=='mapper')
+          let mappers = this.bottomcanvas.getObjects().filter(x => x.typename != null && x.mainname == 'mapper')
           for (let i = 0; i < mappers.length; i++) {
             let mapper = mappers[i];
             let leftitem = this.bottomcanvas.getObjects().find(x => x.belongsto == mapper.belongsto && x.typename == 'leftinput')
             let rightitem = this.bottomcanvas.getObjects().find(x => x.belongsto == mapper.belongsto && x.typename == 'rightinput')
 
-            if (leftitem.left - (ui.offset.left - $('#leftpanel').width()) < leftitem.width+10 || rightitem.left - (ui.offset.left - $('#leftpanel').width()) < rightitem.width+10) {
+            if (leftitem.left - (ui.offset.left - $('#leftpanel').width()) < leftitem.width + 10 || rightitem.left - (ui.offset.left - $('#leftpanel').width()) < rightitem.width + 10) {
 
               if (mapper.leftitems == null) {
                 mapper.leftitems = [];
@@ -1197,7 +1195,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
                   fontFamily: 'arial', fill: '#460073', fontSize: 25, typename: ui.draggable[0].id, value: "", selectable: false, belongsto: mapper.belongsto
                 })
               }
-              if (leftitem.left - (ui.offset.left - $('#leftpanel').width())>0 && leftitem.left - (ui.offset.left - $('#leftpanel').width()) < leftitem.width+5) {
+              if (leftitem.left - (ui.offset.left - $('#leftpanel').width()) > 0 && leftitem.left - (ui.offset.left - $('#leftpanel').width()) < leftitem.width + 5) {
                 letter.left = leftitem.left + 10;
                 letter.top = leftitem.top + (mapper.leftitems.length * letter.height);
                 mapper.leftitems.push(letter)
@@ -1213,21 +1211,25 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
                   this.bottomcanvas.add(firstleftitem)
                 }
               }
-              if (rightitem.left - (ui.offset.left - $('#leftpanel').width())>0 && rightitem.left - (ui.offset.left - $('#leftpanel').width()) < rightitem.width+5) {
+              if (rightitem.left - (ui.offset.left - $('#leftpanel').width()) > 0 && rightitem.left - (ui.offset.left - $('#leftpanel').width()) < rightitem.width + 5) {
                 letter.left = rightitem.left + 10,
-                letter.top = rightitem.top + (mapper.rightitems.length * letter.height) +10
+                  letter.top = rightitem.top + (mapper.rightitems.length * letter.height) + 10
                 mapper.rightitems.push(letter)
                 if (mapper.rightitems.length == 1) {
                   let firstrightitem = this.cloneObject(letter)
                   let firstrightitemContainer = this.bottomcanvas.getObjects().find(x => x.belongsto == mapper.belongsto && x.typename == 'outputport')
-                  firstrightitem.typename = 'firstrightitem'
+                  firstrightitemContainer.typename = 'firstrightitemContainer'
+                  firstrightitem.leftitems = firstrightitemContainer.leftitems
+                  firstrightitem.rightitems = firstrightitemContainer.rightitems
+                  firstrightitem.typename = 'outputport'
                   firstrightitem.fill = '#460073'
                   firstrightitem.stroke = 'black'
                   firstrightitem.left = firstrightitemContainer.left + 10
                   firstrightitem.top = firstrightitemContainer.top;
-                  firstrightitem.belongsto = mappers[i].typename
+                  firstrightitem.belongsto = firstrightitemContainer.belongsto
+                  firstrightitem.value= 'Mapper ' + this.bottomcanvas.getObjects().filter(x => x.typename == 'mapper').length
+
                   mappers[i].firstrightitem = firstrightitem;
-                  firstrightitem.parent = mappers[i]
                   this.bottomcanvas.add(firstrightitem)
                 }
               }
@@ -1239,12 +1241,12 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         else if (ui.draggable[0].id == 'addition-operator') {
 
           let belongto = 'operator ' + this.bottomcanvas.getObjects().filter(x => x.typename == 'operator').length;
-          let topline = new fabric.Path('M360.342,216.266L219.373,113.882c-9.783-7.106-22.723-8.121-33.498-2.63c-10.771,5.49-17.556,16.559-17.556,28.65V344.67    c0,12.092,6.784,23.158,17.556,28.646c4.61,2.348,9.611,3.506,14.6,3.506c6.666,0,13.301-2.07,18.898-6.138l140.969-102.383    c8.33-6.047,13.256-15.719,13.256-26.018C373.598,231.988,368.672,222.312,360.342,216.266z M242.285,0C108.688,0,0.004,108.689,0.004,242.283c0,133.592,108.686,242.283,242.281,242.283    c133.594,0,242.278-108.691,242.278-242.283C484.562,108.689,375.881,0,242.285,0z M242.285,425.027    c-100.764,0-182.744-81.979-182.744-182.744c0-100.766,81.98-182.742,182.744-182.742s182.745,81.976,182.745,182.742    C425.029,343.049,343.049,425.027,242.285,425.027z', { scaleX: .05, scaleY: .05, left: ui.offset.left - $('#leftpanel').width() , top: ui.offset.top - this.bottomcanvas._offset.top, typename: 'topline', belongsto: belongto });
-          let bottomline = new fabric.Path('M360.342,216.266L219.373,113.882c-9.783-7.106-22.723-8.121-33.498-2.63c-10.771,5.49-17.556,16.559-17.556,28.65V344.67    c0,12.092,6.784,23.158,17.556,28.646c4.61,2.348,9.611,3.506,14.6,3.506c6.666,0,13.301-2.07,18.898-6.138l140.969-102.383    c8.33-6.047,13.256-15.719,13.256-26.018C373.598,231.988,368.672,222.312,360.342,216.266z M242.285,0C108.688,0,0.004,108.689,0.004,242.283c0,133.592,108.686,242.283,242.281,242.283    c133.594,0,242.278-108.691,242.278-242.283C484.562,108.689,375.881,0,242.285,0z M242.285,425.027    c-100.764,0-182.744-81.979-182.744-182.744c0-100.766,81.98-182.742,182.744-182.742s182.745,81.976,182.745,182.742    C425.029,343.049,343.049,425.027,242.285,425.027z', { scaleX: .05, scaleY: .05, left: ui.offset.left - $('#leftpanel').width() , top: ui.offset.top - this.bottomcanvas._offset.top+30 , typename: 'bottomline', belongsto: belongto });
+          let topline = new fabric.Path('M360.342,216.266L219.373,113.882c-9.783-7.106-22.723-8.121-33.498-2.63c-10.771,5.49-17.556,16.559-17.556,28.65V344.67    c0,12.092,6.784,23.158,17.556,28.646c4.61,2.348,9.611,3.506,14.6,3.506c6.666,0,13.301-2.07,18.898-6.138l140.969-102.383    c8.33-6.047,13.256-15.719,13.256-26.018C373.598,231.988,368.672,222.312,360.342,216.266z M242.285,0C108.688,0,0.004,108.689,0.004,242.283c0,133.592,108.686,242.283,242.281,242.283    c133.594,0,242.278-108.691,242.278-242.283C484.562,108.689,375.881,0,242.285,0z M242.285,425.027    c-100.764,0-182.744-81.979-182.744-182.744c0-100.766,81.98-182.742,182.744-182.742s182.745,81.976,182.745,182.742    C425.029,343.049,343.049,425.027,242.285,425.027z', { scaleX: .05, scaleY: .05, left: ui.offset.left - $('#leftpanel').width(), top: ui.offset.top - this.bottomcanvas._offset.top, typename: 'topline', belongsto: belongto });
+          let bottomline = new fabric.Path('M360.342,216.266L219.373,113.882c-9.783-7.106-22.723-8.121-33.498-2.63c-10.771,5.49-17.556,16.559-17.556,28.65V344.67    c0,12.092,6.784,23.158,17.556,28.646c4.61,2.348,9.611,3.506,14.6,3.506c6.666,0,13.301-2.07,18.898-6.138l140.969-102.383    c8.33-6.047,13.256-15.719,13.256-26.018C373.598,231.988,368.672,222.312,360.342,216.266z M242.285,0C108.688,0,0.004,108.689,0.004,242.283c0,133.592,108.686,242.283,242.281,242.283    c133.594,0,242.278-108.691,242.278-242.283C484.562,108.689,375.881,0,242.285,0z M242.285,425.027    c-100.764,0-182.744-81.979-182.744-182.744c0-100.766,81.98-182.742,182.744-182.742s182.745,81.976,182.745,182.742    C425.029,343.049,343.049,425.027,242.285,425.027z', { scaleX: .05, scaleY: .05, left: ui.offset.left - $('#leftpanel').width(), top: ui.offset.top - this.bottomcanvas._offset.top + 30, typename: 'bottomline', belongsto: belongto });
 
           let plusoperator = new fabric.IText('+', {
-            left: bottomline.left+25 ,
-            top: ui.offset.top - this.bottomcanvas._offset.top-12,
+            left: bottomline.left + 25,
+            top: ui.offset.top - this.bottomcanvas._offset.top - 12,
             fontFamily: 'arial',
             fontStyle: 'bold',
             fill: '#3c1361',
@@ -1253,25 +1255,25 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             belongsto: belongto
           });
           let rect = new fabric.Rect({
-            left: ui.offset.left - $('#leftpanel').width() +22,
-            top: ui.offset.top - this.bottomcanvas._offset.top ,
+            left: ui.offset.left - $('#leftpanel').width() + 22,
+            top: ui.offset.top - this.bottomcanvas._offset.top,
             originX: 'left',
             originY: 'top',
             width: 50,
-            height:50,
+            height: 50,
             fill: 'transparent',
             border: 'black',
             strokeWidth: .9,
             stroke: "black",
             belongsto: belongto
           });
-        
+
 
           this.bottomcanvas.add(plusoperator)
           this.bottomcanvas.add(rect);
           this.bottomcanvas.add(topline);
           this.bottomcanvas.add(bottomline);
-         // this.bottomcanvas.add(outputline);
+          // this.bottomcanvas.add(outputline);
 
         }
         else if (ui.draggable[0].id == 'mapperWidget') {
@@ -1288,7 +1290,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           //  typename:'leftinputsmallitem'
           //});
           let leftinput = new fabric.Circle({
-            left: ui.offset.left - $('#leftpanel').width() ,
+            left: ui.offset.left - $('#leftpanel').width(),
             top: ui.offset.top - this.bottomcanvas._offset.top + (mapperheight / 3),
             originX: 'left',
             originY: 'top',
@@ -1319,7 +1321,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             fill: 'transparent',
             transparentCorners: false,
             belongsto: belongto,
-            typename: 'rightinput'
+            typename: 'rightinput',
           });
 
           let outershape = new fabric.Rect({
@@ -1342,7 +1344,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             fill: 'transparent',
             belongsto: belongto,
             typename: 'outputport',
-            mainname: 'mapper',
+            mainname: 'mapper'
           });
 
           //let rightoutputsmall = new fabric.Circle({
@@ -1608,7 +1610,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   length: any;
   width: any;
   area: number;
-  
+
   drawgraph(canvas, scale = 1, select = false, left = 100, top = 50) {
     var xaxis = new fabric.Line([250, 50, 250, 200], {
       stroke: 'black'
