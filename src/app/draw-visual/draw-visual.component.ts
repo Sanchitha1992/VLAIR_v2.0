@@ -858,7 +858,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             fieldName: bottomline.column + '\n' + operator.text + '\n' + topline.column,
             belongsto: event.target.belongsto,
           })
-          let outputport = this.bottomcanvas.getObjects().filter(a=>a.typename=='outputport' && a.value.indexOf('Operator')>-1)
+          let outputport = this.bottomcanvas.getObjects().filter(a=>a.typename=='outputport' && a.value!=null && a.value.indexOf('Operator')>-1)
           let e = new fabric.Circle({
             left: c.left +c.width,
             top: c.top+(c.height/3),
@@ -1215,7 +1215,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
                 mapper.rightitems.push(letter)
                 if (mapper.rightitems.length == 1) {
                   let firstrightitem = this.cloneObject(letter)
-                  let firstrightitemContainer = this.bottomcanvas.getObjects().find(x => x.belongsto == mapper.belongsto && x.typename == 'firstrightitemContainer')
+                  let firstrightitemContainer = this.bottomcanvas.getObjects().find(x => x.belongsto == mapper.belongsto && x.typename == 'outputport')
                   firstrightitem.typename = 'firstrightitem'
                   firstrightitem.fill = '#460073'
                   firstrightitem.stroke = 'black'
@@ -1337,28 +1337,27 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             radius: 20,
             fill: 'transparent',
             belongsto: belongto,
-            typename:'firstrightitemContainer'
+            typename: 'outputport',
+            mainname: 'mapper',
           });
 
-          let rightoutputsmall = new fabric.Circle({
-            left: rightoutput.left + (rightoutput.radius * 2),
-            top: ui.offset.top - this.bottomcanvas._offset.top + (shape.height / 3) + (rightoutput.radius / 2),
-            originX: 'left',
-            originY: 'top',
-            radius: 10,
-            fill: 'black',
-            belongsto: belongto,
-            mainname:'mapper',
-            typename: 'outputport',
-            selectable:false
-          });
+          //let rightoutputsmall = new fabric.Circle({
+          //  left: rightoutput.left + (rightoutput.radius * 2),
+          //  top: ui.offset.top - this.bottomcanvas._offset.top + (shape.height / 3) + (rightoutput.radius / 2),
+          //  originX: 'left',
+          //  originY: 'top',
+          //  radius: 10,
+          //  fill: 'black',
+          //  belongsto: belongto,
+          //  typename: 'outputport',
+          //  selectable:false
+          //});
 
           this.bottomcanvas.add(leftinput)
           this.bottomcanvas.add(shape)
           this.bottomcanvas.add(rightshape)
           this.bottomcanvas.add(rightoutput)
           this.bottomcanvas.add(outershape)
-          this.bottomcanvas.add(rightoutputsmall)
         }
         else if ($(ui.draggable).hasClass("keys")) {
           let mappers = this.bottomcanvas.getObjects().filter(x => x.typename != null && x.typename.indexOf('mapper') > -1)
