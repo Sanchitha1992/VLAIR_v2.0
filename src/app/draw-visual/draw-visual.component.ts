@@ -684,6 +684,33 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             object.text = $(a.target).val();
             this.bottomcanvas.renderAll()
           })
+          let line = new fabric.Line([source.left, source.top+source.radius, source.left + 50, source.top + source.radius], { stroke: 'black', selectable: false });
+          let rect = new fabric.Rect({ left: line.left+line.width,top: line.top-10,
+            originX: 'left',
+            originY: 'top',
+            width: 100,
+            height: 30,
+            fill: 'white',
+            transparentCorners: false, selectable: false,
+            belongsto: source.belongsto,
+          })
+          let text = new fabric.IText(source.value, {
+            left: rect.left + 20,
+            top: line.top ,
+            originX: 'left',
+            originY: 'top',
+            fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+            fill: '#460073',
+            fontSize: 13,
+            selectable: false,
+            typename: 'text',
+            value: 'Operator ',
+            belongsto: source.belongsto,
+          })
+          this.bottomcanvas.add(line)
+          this.bottomcanvas.add(rect)
+          this.bottomcanvas.add(text)
+          
         }, 1000)
 
       }
@@ -793,46 +820,48 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         let operator = this.bottomcanvas.getObjects().find(x => x.belongsto == event.target.belongsto && x.typename == 'operator')
         if (bottomline.column != null && topline.column != null) {
 
-          let d = new fabric.Circle({
-            left: outputline.left + 25,
-            top: outputline.top,
+          let a = new fabric.Path('M360.342,216.266L219.373,113.882c-9.783-7.106-22.723-8.121-33.498-2.63c-10.771,5.49-17.556,16.559-17.556,28.65V344.67    c0,12.092,6.784,23.158,17.556,28.646c4.61,2.348,9.611,3.506,14.6,3.506c6.666,0,13.301-2.07,18.898-6.138l140.969-102.383    c8.33-6.047,13.256-15.719,13.256-26.018C373.598,231.988,368.672,222.312,360.342,216.266z M242.285,0C108.688,0,0.004,108.689,0.004,242.283c0,133.592,108.686,242.283,242.281,242.283    c133.594,0,242.278-108.691,242.278-242.283C484.562,108.689,375.881,0,242.285,0z M242.285,425.027    c-100.764,0-182.744-81.979-182.744-182.744c0-100.766,81.98-182.742,182.744-182.742s182.745,81.976,182.745,182.742    C425.029,343.049,343.049,425.027,242.285,425.027z', {
+            scaleX: .05, scaleY: .05,
+            left: operator.left + operator.width + 7,
+            top: operator.top +(operator.height/3),
             originX: 'left',
             originY: 'top',
-            radius: 7,
             fill: '#black',
             selectable: false, editable: false,
             belongsto: event.target.belongsto,
           })
 
-          let a = new fabric.Rect({
-            left: outputline.left + 25 + (d.radius * 2),
-            top: outputline.top - 25,
+          let b = new fabric.Path('M16,20V16H1V9H16V5l8,7.5Z', { left: a.left + (a.width*a.scaleX), top: a.top + (a.height*a.scaleY/4), typename: 'outputline', belongsto: event.target.belongto });
+
+          let c = new fabric.Rect({
+            left: b.left+b.width,
+            top: operator.top+10 ,
             originX: 'left',
             originY: 'top',
-            width: 100,
-            height: 60,
-            fill: '#460073',
+            width: 50,
+            height: 50,
+            fill: 'white',
             transparentCorners: false, selectable: false,
             belongsto: event.target.belongsto,
           })
-          let text = this.bottomcanvas.getObjects().filter(a => a.typename == 'outputport').length
-          let b = new fabric.IText('Operator ' + (text + 1), {
-            left: outputline.left + 35 + (d.radius * 2),
-            top: outputline.top - 10,
+          let d = new fabric.IText('#', {
+            left: b.left + (b.width * b.scaleX) + 10,
+            top: operator.top + 10,
             originX: 'left',
             originY: 'top',
             fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-            fill: 'white',
-            fontSize: 13,
+            fill: '#460073',
+            fontSize: 40,
             selectable: false,
             typename: 'text',
-            value: 'Operator ' + (text + 1),
+            value: 'Operator ',
             fieldName: bottomline.column + '\n' + operator.text + '\n' + topline.column,
             belongsto: event.target.belongsto,
           })
-          let c = new fabric.Circle({
-            left: outputline.left + (d.radius * 2) + a.width + 25,
-            top: outputline.top,
+          let outputport = this.bottomcanvas.getObjects().filter(a=>a.typename=='outputport' && a.value.indexOf('Operator')>-1)
+          let e = new fabric.Circle({
+            left: c.left +c.width,
+            top: c.top+(c.height/3),
             originX: 'left',
             originY: 'top',
             radius: 7,
@@ -841,13 +870,14 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             typename: 'outputport',
             belongsto: event.target.belongsto,
             fieldName: bottomline.column + '\n' + operator.text + '\n' + topline.column,
-            value: 'Operator ' + (text + 1),
+            value: 'Operator ' + (outputport.length+1),
           })
 
-          this.bottomcanvas.add(d)
           this.bottomcanvas.add(a)
           this.bottomcanvas.add(b)
           this.bottomcanvas.add(c)
+          this.bottomcanvas.add(d)
+          this.bottomcanvas.add(e)
         }
       }
 
@@ -1205,37 +1235,39 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         else if (ui.draggable[0].id == 'addition-operator') {
 
           let belongto = 'operator ' + this.bottomcanvas.getObjects().filter(x => x.typename == 'operator').length;
+          let topline = new fabric.Path('M360.342,216.266L219.373,113.882c-9.783-7.106-22.723-8.121-33.498-2.63c-10.771,5.49-17.556,16.559-17.556,28.65V344.67    c0,12.092,6.784,23.158,17.556,28.646c4.61,2.348,9.611,3.506,14.6,3.506c6.666,0,13.301-2.07,18.898-6.138l140.969-102.383    c8.33-6.047,13.256-15.719,13.256-26.018C373.598,231.988,368.672,222.312,360.342,216.266z M242.285,0C108.688,0,0.004,108.689,0.004,242.283c0,133.592,108.686,242.283,242.281,242.283    c133.594,0,242.278-108.691,242.278-242.283C484.562,108.689,375.881,0,242.285,0z M242.285,425.027    c-100.764,0-182.744-81.979-182.744-182.744c0-100.766,81.98-182.742,182.744-182.742s182.745,81.976,182.745,182.742    C425.029,343.049,343.049,425.027,242.285,425.027z', { scaleX: .05, scaleY: .05, left: ui.offset.left - $('#leftpanel').width() , top: ui.offset.top - this.bottomcanvas._offset.top, typename: 'topline', belongsto: belongto });
+          let bottomline = new fabric.Path('M360.342,216.266L219.373,113.882c-9.783-7.106-22.723-8.121-33.498-2.63c-10.771,5.49-17.556,16.559-17.556,28.65V344.67    c0,12.092,6.784,23.158,17.556,28.646c4.61,2.348,9.611,3.506,14.6,3.506c6.666,0,13.301-2.07,18.898-6.138l140.969-102.383    c8.33-6.047,13.256-15.719,13.256-26.018C373.598,231.988,368.672,222.312,360.342,216.266z M242.285,0C108.688,0,0.004,108.689,0.004,242.283c0,133.592,108.686,242.283,242.281,242.283    c133.594,0,242.278-108.691,242.278-242.283C484.562,108.689,375.881,0,242.285,0z M242.285,425.027    c-100.764,0-182.744-81.979-182.744-182.744c0-100.766,81.98-182.742,182.744-182.742s182.745,81.976,182.745,182.742    C425.029,343.049,343.049,425.027,242.285,425.027z', { scaleX: .05, scaleY: .05, left: ui.offset.left - $('#leftpanel').width() , top: ui.offset.top - this.bottomcanvas._offset.top+30 , typename: 'bottomline', belongsto: belongto });
+
           let plusoperator = new fabric.IText('+', {
-            left: ui.offset.left - $('#leftpanel').width() + 50,
-            top: ui.offset.top - this.bottomcanvas._offset.top - 2,
+            left: bottomline.left+25 ,
+            top: ui.offset.top - this.bottomcanvas._offset.top-12,
             fontFamily: 'arial',
             fontStyle: 'bold',
             fill: '#3c1361',
-            fontSize: 50,
+            fontSize: 70,
             typename: 'operator',
             belongsto: belongto
           });
-          let circle = new fabric.Circle({
-            left: ui.offset.left - $('#leftpanel').width() + 46,
-            top: ui.offset.top - this.bottomcanvas._offset.top + 6,
+          let rect = new fabric.Rect({
+            left: ui.offset.left - $('#leftpanel').width() +22,
+            top: ui.offset.top - this.bottomcanvas._offset.top ,
             originX: 'left',
             originY: 'top',
-            radius: 18,
+            width: 50,
+            height:50,
             fill: 'transparent',
             border: 'black',
             strokeWidth: .9,
             stroke: "black",
             belongsto: belongto
           });
-          let topline = new fabric.Path('M16,20V16H1V9H16V5l8,7.5Z', { left: ui.offset.left - 170, top: ui.offset.top - this.bottomcanvas._offset.top, typename: 'topline', belongsto: belongto });
-          let bottomline = new fabric.Path('M16,20V16H1V9H16V5l8,7.5Z', { left: ui.offset.left - 170, top: ui.offset.top - this.bottomcanvas._offset.top + 32, typename: 'bottomline', belongsto: belongto });
-          let outputline = new fabric.Path('M16,20V16H1V9H16V5l8,7.5Z', { left: ui.offset.left - 118, top: ui.offset.top - this.bottomcanvas._offset.top + 15, typename: 'outputline', belongsto: belongto });
+        
 
           this.bottomcanvas.add(plusoperator)
-          this.bottomcanvas.add(circle);
+          this.bottomcanvas.add(rect);
           this.bottomcanvas.add(topline);
           this.bottomcanvas.add(bottomline);
-          this.bottomcanvas.add(outputline);
+         // this.bottomcanvas.add(outputline);
 
         }
         else if (ui.draggable[0].id == 'mapperWidget') {
