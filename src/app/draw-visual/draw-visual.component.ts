@@ -704,13 +704,13 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             fontSize: 13,
             selectable: false,
             typename: 'text',
-            value: 'Operator ',
             belongsto: source.belongsto,
           })
-          this.bottomcanvas.add(line)
-          this.bottomcanvas.add(rect)
-          this.bottomcanvas.add(text)
-          
+          if (source.belongsto.indexOf('Operator')>-1) {
+            this.bottomcanvas.add(line)
+            this.bottomcanvas.add(rect)
+            this.bottomcanvas.add(text)
+          }
         }, 1000)
 
       }
@@ -881,7 +881,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         }
       }
 
-      if (source != null && (source.typename == 'outputport' || source.typename == 'key') && event.target != null &&  event.target.typename == 'leftinputsmallitem') {
+      if (source != null && (source.typename == 'outputport' || source.typename == 'key') && event.target != null && event.target.typename == 'firstleftitem') {
         let pointer = this.bottomcanvas.getPointer(event.e);
         let line = new fabric.Line([this.positionX, this.positionY, pointer.x, pointer.y], { stroke: 'black', selectable: false });
         this.bottomcanvas.add(line);
@@ -1203,7 +1203,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
                   firstleftitem.typename = 'firstleftitem'
                   firstleftitem.left = firstleftitemContainer.left + 5
                   firstleftitem.top = firstleftitemContainer.top;
-                  firstleftitem.belongsto = mappers[i].typename
+                  firstleftitem.belongsto = firstleftitemContainer.belongsto
 
                   mappers[i].firstleftitem = firstleftitem;
                   this.bottomcanvas.add(firstleftitem)
@@ -1273,18 +1273,18 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         else if (ui.draggable[0].id == 'mapperWidget') {
           let mapperheight = 150
           let belongto = 'mapper ' + this.bottomcanvas.getObjects().filter(x => x.typename == 'mapper').length;
-          let leftinputsmall = new fabric.Circle({
-            left: ui.offset.left - $('#leftpanel').width(),
-            top: ui.offset.top - this.bottomcanvas._offset.top + (mapperheight / 3) + 10,
-            originX: 'left',
-            originY: 'top',
-            radius: 10,
-            fill: 'black',
-            belongsto: belongto,
-            typename:'leftinputsmallitem'
-          });
+          //let leftinputsmall = new fabric.Circle({
+          //  left: ui.offset.left - $('#leftpanel').width(),
+          //  top: ui.offset.top - this.bottomcanvas._offset.top + (mapperheight / 3) + 10,
+          //  originX: 'left',
+          //  originY: 'top',
+          //  radius: 10,
+          //  fill: 'black',
+          //  belongsto: belongto,
+          //  typename:'leftinputsmallitem'
+          //});
           let leftinput = new fabric.Circle({
-            left: ui.offset.left - $('#leftpanel').width() + (leftinputsmall.radius * 2),
+            left: ui.offset.left - $('#leftpanel').width() ,
             top: ui.offset.top - this.bottomcanvas._offset.top + (mapperheight / 3),
             originX: 'left',
             originY: 'top',
@@ -1359,7 +1359,6 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           this.bottomcanvas.add(rightoutput)
           this.bottomcanvas.add(outershape)
           this.bottomcanvas.add(rightoutputsmall)
-          this.bottomcanvas.add(leftinputsmall);
         }
         else if ($(ui.draggable).hasClass("keys")) {
           let mappers = this.bottomcanvas.getObjects().filter(x => x.typename != null && x.typename.indexOf('mapper') > -1)
