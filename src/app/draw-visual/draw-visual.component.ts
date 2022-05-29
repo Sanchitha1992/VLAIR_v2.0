@@ -880,7 +880,11 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           this.bottomcanvas.add(e)
         }
       }
-
+      if (source != null && (source.typename == 'outputport' || source.typename == 'key') && event.target != null && event.target.typename == 'isNumericData') {
+        let line = new fabric.Line([source.left, source.top+(source.radius/2), event.target.left, event.target.top+(event.target.height/2)], { stroke: 'black', selectable: false });
+        event.target.value = this.rowData[this.rowIndex][source.fieldName];
+        this.bottomcanvas.add(line)
+      }
       if (source != null && (source.typename == 'outputport' || source.typename == 'key') && event.target != null && event.target.typename == 'firstleftitem') {
         let pointer = this.bottomcanvas.getPointer(event.e);
         let line = new fabric.Line([this.positionX, this.positionY, pointer.x, pointer.y], { stroke: 'black', selectable: false });
