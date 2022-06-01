@@ -148,10 +148,9 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         rect.set({ height: Math.abs(origY - pointer.y) });
         this.canvas.remove(rect);
         this.canvas.add(rect);
-        this.canvas.setActiveObject(rect);
 
         this.canvas.renderAll();
-
+        this.canvas.sendToBack(rect)
         //(document.getElementById('selectionWidth') as any).value = rect.width;
         //(document.getElementById('selectionHeight') as any).value = rect.height;
       }
