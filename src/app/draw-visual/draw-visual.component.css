@@ -46,15 +46,15 @@ ul, ol {
 
 .menu li a {
   padding: 7px 13px;
-  color: #460073;
+  color: #27063b;
+  font-weight: bold;  
 }
 
 .inlinediv {
   display: inline-table;
-  box-shadow: 0 0 8px #0e0e0038;
+  box-shadow: 0 0 8px #96968c38;
   background-color: #fff;
   margin: 2px;
-  padding: 2px
 }
 
 body {
