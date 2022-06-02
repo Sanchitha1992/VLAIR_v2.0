@@ -105,8 +105,36 @@
               <hr />      
               <div>
                 <div style="font-weight:bold;text-align:left">&nbsp;Position:</div>
-                <div id ="divxposition" style="margin-left: 10px"><span>X:</span><input type="text" class="rightPanelTextbox" [ngModel]="xposition" (ngModelChange)="changex($event)"></div>
-                <div><span>Y:</span><input type="text" class="rightPanelTextbox" [ngModel]="yposition" (ngModelChange)="changey($event)" /></div>
+                <div id ="divxposition" style="margin-left: 10px">
+                  <span>X:</span>
+                  <input id="xposition" [style.background-color]="xPositionTitle!=''?'#3c1361':'white'" [style.color] = "xPositionTitle!=''?'white':'black'"
+                  [title]="xPositionTitle" type="text" class="rightPanelTextbox" [ngModel]="xposition" (ngModelChange)="changex($event)">
+                  &nbsp;<select [(ngModel)]="xPositionOperator">
+                    <option>*</option>
+                    <option>/</option>
+                  </select>
+                  &nbsp;<select [(ngModel)]="xPositionOperand">
+                    <option>1</option>
+                    <option>10</option>
+                    <option>100</option>
+                    <option>1000</option>
+                  </select>
+                </div>
+                <div id="divyposition" style="margin-left: 10px">
+                  <span>Y:</span>
+                  <input id="yposition" [style.background-color]="yPositionTitle!=''?'#3c1361':'white'" [style.color] = "yPositionTitle!=''?'white':'black'"
+                  [title]="yPositionTitle" type="text" class="rightPanelTextbox" [ngModel]="yposition" (ngModelChange)="changey($event)" />
+                  &nbsp;<select [(ngModel)]="xPositionOperator">
+                    <option>*</option>
+                    <option>/</option>
+                  </select>
+                  &nbsp;<select [(ngModel)]="xPositionOperand">
+                    <option>1</option>
+                    <option>10</option>
+                    <option>100</option>
+                    <option>1000</option>
+                  </select>
+                </div>
               </div>
               <hr>
             </div>

@@ -41,6 +41,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   operatorToolboxVisible: boolean = false;
   valuesToolboxVisible: boolean = false;
   lengthTitle: any = '';
+  xPositionTitle: any = '';
+  yPositionTitle: any = '';
   widthTitle: any = '';
   areaTitle: any = '';
   keybg: any = [];
@@ -355,7 +357,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   }
 
   changex(value) {
-    this.selectedObject.left = parseFloat(value);
+    this.selectedObject.left = eval(parseFloat(value) + this.xPositionOperator + this.xPositionOperand) + this.graph.left;
+    this.xPositionTitle = '';
     this.canvas.renderAll();
   }
 
@@ -438,6 +441,10 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   bottomcanvases: any = [];
   areaOperator: any = '*';
   areaOperand: any = 10;
+  xPositionOperator: any = '*';
+  xPositionOperand: any = 10;
+  yPositionOperator: any = '*';
+  yPositionOperand: any = 10;
   draganddropFunction() {
 
     for (let i = 0; i < this.keys.length; i++) {
@@ -1028,7 +1035,25 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       }
     });
 
-    $("#rotationPaneldiv").droppable({
+    $("#divxposition").droppable({
+      drop: (ev, ui) => {
+        console.log(ui.draggable[0])
+
+        let evaluatable = ui.draggable[0].innerText;
+        let value = this.rowIndex;
+        for (let i = 0; i < this.keys.length; i++) {
+          evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[value]["' + this.keys[i] + '"])');
+        }
+        evaluatable = '(' + evaluatable + ')'
+
+        this.xposition = eval(evaluatable)
+        this.selectedObject.left = eval(evaluatable + this.xPositionOperator + this.xPositionOperand) + this.graph.left;
+        this.xPositionTitle = ui.draggable[0].innerText;
+        this.canvas.renderAll();
+      }
+    });
+
+        $("#rotationPaneldiv").droppable({
       drop: (ev, ui) => {
         console.log(ui.draggable[0])
 
