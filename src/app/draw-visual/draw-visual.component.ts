@@ -363,7 +363,9 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   }
 
   changey(value) {
-    this.selectedObject.top = parseFloat(value);
+    this.selectedObject.top = eval(parseFloat(value) + this.yPositionOperator + this.yPositionOperand) + this.graph.top + this.graph.height - this.yposition - (this.selectedObject.height * this.selectedObject.scaleY);
+    //this.yposition = this.graph.top + this.graph.height - this.selectedObject.top - (this.selectedObject.height * this.selectedObject.scaleY);
+    this.yPositionTitle = '';
     this.canvas.renderAll();
   }
 
