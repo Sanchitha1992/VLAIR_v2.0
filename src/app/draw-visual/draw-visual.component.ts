@@ -869,9 +869,31 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     this.bottomcanvas.on("mouse:up", (event) => {
       console.log(event.target)
       if (source != null && source.typename == 'outputport' && source.belongsto != null && source.belongsto.indexOf('isNumericData') > -1) {
-        event.target.value = source.value;
-        let line = new fabric.Line([source.left, source.top+2, event.target.left, event.target.top+10], { stroke: 'black', selectable: false });
+        
+        let letter= new fabric.IText('#', {
+          fontFamily: 'arial', fill: '#460073', fontSize: 35, typename: 'isNumericData', value: "", selectable: false, editable: false, belongsto: event.target.belongsto
+        });
+        let mapper = this.bottomcanvas.getObjects().find(x => x.typename != null && x.mainname == 'mapper')
+        let leftinput = this.bottomcanvas.getObjects().find(x => x.typename == 'leftinput' && x.belongsto == event.target.belongsto)
+        if (mapper.leftitems == null) { mapper.leftitems = [] }
+        letter.left = leftinput.left + 10;
+        letter.top = leftinput.top + (mapper.leftitems.length * letter.height);
+        letter.value = source.value;
+        mapper.leftitems.push(letter)
+
+        let line = new fabric.Line([source.left, source.top + 2, letter.left, letter.top +10], { stroke: 'black', selectable: false });
         this.bottomcanvas.add(line)
+        if (mapper.leftitems.length == 1) {
+          let firstleftitem = this.cloneObject(letter)
+          let firstleftitemContainer = this.bottomcanvas.getObjects().find(x => x.belongsto == mapper.belongsto && x.typename == 'firstleftitemContainer')
+          firstleftitem.typename = 'firstleftitem'
+          firstleftitem.left = firstleftitemContainer.left + 5
+          firstleftitem.top = firstleftitemContainer.top;
+          firstleftitem.belongsto = firstleftitemContainer.belongsto
+
+          this.bottomcanvas.add(firstleftitem)
+        }
+        this.bottomcanvas.add(letter)
       }
       else if (source != null && (source.typename == 'key' || source.typename == 'outputport') && event.target != null && (event.target.typename == 'topline' || event.target.typename == 'bottomline')) {
         event.target.column = source.fieldName;
