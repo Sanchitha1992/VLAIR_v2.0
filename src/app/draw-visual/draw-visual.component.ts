@@ -41,6 +41,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   operatorToolboxVisible: boolean = false;
   valuesToolboxVisible: boolean = false;
   lengthTitle: any = '';
+  xPositionTitle: any = '';
+  yPositionTitle: any = '';
   widthTitle: any = '';
   areaTitle: any = '';
   keybg: any = [];
@@ -92,11 +94,11 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       this.rowData.forEach(a => { this.highlight.push(false) })
     }
     this.canvas = new fabric.Canvas("maincanvas");
-    this.canvas.setDimensions({ width: 650, height: 220 });
+    this.canvas.setDimensions({ width: 850, height: 235 });
     this.canvas.typename = 'canvas'
 
     this.bottomcanvas = new fabric.Canvas("bottomcanvas");
-    this.bottomcanvas.setDimensions({ width: 650, height: 220 });
+    this.bottomcanvas.setDimensions({ width: 850, height: 315 });
 
     this.drawgraph(this.canvas);
 
@@ -354,12 +356,15 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   }
 
   changex(value) {
-    this.selectedObject.left = parseFloat(value);
+    this.selectedObject.left = eval(parseFloat(value) + this.xPositionOperator + this.xPositionOperand) + this.graph.left;
+    this.xPositionTitle = '';
     this.canvas.renderAll();
   }
 
   changey(value) {
-    this.selectedObject.top = parseFloat(value);
+    this.selectedObject.top = eval(parseFloat(value) + this.yPositionOperator + this.yPositionOperand) + this.graph.top + this.graph.height - this.yposition - (this.selectedObject.height * this.selectedObject.scaleY);
+    //this.yposition = this.graph.top + this.graph.height - this.selectedObject.top - (this.selectedObject.height * this.selectedObject.scaleY);
+    this.yPositionTitle = '';
     this.canvas.renderAll();
   }
 
@@ -437,6 +442,10 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   bottomcanvases: any = [];
   areaOperator: any = '*';
   areaOperand: any = 10;
+  xPositionOperator: any = '*';
+  xPositionOperand: any = 10;
+  yPositionOperator: any = '*';
+  yPositionOperand: any = 10;
   draganddropFunction() {
 
     for (let i = 0; i < this.keys.length; i++) {
@@ -882,27 +891,27 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             belongsto: event.target.belongsto,
           })
 
-          let b = new fabric.Path('M16,20V16H1V9H16V5l8,7.5Z', { left: a.left + (a.width * a.scaleX), top: a.top + (a.height * a.scaleY / 4), typename: 'outputline', belongsto: event.target.belongto });
+          let b = new fabric.Path('M16,20V16H1V9H16V5l8,7Z', { left: a.left + (a.width * a.scaleX)-15, top: a.top + (a.height * a.scaleY / 4)-10, typename: 'outputline', belongsto: event.target.belongto });
 
           let c = new fabric.Rect({
             left: b.left + b.width,
             top: operator.top + 10,
             originX: 'left',
             originY: 'top',
-            width: 50,
-            height: 50,
+            width: 30,
+            height: 30,
             fill: 'white',
             transparentCorners: false, selectable: false,
             belongsto: event.target.belongsto,
           })
           let d = new fabric.IText('#', {
-            left: b.left + (b.width * b.scaleX) + 10,
+            left: b.left + (b.width * b.scaleX)+6,
             top: operator.top + 10,
             originX: 'left',
             originY: 'top',
             fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-            fill: '#460073',
-            fontSize: 40,
+            fill: '#3c1361',
+            fontSize: 30,
             selectable: false,
             typename: 'text',
             value: 'Operator ',
@@ -915,7 +924,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             top: c.top + (c.height / 3),
             originX: 'left',
             originY: 'top',
-            radius: 7,
+            radius: 5,
             fill: 'black',
             selectable: false, editable: false,
             typename: 'outputport',
@@ -923,8 +932,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             fieldName: bottomline.column + '\n' + operator.text + '\n' + topline.column,
             value: 'Operator ' + (outputport.length + 1),
           })
-
-          this.bottomcanvas.add(a)
+          
+          //this.bottomcanvas.add(a)
           this.bottomcanvas.add(b)
           this.bottomcanvas.add(c)
           this.bottomcanvas.add(d)
@@ -1027,7 +1036,25 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       }
     });
 
-    $("#rotationPaneldiv").droppable({
+    $("#divxposition").droppable({
+      drop: (ev, ui) => {
+        console.log(ui.draggable[0])
+
+        let evaluatable = ui.draggable[0].innerText;
+        let value = this.rowIndex;
+        for (let i = 0; i < this.keys.length; i++) {
+          evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[value]["' + this.keys[i] + '"])');
+        }
+        evaluatable = '(' + evaluatable + ')'
+
+        this.xposition = eval(evaluatable)
+        this.selectedObject.left = eval(evaluatable + this.xPositionOperator + this.xPositionOperand) + this.graph.left;
+        this.xPositionTitle = ui.draggable[0].innerText;
+        this.canvas.renderAll();
+      }
+    });
+
+        $("#rotationPaneldiv").droppable({
       drop: (ev, ui) => {
         console.log(ui.draggable[0])
 
@@ -1240,16 +1267,17 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         else if (ui.draggable[0].id == 'addition-operator') {
 
           let belongto = 'operator ' + this.bottomcanvas.getObjects().filter(x => x.typename == 'operator').length;
-          let topline = new fabric.Path('M360.342,216.266L219.373,113.882c-9.783-7.106-22.723-8.121-33.498-2.63c-10.771,5.49-17.556,16.559-17.556,28.65V344.67    c0,12.092,6.784,23.158,17.556,28.646c4.61,2.348,9.611,3.506,14.6,3.506c6.666,0,13.301-2.07,18.898-6.138l140.969-102.383    c8.33-6.047,13.256-15.719,13.256-26.018C373.598,231.988,368.672,222.312,360.342,216.266z M242.285,0C108.688,0,0.004,108.689,0.004,242.283c0,133.592,108.686,242.283,242.281,242.283    c133.594,0,242.278-108.691,242.278-242.283C484.562,108.689,375.881,0,242.285,0z M242.285,425.027    c-100.764,0-182.744-81.979-182.744-182.744c0-100.766,81.98-182.742,182.744-182.742s182.745,81.976,182.745,182.742    C425.029,343.049,343.049,425.027,242.285,425.027z', { scaleX: .05, scaleY: .05, left: ui.offset.left - $('#leftpanel').width(), top: ui.offset.top - this.bottomcanvas._offset.top, typename: 'topline', belongsto: belongto });
-          let bottomline = new fabric.Path('M360.342,216.266L219.373,113.882c-9.783-7.106-22.723-8.121-33.498-2.63c-10.771,5.49-17.556,16.559-17.556,28.65V344.67    c0,12.092,6.784,23.158,17.556,28.646c4.61,2.348,9.611,3.506,14.6,3.506c6.666,0,13.301-2.07,18.898-6.138l140.969-102.383    c8.33-6.047,13.256-15.719,13.256-26.018C373.598,231.988,368.672,222.312,360.342,216.266z M242.285,0C108.688,0,0.004,108.689,0.004,242.283c0,133.592,108.686,242.283,242.281,242.283    c133.594,0,242.278-108.691,242.278-242.283C484.562,108.689,375.881,0,242.285,0z M242.285,425.027    c-100.764,0-182.744-81.979-182.744-182.744c0-100.766,81.98-182.742,182.744-182.742s182.745,81.976,182.745,182.742    C425.029,343.049,343.049,425.027,242.285,425.027z', { scaleX: .05, scaleY: .05, left: ui.offset.left - $('#leftpanel').width(), top: ui.offset.top - this.bottomcanvas._offset.top + 30, typename: 'bottomline', belongsto: belongto });
+          let topline = new fabric.Path('M360.342,216.266L219.373,113.882c-9.783-7.106-22.723-8.121-33.498-2.63c-10.771,5.49-17.556,16.559-17.556,28.65V344.67    c0,12.092,6.784,23.158,17.556,28.646c4.61,2.348,9.611,3.506,14.6,3.506c6.666,0,13.301-2.07,18.898-6.138l140.969-102.383    c8.33-6.047,13.256-15.719,13.256-26.018C373.598,231.988,368.672,222.312,360.342,216.266z M242.285,0C108.688,0,0.004,108.689,0.004,242.283c0,133.592,108.686,242.283,242.281,242.283    c133.594,0,242.278-108.691,242.278-242.283C484.562,108.689,375.881,0,242.285,0z M242.285,425.027    c-100.764,0-182.744-81.979-182.744-182.744c0-100.766,81.98-182.742,182.744-182.742s182.745,81.976,182.745,182.742    C425.029,343.049,343.049,425.027,242.285,425.027z', { scaleX: .03, scaleY: .03, left: ui.offset.left - $('#leftpanel').width()+7, top: ui.offset.top - this.bottomcanvas._offset.top-2, typename: 'topline', belongsto: belongto });
+          let bottomline = new fabric.Path('M360.342,216.266L219.373,113.882c-9.783-7.106-22.723-8.121-33.498-2.63c-10.771,5.49-17.556,16.559-17.556,28.65V344.67    c0,12.092,6.784,23.158,17.556,28.646c4.61,2.348,9.611,3.506,14.6,3.506c6.666,0,13.301-2.07,18.898-6.138l140.969-102.383    c8.33-6.047,13.256-15.719,13.256-26.018C373.598,231.988,368.672,222.312,360.342,216.266z M242.285,0C108.688,0,0.004,108.689,0.004,242.283c0,133.592,108.686,242.283,242.281,242.283    c133.594,0,242.278-108.691,242.278-242.283C484.562,108.689,375.881,0,242.285,0z M242.285,425.027    c-100.764,0-182.744-81.979-182.744-182.744c0-100.766,81.98-182.742,182.744-182.742s182.745,81.976,182.745,182.742    C425.029,343.049,343.049,425.027,242.285,425.027z', { scaleX: .03, scaleY: .03, left: ui.offset.left - $('#leftpanel').width()+7, top: ui.offset.top - this.bottomcanvas._offset.top + 19, typename: 'bottomline', belongsto: belongto });
+          let outline = new fabric.Path('M360.342,216.266L219.373,113.882c-9.783-7.106-22.723-8.121-33.498-2.63c-10.771,5.49-17.556,16.559-17.556,28.65V344.67    c0,12.092,6.784,23.158,17.556,28.646c4.61,2.348,9.611,3.506,14.6,3.506c6.666,0,13.301-2.07,18.898-6.138l140.969-102.383    c8.33-6.047,13.256-15.719,13.256-26.018C373.598,231.988,368.672,222.312,360.342,216.266z M242.285,0C108.688,0,0.004,108.689,0.004,242.283c0,133.592,108.686,242.283,242.281,242.283    c133.594,0,242.278-108.691,242.278-242.283C484.562,108.689,375.881,0,242.285,0z M242.285,425.027    c-100.764,0-182.744-81.979-182.744-182.744c0-100.766,81.98-182.742,182.744-182.742s182.745,81.976,182.745,182.742    C425.029,343.049,343.049,425.027,242.285,425.027z', { scaleX: .03, scaleY: .03, left: ui.offset.left - $('#leftpanel').width()+53.5, top: ui.offset.top - this.bottomcanvas._offset.top+8, typename: 'bottomline', belongsto: belongto });
+
 
           let plusoperator = new fabric.IText('+', {
-            left: bottomline.left + 25,
-            top: ui.offset.top - this.bottomcanvas._offset.top - 12,
+            left: bottomline.left + 15.5,
+            top: ui.offset.top - this.bottomcanvas._offset.top - 10.5,
             fontFamily: 'arial',
-            fontStyle: 'bold',
             fill: '#3c1361',
-            fontSize: 70,
+            fontSize: 50,
             typename: 'operator',
             belongsto: belongto
           });
@@ -1258,8 +1286,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             top: ui.offset.top - this.bottomcanvas._offset.top,
             originX: 'left',
             originY: 'top',
-            width: 50,
-            height: 50,
+            width: 30,
+            height: 30,
             fill: 'transparent',
             border: 'black',
             strokeWidth: .9,
@@ -1272,6 +1300,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           this.bottomcanvas.add(rect);
           this.bottomcanvas.add(topline);
           this.bottomcanvas.add(bottomline);
+          this.bottomcanvas.add(outline);
           // this.bottomcanvas.add(outputline);
 
         }
