@@ -207,7 +207,6 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   }
 
 
-
   clearAll(canvas) {
     if (canvas.typename == 'bottomcanvas') {
       this.bottomcanvases.push(this.bottomcanvas)
@@ -280,7 +279,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
     this.canvas.renderAll();
   }
-
+  rightcanvases: any[]=[];
   applyChanges() {
     let selectionrect = this.canvas.getObjects().find(a => a.typename == 'selectionrect')
     console.log(selectionrect.left)
@@ -335,6 +334,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           rightcanvas.renderAll();
         }
       }
+      this.rightcanvases.push(rightcanvas)
 
       //rightcanvas.add(rect);
     }
@@ -867,9 +867,62 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     })
 
     this.bottomcanvas.on("mouse:up", (event) => {
-      console.log(event.target)
-      if (source != null && source.typename == 'outputport' && source.belongsto != null && source.belongsto.indexOf('isNumericData') > -1) {
+      if (source != null && source.typename == 'outputport' && source.belongsto != null && source.belongsto.indexOf('key') > -1 && event.target == null) {
+        console.log(source)
+        let pointer = this.bottomcanvas.getPointer(event.e);
+        let inputport = new fabric.Circle({
+          left: pointer.x,
+          top: pointer.y,
+          originX: 'left',
+          originY: 'top',
+          radius: 5,
+          fill: 'black',
+          typename: 'outputport',
+          belongsto: 'isNumericData ' + this.bottomcanvas.getObjects().filter(x => x.typename == 'outputport' && x.belongsto == 'isNumericData').length, selectable: false
+        });
+        let rect = new fabric.Rect({
+          left: inputport.left + (inputport.radius * 2),
+          top: inputport.top-10, originX: 'left', originY: 'top',
+          width: 30, height: 30, fill: 'transparent', border: 'black',
+          strokeWidth: .9, stroke: "black", selectable: false
+        });
+        let hash = new fabric.IText('#', {
+          left: rect.left+3,
+          top: rect.top+1,
+          fontFamily: 'arial',
+          fill: '#3c1361',
+          fontSize: 30,
+          typename: 'isNumericData',
+          belongsto: 'isNumericData ' + this.bottomcanvas.getObjects().filter(x => x.typename == 'outputport' && x.belongsto == 'isNumericData').length, selectable: false
+        });
         
+        let outputport = new fabric.Circle({
+          left: rect.left+rect.width ,
+          top: rect.top+(rect.height/3) ,
+          originX: 'left',
+          originY: 'top',
+          radius: 5,
+          fill: 'black',
+          typename: 'outputport',
+          belongsto: 'isNumericData ' + this.bottomcanvas.getObjects().filter(x => x.typename == 'outputport' && x.belongsto == 'isNumericData').length, selectable: false
+        });
+        let line = new fabric.Line([source.left, source.top+3, pointer.x+2, pointer.y+2], { stroke: 'black', selectable: false });
+        this.bottomcanvas.add(inputport)
+        this.bottomcanvas.add(rect);
+        this.bottomcanvas.add(hash);
+        this.bottomcanvas.add(outputport);
+        this.bottomcanvas.add(line)
+
+        let evaluatable = source.fieldName
+        let value = this.rowIndex;
+        for (let i = 0; i < this.keys.length; i++) {
+          evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[value]["' + this.keys[i] + '"])');
+        }
+        evaluatable = '(' + evaluatable + ')'
+
+        outputport.value = eval(evaluatable)
+      }
+      else if (source != null && source.typename == 'outputport' && source.belongsto != null && source.belongsto.indexOf('isNumericData') > -1 && event.target!=null) {
         let letter= new fabric.IText('#', {
           fontFamily: 'arial', fill: '#460073', fontSize: 35, typename: 'isNumericData', value: "", selectable: false, editable: false, belongsto: event.target.belongsto
         });
@@ -990,7 +1043,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       }
 
 
-      if (event.target != null && event.target.typename != null && (event.target.typename.indexOf('Data') > -1 || event.target.typename == 'firstleftitem')) {
+      if (event.target != null && event.target.typename != null && (event.target.typename.indexOf('Data') > -1)) {
 
         $('#mapperPopup').css('display', 'block')
         $('#mapperPopup').css('left', event.target.left + $('#leftpanel').width() + 30 + 'px')
@@ -1021,7 +1074,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       {
         this.bottomcanvas.getObjects().find(x => x.typename == 'outputport' && x.belongsto == selectedPopupElement.belongsto).value = $('#mappedPopuptext').val()
       }
-      else if (selectedPopupElement.typename == 'isColorData') {
+      if (selectedPopupElement.typename == 'isColorData') {
         selectedPopupElement.fill = selectedPopupElement.value;
         selectedPopupElement.stroke = selectedPopupElement.value;
       }
@@ -1522,6 +1575,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
               fill: 'white',
               fontSize: 13,
               selectable: false
+
             })
             let c = new fabric.Circle({
               left: ui.offset.left - $('#leftpanel').width() + a.width,
@@ -1530,15 +1584,12 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
               originY: 'top',
               radius: 7,
               fill: 'black',
-              selectable: false
+              selectable: false,
+              typename: 'outputport',
+              belongsto: 'key ' + this.bottomcanvas.getObjects().filter(x => x.typename=='outputport' && x.belongsto != null && x.belongsto.indexOf('key')>-1).length
             })
-            //let objs: any = [a, b,c];
-            //let element = new fabric.Group(objs, { subTargetCheck: true });
-
-            //element.fieldName = ui.draggable[0].innerText;
-            //c.on('mousedown', e => { console.log(e) })
+           
             c.fieldName = ui.draggable[0].innerText;
-            c.typename = 'key'
             this.bottomcanvas.add(a)
             this.bottomcanvas.add(b)
             this.bottomcanvas.add(c)

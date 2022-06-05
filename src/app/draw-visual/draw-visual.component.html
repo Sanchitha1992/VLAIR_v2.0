@@ -90,6 +90,9 @@
               <div style="display: inline-block; background-color: black; color: white;padding:3px;" class="keys" (click)="applyChanges()">
                 Apply All
               </div>
+              <div style="display: inline-block; background-color: black; color: white;padding:3px;" class="keys" (click)="navigateML()">
+                Navigate
+              </div>
             </div>
             <canvas id="maincanvas" style="width:100%;height:100%"></canvas>
           </div>
@@ -360,10 +363,8 @@
       </div>
     </div>
   </div>
-
-
-  <div [style.display]="experimentVisible==true?'block':'none'">
-    <button type="button" (click)="backToViz()">Back</button>
-    <app-experiment *ngIf="experimentVisible==true"></app-experiment>
-  </div>
+</div>
+<div [style.display]="experimentVisible==true?'block':'none'">
+  <button type="button" (click)="backToViz()">Back</button>
+  <app-experiment *ngIf="experimentVisible==true"></app-experiment>
 </div>
