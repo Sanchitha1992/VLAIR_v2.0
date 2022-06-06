@@ -302,9 +302,11 @@
         </div>
       </div>
       <div style="display: flex; border: 1px solid black; border-left-width: 0px; border-right-width: 0px">
-        <div style="flex:100%" id="keytab">
-          <div style="display:inline-block" [style.backgroundColor]="keybg[i]" class="keys" *ngFor="let key of keys;let i=index" [id]="'id'+keyid[i]">
-            {{key}}
+        <div style="flex:100%" >
+          <div style="display:flex;width:920px;overflow-x:auto" id="keytab">
+            <div [style.backgroundColor]="keybg[i]" class="keys" *ngFor="let key of keys;let i=index" [id]="'id'+keyid[i]">
+              {{key}}
+            </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
         </div>
       </div>
