@@ -31,30 +31,36 @@
       <div style="height:320px;">
         <div style="display:flex;">
           <div style="flex:82.5%;">
+            <div class="inlinediv" style="padding-left:3px;padding-right:13px;padding-top:1px;cursor:default">
+              <ul>
+                <li><img src="assets/images/left_arrow.png" width="25" height="25" style="margin-left:10px" /></li>
+              </ul>
+              <div style="text-align:center;padding-left:9px">Previous</div>
+            </div>
             <div class="inlinediv" style="padding-left:15px;padding-right:15px;padding-top:1px;cursor:default">
               <ul [style.background-color]="selection==true ? 'lightgrey' : 'white'">
                 <li id="selectionPrototype" (click)="selection=!selection" class="circularBorder"><a><i class="fa fa-square" style="font-size:25px"></i></a></li>
               </ul>
               <div style="text-align:center">View Port</div>
             </div>
-            <div class="inlinediv" style="padding-left:15px;padding-right:15px;padding-top:1px;cursor:default">
+            <div class="inlinediv" style="padding-left:5px;padding-right:13px;padding-top:1px;cursor:default">
               <ul>
                 <li><img src="assets/images/coordinate.png" width="25" height="25" style="margin-left:10px" (click)="createCoordinate()" /></li>
               </ul>
-              <div style="text-align:center">Coordinates</div>
+              <div style="text-align:center;padding-left:5px;">Coordinates</div>
             </div>
-            <div class="inlinediv" style="padding-left:15px;padding-right:15px;padding-top:1px;margin-top:10px;cursor:pointer" (click)="undo()">
+            <div class="inlinediv" style="padding-left:5px;padding-right:13px;padding-top:1px;margin-top:10px;cursor:pointer" (click)="undo()">
               <ul>
                 <li><img src="assets/images/undo_new.png" width="25" height="25" style="margin-left:10px" /></li>
               </ul>
 
-              <div style="text-align:center">Undo</div>
+              <div style="text-align:center;padding-left:5px;">Undo</div>
             </div>
-            <div class="inlinediv" style="padding-left:15px;padding-right:15px;cursor:pointer;padding-top:1px" (click)="clearAll(canvas)">
+            <div class="inlinediv" style="padding-left:5px;padding-right:13px;cursor:pointer;padding-top:1px" (click)="clearAll(canvas)">
               <ul>
                 <li><img src="assets/images/clear all.jpg" width="25" height="25" style="margin-left:10px" /></li>
               </ul>
-              <div style="text-align:center">Clear All</div>
+              <div style="text-align:center;padding-left:5px;">Clear All</div>
             </div>
             <div class="inlinediv" style="padding-bottom:2px;">
               <ul class="menu nonSelection">
@@ -90,9 +96,12 @@
               <div style="display: inline-block; background-color: black; color: white;padding:3px;" class="keys" (click)="applyChanges()">
                 Apply All
               </div>
-              <div style="display: inline-block; background-color: black; color: white;padding:3px;" class="keys" (click)="navigateML()">
-                Navigate
-              </div>
+            </div>
+            <div class="inlinediv" style="padding-left:5px;padding-right:13px;padding-top:1px;cursor:default">
+              <ul>
+                <li><img src="assets/images/right_arrow.png" width="25" height="25" style="margin-left:10px" (click)="navigateML()"/></li>
+              </ul>
+              <div style="text-align:center;padding-left:5px;">Next</div>
             </div>
             <canvas id="maincanvas" style="width:100%;height:100%"></canvas>
           </div>
@@ -303,13 +312,17 @@
       </div>
       <div style="display: flex; border: 1px solid black; border-left-width: 0px; border-right-width: 0px">
         <div style="flex:100%">
-          <span (click)="scrollLeft()"><</span>
+          <span (click)="scrollLeft()">
+            <img src="assets/images/larrow.png" width="23" height="23" style="text-align: center;"/>
+          </span>
           <div style="display:inline-flex;width:920px;overflow-x:auto" #keytab id="keytab">
             <div [style.backgroundColor]="keybg[i]" class="keys" *ngFor="let key of keys;let i=index" [id]="'id'+keyid[i]">
               {{key}}
-            </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
-          <span (click)="scrollRight()">></span>
+          <span (click)="scrollRight()">
+            <img src="assets/images/rarrow.png" width="23" height="23"/>
+          </span>
         </div>
       </div>
       <div style="display:flex">
@@ -318,17 +331,17 @@
         </div>
         <div style="flex:17.5%; border-left: black 1px solid;border-bottom: black 1px solid;">
           <div style="text-align:center"><div>
-            <div id="addition-operator" draggable="true" style="border:black 1px solid;display:inline-block;border-radius:15px;padding:2.5px;margin-right:8px;margin-top:10px">
+            <div id="addition-operator" draggable="true" style="border:black 1px solid;display:inline-block;padding:2.5px;margin-right:8px;margin-top:10px">
               <i class="operator-additionIcon" style="font-size: 21px; color: #460073;"></i>
             </div>
-            <div id="subtraction-operator" draggable="true" style="border: black 1px solid; display: inline-block; border-radius: 15px; padding: 2.5px; margin-left:8px;margin-top:10px">
+            <div id="subtraction-operator" draggable="true" style="border: black 1px solid; display: inline-block; padding: 2.5px; margin-left:8px;margin-top:10px">
               <i class="operator-subtractionIcon" style="font-size: 20px; color: #460073;"></i>
             </div></div>
             <div>
-            <div id="multiplication-operator" draggable="true" style="border: black 1px solid; display: inline-block; border-radius: 20px; padding: 2.5px;margin-left:8px;margin-right:8px;margin-top:10px">
+            <div id="multiplication-operator" draggable="true" style="border: black 1px solid; display: inline-block;  padding: 2.5px;margin-left:8px;margin-right:8px;margin-top:10px">
               <i class="operator-multiplicationIcon" style="font-size: 20px; color: #460073;"></i>
             </div>
-            <div id="division-operator" draggable="true" style="border: black 1px solid; display: inline-block; border-radius: 20px; padding: 2.5px;margin-left:8px;margin-right:8px;margin-top:10px">
+            <div id="division-operator" draggable="true" style="border: black 1px solid; display: inline-block; padding: 2.5px;margin-left:8px;margin-right:8px;margin-top:10px">
               <i class="operator-divisonIcon" style="font-size: 20px; color: #460073;"></i>
             </div></div>
           </div>
@@ -346,16 +359,16 @@
           </div>
           <hr>  
           <div style="text-align:center;">
-            <div id="isNumericData" draggable="true" style="border: black 1px solid; display: inline-block; border-radius: 20px; padding: 2.5px; margin: 5px">
+            <div id="isNumericData" draggable="true" style="border: black 1px solid; display: inline-block; padding: 2.5px; margin: 5px">
               <i class="value-number" style="font-size: 20px; color: #460073;"></i>
             </div>
-            <div id="isColorData" draggable="true" style="border: black 1px solid; display: inline-block; border-radius: 20px; padding: 2.5px; margin: 5px">
+            <div id="isColorData" draggable="true" style="border: black 1px solid; display: inline-block; padding: 2.5px; margin: 5px">
               <i class="value-color" style="font-size: 20px; color: #460073;"></i>
             </div>
-            <div id="isStringData" draggable="true" style="border: black 1px solid; display: inline-block; border-radius: 20px; padding: 2.5px; margin: 5px">
+            <div id="isStringData" draggable="true" style="border: black 1px solid; display: inline-block; padding: 2.5px; margin: 5px">
               <i class="value-string" style="font-size: 20px; color: #460073;"></i>
             </div>
-            <div style="text-align:center">Input Values</div>
+            <div style="text-align:center">Values</div>
           </div>
           <hr>
         </div>

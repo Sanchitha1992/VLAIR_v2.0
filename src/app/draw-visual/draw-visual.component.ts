@@ -712,22 +712,23 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
           let line = new fabric.Line([source.left, source.top + source.radius, source.left + 50, source.top + source.radius], { stroke: 'black', selectable: false });
           let rect = new fabric.Rect({
-            left: line.left + line.width, top: line.top - 10,
+            left: line.left + line.width, 
+            top: line.top - 15,
             originX: 'left',
             originY: 'top',
-            width: 100,
+            width: 80,
             height: 30,
-            fill: 'white',
+            fill: '#460073',
             transparentCorners: false, selectable: false,
             belongsto: source.belongsto,
           })
           let text = new fabric.IText(source.value, {
-            left: rect.left + 20,
-            top: line.top,
+            left: rect.left + 23,
+            top: line.top - 7,
             originX: 'left',
             originY: 'top',
             fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-            fill: '#460073',
+            fill: 'white',
             fontSize: 13,
             selectable: false,
             typename: 'text',
@@ -1311,19 +1312,19 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
               let letter;
               if (ui.draggable[0].id == 'isNumericData') {
                 letter = new fabric.IText('#', {
-                  fontFamily: 'arial', fill: '#460073', fontSize: 35, typename: ui.draggable[0].id, value: "", selectable: false, editable: false, belongsto: mapper.belongsto
+                  fontFamily: 'arial', fill: '#460073', fontSize: 35, typename: ui.draggable[0].id, value: 0, selectable: false, editable: false, belongsto: mapper.belongsto
                 })
               }
               else if (ui.draggable[0].id == 'isColorData') {
                 letter = new fabric.Path('m -1662.5927,2965.5148 c 1.9739,3.398 4.0351,6.4881 6,9.3438 1.965,2.8556 3.8358,5.4801 5.4688,7.9687 1.633,2.4885 3.022,4.8287 4,7.125 0.4891,1.148 0.8603,2.2733 1.125,3.4063 0.2647,1.1327 0.4062,2.2665 0.4062,3.4062 0,1.1395 -0.1483,2.2698 -0.375,3.3438 -0.2266,1.0737 -0.5383,2.1073 -0.9687,3.0937 -0.8608,1.9728 -2.0858,3.759 -3.625,5.25 -1.5392,1.4906 -3.3709,2.698 -5.4063,3.5313 -1.0176,0.4163 -2.1112,0.7807 -3.2187,1 -1.1076,0.2192 -2.2316,0.3125 -3.4063,0.3125 -1.1745,0 -2.3256,-0.093 -3.4375,-0.3125 -1.1118,-0.2193 -2.1941,-0.5835 -3.2187,-1 -2.0487,-0.8335 -3.8875,-2.0406 -5.4375,-3.5313 -1.55,-1.491 -2.8036,-3.2772 -3.6563,-5.25 -0.4261,-0.9864 -0.7541,-2.02 -0.9687,-3.0937 -0.2146,-1.074 -0.3032,-2.2044 -0.2813,-3.3438 0.029,-1.5282 0.2077,-2.8851 0.5,-4.2187 0.2923,-1.3339 0.6751,-2.6098 1.1875,-3.8125 1.0251,-2.4062 2.4464,-4.6096 4.0938,-6.875 1.6474,-2.2654 3.5123,-4.6158 5.4375,-7.25 1.925,-2.6344 3.9231,-5.5807 5.7812,-9.0938 z m -7.9375,23.625 c -0.4883,0.7747 -0.9597,1.5154 -1.3125,2.3438 -0.3093,0.7263 -0.5425,1.5382 -0.7187,2.3437 -0.1766,0.8052 -0.2637,1.6397 -0.2813,2.5625 -0.013,0.6879 0.027,1.3515 0.1563,2 0.1296,0.6485 0.3364,1.2482 0.5937,1.8438 0.5148,1.1911 1.283,2.256 2.2188,3.1562 0.9359,0.9002 2.0443,1.6219 3.2812,2.125 0.6187,0.2515 1.2348,0.524 1.9063,0.6563 0.6712,0.1322 1.3846,0.1562 2.0937,0.1562 0.7093,0 1.3627,-0.024 2.0313,-0.1562 0.6688,-0.1323 1.3542,-0.405 1.9687,-0.6563 1.229,-0.5031 2.3207,-1.2248 3.25,-2.125 0.9294,-0.9002 1.699,-1.9651 2.2188,-3.1562 0.2599,-0.5956 0.4569,-1.1953 0.5937,-1.8438 0.013,-0.037 -0.013,-0.088 0,-0.125 z', {
-                  fontFamily: 'arial', fill: '#460073', typename: ui.draggable[0].id, value: "", selectable: false
+                  fontFamily: 'arial', fill: '#460073', typename: ui.draggable[0].id, value: "#460073", selectable: false
                   , belongsto: mapper.belongsto
                 })
                 letter.set({ scaleY: .7, scaleX: .7 });
               }
               else if (ui.draggable[0].id == 'isStringData') {
                 letter = new fabric.Path('m 112.375,55.0625 0,20.09375 8.6875,0 c 0,0 -0.0419,8.2293 -1.28125,11.625 -1.2391,3.3959 -2.6875,5.28125 -2.6875,5.28125 l 2.125,3.90625 c 0,0 6.7091,-5.4148 9.1875,-11.1875 2.4781,-5.773 2.89225,-13.3194 2.90625,-17.8125 l 0.0312,-11.90625 z m 24.96875,0 0,20.09375 8.6875,0 c 0,0 -0.0107,8.2293 -1.25,11.625 -1.2391,3.3959 -2.71875,5.28125 -2.71875,5.28125 l 2.15625,3.90625 c 0,0 6.7091,-5.4148 9.1875,-11.1875 2.4781,-5.773 2.89225,-13.3194 2.90625,-17.8125 l 0.0312,-11.90625 z', {
-                  fontFamily: 'arial', fill: '#460073', fontSize: 25, typename: ui.draggable[0].id, value: "", selectable: false, belongsto: mapper.belongsto
+                  fontFamily: 'arial', fill: '#460073', fontSize: 25, typename: ui.draggable[0].id, value: null, selectable: false, belongsto: mapper.belongsto
                 })
               }
               if (leftitem.left - (ui.offset.left - $('#leftpanel').width()) > 0 && leftitem.left - (ui.offset.left - $('#leftpanel').width()) < leftitem.width + 5) {
