@@ -3,7 +3,10 @@
     "",
     "\\src",
     "\\src\\app",
-    "\\src\\app\\draw-visual"
+    "\\src\\app\\draw-visual",
+    "\\src\\app\\draw-viz",
+    "\\src\\app\\experiment"
   ],
+  "SelectedNode": "\\src\\styles.css",
   "PreviewInSolutionExplorer": false
 }

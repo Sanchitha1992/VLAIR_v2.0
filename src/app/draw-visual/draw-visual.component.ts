@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ɵCREATE_ATTRIBUTE_DECORATOR__POST_R3__ } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, ɵCREATE_ATTRIBUTE_DECORATOR__POST_R3__ } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DataService } from '../services/dataservice/data.service';
 import * as d3 from 'd3';
@@ -154,7 +154,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         this.canvas.renderAll();
         this.canvas.sendToBack(rect)
         //(document.getElementById('selectionWidth') as any).value = rect.width;
-        //(document.getElementById('selectionHeight') as any).value = rect.height;
+        //(#document.getElementById('selectionHeight') as any).value = rect.height;
       }
     });
 
@@ -162,6 +162,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       if (this.selection == true) {
         isDown = false;
         this.selection = false;
+        this.canvas.deactivateAll().renderAll();
+
       }
     });
   }
@@ -446,6 +448,16 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   xPositionOperand: any = 10;
   yPositionOperator: any = '*';
   yPositionOperand: any = 10;
+  @ViewChild('keytab', { read: ElementRef }) public keytab: ElementRef<any>;
+
+  public scrollLeft(): void {
+    this.keytab.nativeElement.scrollTo({ left: (this.keytab.nativeElement.scrollLeft - 20), behavior: 'smooth' });
+  }
+
+  public scrollRight(): void {
+    this.keytab.nativeElement.scrollTo({ left: (this.keytab.nativeElement.scrollLeft + 20), behavior: 'smooth' });
+  }
+
   draganddropFunction() {
 
     for (let i = 0; i < this.keys.length; i++) {
