@@ -49,6 +49,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   sideTitle: string = '';
   radiusTitle: string = ''
   rotation: any;
+    midScroll: boolean;
   constructor(private route: ActivatedRoute, private dataService: DataService, private router: Router) { }
   public selection: boolean;
 
@@ -877,6 +878,12 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       isoperatorselected = false;
       ismidoperatorselected = false;
       isoperatorselected = false;
+
+      setTimeout(() => {
+        if (document.getElementById('keytab').scrollWidth > 920) {
+          this.midScroll=true
+        }
+      });
     })
 
     this.bottomcanvas.on("mouse:up", (event) => {
@@ -1056,7 +1063,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       }
 
 
-      if (event.target != null && event.target.typename != null && (event.target.typename.indexOf('Data') > -1)) {
+      if (source.typename!='outputport' && event.target != null && event.target.typename != null && (event.target.typename.indexOf('Data') > -1)) {
 
         $('#mapperPopup').css('display', 'block')
         $('#mapperPopup').css('left', event.target.left + $('#leftpanel').width() + 30 + 'px')

@@ -311,18 +311,18 @@
         </div>
       </div>
       <div style="display: flex; border: 1px solid black; border-left-width: 0px; border-right-width: 0px">
-        <div style="flex:100%">
-          <span (click)="scrollLeft()">
-            <img src="assets/images/larrow.png" width="23" height="23" style="text-align: center;"/>
-          </span>
-          <div style="display:inline-flex;width:920px;overflow-x:auto" #keytab id="keytab">
+        <div>
+          <div style="display:inline-block"  (click)="scrollLeft()">
+            <img src="assets/images/larrow.png" width="23" height="23" style="margin:10px"/>
+          </div>
+          <div style="display:inline-block;width:920px;overflow-x:auto;white-space:nowrap" #keytab id="keytab">
             <div [style.backgroundColor]="keybg[i]" class="keys" *ngFor="let key of keys;let i=index" [id]="'id'+keyid[i]">
               {{key}}
             </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
-          <span (click)="scrollRight()">
-            <img src="assets/images/rarrow.png" width="23" height="23"/>
-          </span>
+          <div style="display:inline-block" *ngIf="midScroll" (click)="scrollRight()">
+            <img src="assets/images/rarrow.png" width="23" height="23" style="margin: 10px "/>
+          </div>
         </div>
       </div>
       <div style="display:flex">
