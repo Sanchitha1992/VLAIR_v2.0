@@ -312,7 +312,7 @@
       </div>
       <div style="display: flex; border: 1px solid black; border-left-width: 0px; border-right-width: 0px">
         <div>
-          <div style="display:inline-block"  (click)="scrollLeft()">
+          <div style="display:inline-block" *ngIf="midScroll" (click)="scrollLeft()">
             <img src="assets/images/larrow.png" width="23" height="23" style="margin:10px"/>
           </div>
           <div style="display:inline-block;width:920px;overflow-x:auto;white-space:nowrap" #keytab id="keytab">

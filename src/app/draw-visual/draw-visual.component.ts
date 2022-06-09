@@ -717,7 +717,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             top: line.top - 15,
             originX: 'left',
             originY: 'top',
-            width: 80,
+            width: 90,
             height: 30,
             fill: '#460073',
             transparentCorners: false, selectable: false,
