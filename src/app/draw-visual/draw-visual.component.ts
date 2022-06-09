@@ -953,9 +953,11 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         letter.top = leftinput.top + (mapper.leftitems.length * letter.height);
         letter.value = source.value;
         mapper.leftitems.push(letter)
+        this.bottomcanvas.remove(this.bottomcanvas.getObjects().find(x => x.typename == 'line' + mapper.leftitems.length))
 
-        let line = new fabric.Line([source.left, source.top + 2, letter.left, letter.top +10], { stroke: 'black', selectable: false });
+        let line = new fabric.Line([source.left, source.top + 2, letter.left, letter.top +10], { stroke: 'black', selectable: false,typename:'line'+mapper.leftitems.length});
         this.bottomcanvas.add(line)
+        this.bottomcanvas.sendToBack(line)
         if (mapper.leftitems.length == 1) {
           let firstleftitem = this.cloneObject(letter)
           let firstleftitemContainer = this.bottomcanvas.getObjects().find(x => x.belongsto == mapper.belongsto && x.typename == 'firstleftitemContainer')
@@ -1057,8 +1059,10 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         item.column = source.fieldName;
       }
       else if (source != null && (source.typename == 'outputport' || source.typename == 'key') && event.target != null && event.target.typename == 'isNumericData') {
-        let line = new fabric.Line([source.left, source.top + (source.radius / 2), event.target.left, event.target.top + (event.target.height / 2)], { stroke: 'black', selectable: false });
+        let mapper = this.bottomcanvas.getObjects().find(x => x.typename != null && x.mainname == 'mapper')
+        let line = new fabric.Line([source.left, source.top + (source.radius / 2), event.target.left, event.target.top + (event.target.height / 2)], { stroke: 'black', selectable: false, typename: 'line' + mapper.leftitems.length});
         event.target.value = this.rowData[this.rowIndex][source.fieldName];
+        this.bottomcanvas.remove(this.bottomcanvas.getObjects().find(x=>x.typename=='line' + mapper.leftitems.length))
         this.bottomcanvas.add(line)
       }
 
@@ -1077,6 +1081,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           $('#mappedPopuptext').attr('type', 'text')
           $('#mappedPopuptext').attr('readonly', false);
           $('#mappedPopuptext').val(event.target.value)
+          $('#mappedPopuptext').focus()
         }
         else if (event.target.typename == 'firstleftitem') {
           $('#mappedPopuptext').attr('type', 'text')
