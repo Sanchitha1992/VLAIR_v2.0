@@ -214,17 +214,17 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     if (canvas.typename == 'bottomcanvas') {
       this.bottomcanvases.push(this.bottomcanvas)
     }
-    for (let i = canvas.getObjects().length; i >= 0; i--) {
-      canvas.remove(canvas.getObjects()[i]);
+    for (let i = canvas.getObjects().length-1; i >= 0; i--) {
+      if (canvas.getObjects()[i].typename != 'Graph') {
+        canvas.remove(canvas.getObjects()[i]);
+      }
     }
     canvas.renderAll()
     //canvas.getObjects().forEach((obj) => {
     // canvas.remove(obj);
     //canvas.renderAll();
     //});
-    if (canvas.typename == 'canvas') {
-      this.drawgraph(canvas);
-    }
+    
   }
 
   canvasMode: string = 'Single';
@@ -240,8 +240,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
               top: obj.top,
               originX: 'left',
               originY: 'top',
-              width: eval(obj.widthColumn),
-              height: eval(obj.heightColumn),
+              width: obj.widthColumn!=null? eval(obj.widthColumn):obj.width,
+              height: obj.heightColumn!=null?eval(obj.heightColumn):obj.height,
               angle: 0,
               fill: 'transparent',
               transparentCorners: false,
@@ -887,7 +887,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     })
 
     this.bottomcanvas.on("mouse:up", (event) => {
-      if (source != null && source.typename == 'outputport' && source.belongsto != null && source.belongsto.indexOf('key') > -1 && event.target == null) {
+      if (source != null && source.typename == 'outputport' && source.belongsto != null && source.belongsto.indexOf('key') > -1 && (event.target == null || (event.target!=null && event.target.typename!=null && event.target.typename.indexOf('line')>-1))) {
         console.log(source)
         let pointer = this.bottomcanvas.getPointer(event.e);
         let inputport = new fabric.Circle({
@@ -952,10 +952,17 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         letter.left = leftinput.left + 10;
         letter.top = leftinput.top + (mapper.leftitems.length * letter.height);
         letter.value = source.value;
-        mapper.leftitems.push(letter)
-        this.bottomcanvas.remove(this.bottomcanvas.getObjects().find(x => x.typename == 'line' + mapper.leftitems.length))
 
-        let line = new fabric.Line([source.left, source.top + 2, letter.left, letter.top +10], { stroke: 'black', selectable: false,typename:'line'+mapper.leftitems.length});
+        for (let l = 0; l < mapper.leftitems.length; l++) {
+          if (mapper.leftitems[l] == event.target) {
+            this.bottomcanvas.remove(this.bottomcanvas.getObjects().find(x => x.typename == 'line' + l))
+            break;
+          }
+        }
+        let line = new fabric.Line([source.left, source.top + 2, letter.left, letter.top + 10], { stroke: 'black', selectable: false, typename: 'line' + mapper.leftitems.length });
+        mapper.leftitems.push(letter)
+       
+
         this.bottomcanvas.add(line)
         this.bottomcanvas.sendToBack(line)
         if (mapper.leftitems.length == 1) {
@@ -1062,7 +1069,12 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         let mapper = this.bottomcanvas.getObjects().find(x => x.typename != null && x.mainname == 'mapper')
         let line = new fabric.Line([source.left, source.top + (source.radius / 2), event.target.left, event.target.top + (event.target.height / 2)], { stroke: 'black', selectable: false, typename: 'line' + mapper.leftitems.length});
         event.target.value = this.rowData[this.rowIndex][source.fieldName];
-        this.bottomcanvas.remove(this.bottomcanvas.getObjects().find(x=>x.typename=='line' + mapper.leftitems.length))
+        for (let l = 0; l < mapper.leftitems.length; l++) {
+          if (mapper.leftitems[l] == event.target) {
+            this.bottomcanvas.remove(this.bottomcanvas.getObjects().find(x => x.typename == 'line' + l))
+            break;
+          }
+        }
         this.bottomcanvas.add(line)
       }
 
