@@ -942,7 +942,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
         outputport.value = eval(evaluatable)
       }
-      else if (source != null && source.typename == 'outputport' && source.belongsto != null && (source.belongsto.indexOf('isNumericData') > -1 || source.belongsto.indexOf('operator')>-1) && event.target!=null) {
+      else if (source != null && source.typename == 'outputport' && source.belongsto != null && (source.belongsto.indexOf('isNumericData') > -1 || source.belongsto.indexOf('operator') > -1) && event.target != null && event.target.typename !='firstleftitem') {
         let letter= new fabric.IText('#', {
           fontFamily: 'arial', fill: '#460073', fontSize: 35, typename: 'isNumericData', value: "", selectable: false, editable: false, belongsto: event.target.belongsto
         });
@@ -951,8 +951,17 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         if (mapper.leftitems == null) { mapper.leftitems = [] }
         letter.left = leftinput.left + 10;
         letter.top = leftinput.top + (mapper.leftitems.length * letter.height);
-        letter.value = source.value;
-
+        if (source.belongsto.indexOf('operator') > -1) {
+          let evaluatable=source.fieldName;
+          let value = this.rowIndex;
+          for (let i = 0; i < this.keys.length; i++) {
+            evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[value]["' + this.keys[i] + '"])');
+          }
+          evaluatable = '(' + evaluatable + ')'
+          letter.value = eval(evaluatable)
+        } else {
+          letter.value = source.value;
+        }
         for (let l = 0; l < mapper.leftitems.length; l++) {
           if (mapper.leftitems[l] == event.target) {
             this.bottomcanvas.remove(this.bottomcanvas.getObjects().find(x => x.typename == 'line' + l))
@@ -1031,7 +1040,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             selectable: false,
             typename: 'text',
             value: 'Operator ',
-            fieldName: bottomline.column + '\n' + operator.text + '\n' + topline.column,
+            fieldName: bottomline.column  + operator.text +  topline.column,
             belongsto: event.target.belongsto,
           })
           let outputport = this.bottomcanvas.getObjects().filter(a => a.typename == 'outputport' && a.value != null && a.value.indexOf('Operator') > -1)
@@ -1045,7 +1054,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             selectable: false, editable: false,
             typename: 'outputport',
             belongsto: event.target.belongsto,
-            fieldName: bottomline.column + '\n' + operator.text + '\n' + topline.column,
+            fieldName: bottomline.column  + operator.text + topline.column,
             value: 'Operator ' + (outputport.length + 1),
           })
           
@@ -1079,7 +1088,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       }
 
 
-      if (source.typename!='outputport' && event.target != null && event.target.typename != null && (event.target.typename.indexOf('Data') > -1)) {
+      if (source!=null && source.typename!='outputport' && event.target != null && event.target.typename != null && (event.target.typename.indexOf('Data') > -1)) {
 
         $('#mapperPopup').css('display', 'block')
         $('#mapperPopup').css('left', event.target.left + $('#leftpanel').width() + 30 + 'px')
