@@ -887,7 +887,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     })
 
     this.bottomcanvas.on("mouse:up", (event) => {
-      if (source != null && source.typename == 'outputport' && source.belongsto != null && source.belongsto.indexOf('key') > -1 && (event.target == null || (event.target!=null && event.target.typename!=null && event.target.typename.indexOf('line')>-1))) {
+      if (source != null && source.typename == 'outputport' && source.belongsto != null && source.belongsto.indexOf('key') > -1 && (event.target == null || (event.target!=null && event.target.typename!=null && event.target.typename.indexOf('line')==0))) {
         console.log(source)
         let pointer = this.bottomcanvas.getPointer(event.e);
         let inputport = new fabric.Circle({
@@ -942,7 +942,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
         outputport.value = eval(evaluatable)
       }
-      else if (source != null && source.typename == 'outputport' && source.belongsto != null && source.belongsto.indexOf('isNumericData') > -1 && event.target!=null) {
+      else if (source != null && source.typename == 'outputport' && source.belongsto != null && (source.belongsto.indexOf('isNumericData') > -1 || source.belongsto.indexOf('operator')>-1) && event.target!=null) {
         let letter= new fabric.IText('#', {
           fontFamily: 'arial', fill: '#460073', fontSize: 35, typename: 'isNumericData', value: "", selectable: false, editable: false, belongsto: event.target.belongsto
         });
