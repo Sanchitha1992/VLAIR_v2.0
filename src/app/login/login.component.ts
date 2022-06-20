@@ -21,7 +21,8 @@ export class LoginComponent implements OnInit {
 
 
   login(e: any) {
-    if ((e != null && e.keyCode === 13)|| e.keyCode==null) {
+    if ((e != null && e.keyCode === 13) || e.keyCode == null) {
+      sessionStorage.setItem('rowdata',null)
       let passwordStored = this.data.find(x => x.name == this.name).password;
       if (passwordStored == this.password) {
         this.router.navigate(['/home']);
