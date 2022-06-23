@@ -100,6 +100,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
     this.bottomcanvas = new fabric.Canvas("bottomcanvas");
     this.bottomcanvas.setDimensions({ width: 850, height: 315 });
+    this.bottomcanvas.typename = 'bottomcanvas';
 
     this.drawgraph(this.canvas);
 
@@ -406,16 +407,42 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   changeRow(value) {
     this.rowIndex = value;
     this.canvas.getObjects().forEach(obj => {
-      if (obj.heightColumn != null && obj.widthColumn != null) {
-        obj.height = eval(obj.heightColumn);
-        obj.width = eval(obj.widthColumn);
+        if (obj.heightColumn != null) {
+          obj.height = eval(obj.heightColumn);
+        }
+        if (obj.widthColumn != null) {
+          obj.width = eval(obj.widthColumn);
       }
+
+      if (obj['bottomcanvasid'] != null) {
+        let mapper = this.bottomcanvas.getObjects().find(x => x.belongsto == 'mapper '+obj['bottomcanvasid'] && x.mainname=='mapper')
+        let leftitems = mapper.leftitems.map(a => parseInt(a.value));
+        let rightitems = mapper.rightitems.map(a => a.value);
+        let colVal = d3.scaleLinear().domain([d3.min(leftitems), d3.max(leftitems)]).range(rightitems)
+        let outputport = this.bottomcanvas.getObjects().find(x => x.belongsto == 'mapper ' + obj['bottomcanvasid'] && x.typename == 'outputport')
+        let evaluatable = outputport.column;
+        for (let i = 0; i < this.keys.length; i++) {
+          evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[value]["' + this.keys[i] + '"])');
+        }
+        evaluatable = '(' + evaluatable + ')'
+
+        let color = colVal(parseInt(eval(evaluatable)))
+        color = '#' + color.match(/\d+/g).map(function (x) {
+          x = parseInt(x).toString(16);
+          return (x.length == 1) ? "0" + x : x;
+        }).join("");
+        obj.fill = color;
+      }
+
       this.canvas.renderAll()
     })
     let obj = this.canvas.getActiveObject();
-    this.length = eval(obj.heightColumn.split('*')[0].split('/')[0])
-    this.width = eval(obj.widthColumn.split('*')[0].split('/')[0])
-
+    if (obj.heightColumn!=null) {
+      this.length = eval(obj.heightColumn.split('*')[0].split('/')[0])
+    }
+    if (obj.widthColumn != null) {
+      this.width = eval(obj.widthColumn.split('*')[0].split('/')[0])
+    }
     //alert(JSON.stringify(this.rowData[value]))
   }
 
