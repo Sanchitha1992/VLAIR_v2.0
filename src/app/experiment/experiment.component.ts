@@ -58,7 +58,7 @@ export class ExperimentComponent implements OnInit {
   }
   distinctlabel: any[];
   trainComplete: boolean = null;
-  url: string = 'http://127.0.0.1:5000/';
+  url: string = 'http://vlairml.australiaeast.cloudapp.azure.com:5000/';
   trainlogs: string = '';
   compareResults: boolean = false;
   train() {
