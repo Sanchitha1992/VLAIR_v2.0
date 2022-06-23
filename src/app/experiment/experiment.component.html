@@ -65,16 +65,17 @@
         </div>
       </div>
   <div class="row flex-container">  
-    <div style="flex:50%" style="margin-left:10%">
+    <div style="flex:50%;">
       <div class="flex-container" *ngIf="testlogs">
-        <div class="flex-item" style="margin-top:15px">
-          <span>Accuracy:</span><div>{{testlogs.accuracy}}</div>
-          <span>Precision:</span><div>{{testlogs.precision}}</div>
-          <span>Recall:</span><div>{{testlogs.recall}}</div>
+        <div class="flex-item" style="margin-top:15px;margin-left:15%">
+          <div><span>Accuracy:</span><span>{{testlogs.accuracy}}</span></div>
+          <div><span>Precision:</span><span>{{testlogs.precision}}</span></div>
+          <div><span>Recall:</span><span>{{testlogs.recall}}</span></div>
+          <div><span>F1-Score:</span><span>{{testlogs.f1score}}</span></div>
         </div>
       </div>
     </div>
-    <div style="flex:50%" style="margin-left:40%">
+    <div style="flex:50%">
       <div *ngIf="testlogs">
         <span>Confusion Matrix</span>
         <table style="width:300px">
