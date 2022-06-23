@@ -375,6 +375,7 @@
       </div>
     </div>
     <div id="rightpanel" style="flex:12.5%;border-left:black 1px solid;overflow:auto">
+      <div class="loader" *ngIf="loading"></div>
       <div class="inlinediv" *ngFor="let key of rowData;let i=index">
         <canvas [id]="'canvas'+i" width="150" height="100"></canvas>
       </div>

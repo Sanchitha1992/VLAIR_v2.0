@@ -161,19 +161,19 @@
   <div style="display:flex">
     <div style="flex:70%; margin-left:15px; margin-top:30px;">
       <div style="display: flex ">
-        <div style="flex: 50%; border: solid 1px black; height: 250px; overflow: auto " (click)="sectionSelected=1">
-          <div><img [src]="item" *ngFor="let item of section1"/></div>
+        <div style="flex: 50%; border: solid 1px black; height: 250px; overflow: auto " [style.background-color]="sectionSelected==1?'yellow':'white'" (click)="sectionSelected=1">
+          <div><img [src]="item" *ngFor="let item of section1" style="border-width:1px;border-style:solid" [style.border-color]="section1set=='train'?'green':'red'" /></div>
         </div>
-        <div style="flex: 50%; border: solid 1px black; height: 250px; overflow: auto " (click)="sectionSelected=2">
-          <div><img [src]="item" *ngFor="let item of section2"/></div>
+        <div style="flex: 50%; border: solid 1px black; height: 250px; overflow: auto "  [style.background-color]="sectionSelected==2?'yellow':'white'"  (click)="sectionSelected=2">
+          <div><img [src]="item" *ngFor="let item of section2" style="border-width:1px;border-style:solid" [style.border-color]="section2set=='train'?'green':'red'" /></div>
         </div>
       </div>
       <div style="display: flex">
-        <div style="flex: 50%; border: solid 1px black; height: 250px; overflow: auto " (click)="sectionSelected=3">
-          <div><img [src]="item" *ngFor="let item of section3"/></div>
+        <div style="flex: 50%; border: solid 1px black; height: 250px; overflow: auto "  [style.background-color]="sectionSelected==3?'yellow':'white'"  (click)="sectionSelected=3">
+          <div><img [src]="item" *ngFor="let item of section3" style="border-width:1px;border-style:solid" [style.border-color]="section3set=='train'?'green':'red'" /></div>
         </div>
-        <div style="flex: 50%; border: solid 1px black; height: 250px;overflow:auto" (click)="sectionSelected=4">
-          <div><img [src]="item" *ngFor="let item of section4"/></div>
+        <div style="flex: 50%; border: solid 1px black; height: 250px;overflow:auto"  [style.background-color]="sectionSelected==4?'yellow':'white'"  (click)="sectionSelected=4">
+          <div><img [src]="item" *ngFor="let item of section4" style="border-width:1px;border-style:solid" [style.border-color]="section4set=='train'?'green':'red'" /></div>
         </div>
       </div>
     </div>

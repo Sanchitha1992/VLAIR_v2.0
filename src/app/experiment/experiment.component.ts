@@ -27,6 +27,8 @@ export class ExperimentComponent implements OnInit {
 
   revertDataSelection(col) {
     col.datasetSelection = col.datasetSelection == 'train' ? 'test' : 'train'
+    this.trainPercent = parseFloat((this.canvasCollection.filter(x => x.datasetSelection == 'train').length*100 / this.canvasCollection.length).toFixed(2))
+    this.testPercent = parseFloat((this.canvasCollection.filter(x => x.datasetSelection == 'test').length*100 / this.canvasCollection.length).toFixed(2))
   }
 
   trainChange(e) {
@@ -159,8 +161,10 @@ export class ExperimentComponent implements OnInit {
   renderSection(sectionSelected, set, index, secondindex) {
     if (sectionSelected == 1) {
       this.section1 = [];
+      this.section1set=set
       if (set == 'train') {
         this.section1 = this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => x.data)
+
       }
       else {
         let unique = [...new Set(this.testlogs.testlabels)];
@@ -174,6 +178,7 @@ export class ExperimentComponent implements OnInit {
     }
     else if (sectionSelected == 2) {
       this.section2 = [];
+      this.section2set = set
       if (set == 'train') {
         this.section2 = this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => x.data)
       }
@@ -189,6 +194,7 @@ export class ExperimentComponent implements OnInit {
     }
     else if (sectionSelected == 3) {
       this.section3 = [];
+      this.section3set = set
       if (set == 'train') {
         this.section3 = this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => x.data)
       }
@@ -204,6 +210,7 @@ export class ExperimentComponent implements OnInit {
     }
     else if (sectionSelected == 4) {
       this.section4 = [];
+      this.section4set = set
       if (set == 'train') {
         this.section4 = this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => x.data)
       }
@@ -217,11 +224,16 @@ export class ExperimentComponent implements OnInit {
         }
       }
     }
+    this.sectionSelected = 0;
   }
   section4 = [];
   section3 = [];
   section2 = [];
   section1 = [];
+  section1set: string;
+  section2set: string;
+  section3set: string;
+  section4set: string;
   uniquelabels: any;
   zoomPercentage: number = 100;
   sectionSelected: number;
