@@ -6,6 +6,11 @@
   </div>
 </div>
 <div [style.display]="experimentVisible==false?'block':'none'">
+  <mat-tab-group>
+    <mat-tab label="First"> Content 1 </mat-tab>
+    <mat-tab label="Second"> Content 2 </mat-tab>
+    <mat-tab label="Third"> Content 3 </mat-tab>
+  </mat-tab-group>
   <div style="display: flex; height: 100vh;overflow:hidden">
     <div style="flex:15%" id="leftpanel">
       <div style="width:200px;height:100vh;overflow:auto">
@@ -70,12 +75,12 @@
                 Shapes
                 <i class="fa fa-chevron-down fa-1x" style="cursor:pointer" (click)="markToolboxVisible=!markToolboxVisible"></i>
               </div>
-              
+
               <div style="position:absolute" *ngIf="markToolboxVisible==true">
                 <ul class="menu nonSelection">
-                  <li id="pathMarkPrototype" draggable="true" class="dragElement circularBorder" ><a><i class="mark-pathMark" style="font-size: 25px;"></i></a></li>
-                  <li id="fatFontPrototype" draggable="true" class="dragElement circularBorder" ><a><i class="mark-fatfont" style="font-size: 25px;"></i></a></li>
-                  <li id="ellipsePrototype" draggable="true" class="dragElement circularBorder" ><a><i class="mark-ellipse" style="font-size: 25px;"></i></a></li>
+                  <li id="pathMarkPrototype" draggable="true" class="dragElement circularBorder"><a><i class="mark-pathMark" style="font-size: 25px;"></i></a></li>
+                  <li id="fatFontPrototype" draggable="true" class="dragElement circularBorder"><a><i class="mark-fatfont" style="font-size: 25px;"></i></a></li>
+                  <li id="ellipsePrototype" draggable="true" class="dragElement circularBorder"><a><i class="mark-ellipse" style="font-size: 25px;"></i></a></li>
                 </ul>
               </div>
             </div>
@@ -97,7 +102,7 @@
             </div>
             <div class="inlinediv" style="padding-left:5px;padding-right:13px;padding-top:1px;cursor:default">
               <ul>
-                <li><img src="assets/images/right_arrow.png" width="25" height="25" style="margin-left:10px" (click)="navigateML()"/></li>
+                <li><img src="assets/images/right_arrow.png" width="25" height="25" style="margin-left:10px" (click)="navigateML()" /></li>
               </ul>
               <div style="text-align:center;padding-left:5px;">Next</div>
             </div>
@@ -107,18 +112,21 @@
             <div>
               <div style="text-align:center">
                 <div>
-                  <span style="font-size:12px"><b>{{selectedObject.typename}}:
-                    <input type="text" [(ngModel)]="selectedObject.ID" style="width:70px" />
-                  </b></span>
+                  <span style="font-size:12px">
+                    <b>
+                      {{selectedObject.typename}}:
+                      <input type="text" [(ngModel)]="selectedObject.ID" style="width:70px" />
+                    </b>
+                  </span>
                 </div>
               </div>
-              <hr />      
+              <hr />
               <div>
                 <div style="font-weight:bold;text-align:left">&nbsp;Position:</div>
-                <div id ="divxposition" style="margin-left: 10px">
+                <div id="divxposition" style="margin-left: 10px">
                   <span>X:</span>
-                  <input id="xposition" [style.background-color]="xPositionTitle!=''?'#3c1361':'white'" [style.color] = "xPositionTitle!=''?'white':'black'"
-                  [title]="xPositionTitle" type="text" class="rightPanelTextbox" [ngModel]="xposition" (ngModelChange)="changex($event)">
+                  <input id="xposition" [style.background-color]="xPositionTitle!=''?'#3c1361':'white'" [style.color]="xPositionTitle!=''?'white':'black'"
+                         [title]="xPositionTitle" type="text" class="rightPanelTextbox" [ngModel]="xposition" (ngModelChange)="changex($event)">
                   &nbsp;<select [(ngModel)]="xPositionOperator">
                     <option>*</option>
                     <option>/</option>
@@ -132,8 +140,8 @@
                 </div>
                 <div id="divyposition" style="margin-left: 10px">
                   <span>Y:</span>
-                  <input id="yposition" [style.background-color]="yPositionTitle!=''?'#3c1361':'white'" [style.color] = "yPositionTitle!=''?'white':'black'"
-                  [title]="yPositionTitle" type="text" class="rightPanelTextbox" [ngModel]="yposition" (ngModelChange)="changey($event)" />
+                  <input id="yposition" [style.background-color]="yPositionTitle!=''?'#3c1361':'white'" [style.color]="yPositionTitle!=''?'white':'black'"
+                         [title]="yPositionTitle" type="text" class="rightPanelTextbox" [ngModel]="yposition" (ngModelChange)="changey($event)" />
                   &nbsp;<select [(ngModel)]="xPositionOperator">
                     <option>*</option>
                     <option>/</option>
@@ -182,8 +190,8 @@
               </div>
               <div style="display:flex" id="rotationPaneldiv">
                 <div style="flex:50%;margin-left:10px">
-                  <input id="rotationPanel" 
-                  class="rightPanelTextbox" type="text" (ngModelChange)="changeRotation($event)" [ngModel]="rotation" />
+                  <input id="rotationPanel"
+                         class="rightPanelTextbox" type="text" (ngModelChange)="changeRotation($event)" [ngModel]="rotation" />
                   &nbsp;<select [(ngModel)]="rotationOperator">
                     <option>*</option>
                     <option>/</option>
@@ -205,8 +213,8 @@
               </div>
               <div>
                 <div id="divlength" style="margin-left:10px">
-                  <input id="length" [style.background-color]="lengthTitle!=''?'#3c1361':'white'" [style.color] = "lengthTitle!=''?'white':'black'"
-                  [title]="lengthTitle" type="text" class="rightPanelTextbox" [ngModel]="length" (ngModelChange)="changelength($event)" />
+                  <input id="length" [style.background-color]="lengthTitle!=''?'#3c1361':'white'" [style.color]="lengthTitle!=''?'white':'black'"
+                         [title]="lengthTitle" type="text" class="rightPanelTextbox" [ngModel]="length" (ngModelChange)="changelength($event)" />
                   &nbsp;<select [(ngModel)]="lengthOperator">
                     <option>*</option>
                     <option>/</option>
@@ -221,14 +229,14 @@
               </div>
               <hr>
             </div>
-            <div  *ngIf="visibility!=null && visibility['width']==true">
+            <div *ngIf="visibility!=null && visibility['width']==true">
               <div style="font-weight:bold;text-align:left">
                 &nbsp;Width:
               </div>
               <div>
                 <div id="divwidth" style="margin-left:10px">
                   <input id="width" [style.background-color]="widthTitle!=''?'#3c1361':'white'" [style.color]="widthTitle!=''?'white':'black'"
-                  [title]="widthTitle" type="text" class="rightPanelTextbox" [ngModel]="width" (ngModelChange)="changewidth($event)" />
+                         [title]="widthTitle" type="text" class="rightPanelTextbox" [ngModel]="width" (ngModelChange)="changewidth($event)" />
                   &nbsp;<select [(ngModel)]="widthOperator">
                     <option>*</option>
                     <option>/</option>
@@ -250,7 +258,7 @@
               <div>
                 <div id="divside" style="margin-left:10px">
                   <input id="side" [style.background-color]="sideTitle!=''?'#3c1361':'white'" [style.color]="sideTitle!=''?'white':'black'"
-                  type="text" class="rightPanelTextbox" [ngModel]="side" (ngModelChange)="changeside($event)" title="sideTitle"> &nbsp;<select [(ngModel)]="sideOperator">
+                         type="text" class="rightPanelTextbox" [ngModel]="side" (ngModelChange)="changeside($event)" title="sideTitle"> &nbsp;<select [(ngModel)]="sideOperator">
                     <option>*</option>
                     <option>/</option>
                   </select>
@@ -270,8 +278,8 @@
               </div>
               <div>
                 <div id="divradius" style="margin-left:10px">
-                  <input [style.background-color]="radiusTitle!=''?'#3c1361':'white'" [style.color]="radiusTitle!=''?'white':'black'" 
-                  id="radius" type="text" class="rightPanelTextbox" [ngModel]="radius" (ngModelChange)="changeradius($event)" />
+                  <input [style.background-color]="radiusTitle!=''?'#3c1361':'white'" [style.color]="radiusTitle!=''?'white':'black'"
+                         id="radius" type="text" class="rightPanelTextbox" [ngModel]="radius" (ngModelChange)="changeradius($event)" />
                   &nbsp;<select [(ngModel)]="radiusOperator">
                     <option>*</option>
                     <option>/</option>
@@ -291,7 +299,7 @@
               <div>
                 <div style="margin-left:10px">
                   <input type="text" [style.background-color]="areaTitle!=''?'#3c1361':'white'" [style.color]="areaTitle!=''?'white':'black'"
-                  class="rightPanelTextbox" [ngModel]="area" [title]="areaTitle" (ngModelChange)="changeArea($event)" />
+                         class="rightPanelTextbox" [ngModel]="area" [title]="areaTitle" (ngModelChange)="changeArea($event)" />
                   &nbsp;<select [(ngModel)]="areaOperator">
                     <option>*</option>
                     <option>/</option>
@@ -311,7 +319,7 @@
       <div style="display: flex; border: 1px solid black; border-left-width: 0px; border-right-width: 0px">
         <div>
           <div style="display:inline-block" *ngIf="midScroll" (click)="scrollLeft()">
-            <img src="assets/images/larrow.png" width="23" height="23" style="margin:10px"/>
+            <img src="assets/images/larrow.png" width="23" height="23" style="margin:10px" />
           </div>
           <div style="display:inline-block;width:920px;overflow-x:auto;white-space:nowrap" #keytab id="keytab">
             <div [style.backgroundColor]="keybg[i]" class="keys" *ngFor="let key of keys;let i=index" [id]="'id'+keyid[i]">
@@ -319,7 +327,7 @@
             </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
           <div style="display:inline-block" *ngIf="midScroll" (click)="scrollRight()">
-            <img src="assets/images/rarrow.png" width="23" height="23" style="margin: 10px "/>
+            <img src="assets/images/rarrow.png" width="23" height="23" style="margin: 10px " />
           </div>
         </div>
       </div>
@@ -328,20 +336,23 @@
           <canvas id="bottomcanvas" style="width:100%;height:100%"></canvas>
         </div>
         <div style="flex:17.5%; border-left: black 1px solid;border-bottom: black 1px solid;">
-          <div style="text-align:center"><div>
-            <div id="addition-operator" draggable="true" style="border:black 1px solid;display:inline-block;padding:2.5px;margin-right:8px;margin-top:10px">
-              <i class="operator-additionIcon" style="font-size: 21px; color: #460073;"></i>
-            </div>
-            <div id="subtraction-operator" draggable="true" style="border: black 1px solid; display: inline-block; padding: 2.5px; margin-left:8px;margin-top:10px">
-              <i class="operator-subtractionIcon" style="font-size: 20px; color: #460073;"></i>
-            </div></div>
+          <div style="text-align:center">
             <div>
-            <div id="multiplication-operator" draggable="true" style="border: black 1px solid; display: inline-block;  padding: 2.5px;margin-left:8px;margin-right:8px;margin-top:10px">
-              <i class="operator-multiplicationIcon" style="font-size: 20px; color: #460073;"></i>
+              <div id="addition-operator" draggable="true" style="border:black 1px solid;display:inline-block;padding:2.5px;margin-right:8px;margin-top:10px">
+                <i class="operator-additionIcon" style="font-size: 21px; color: #460073;"></i>
+              </div>
+              <div id="subtraction-operator" draggable="true" style="border: black 1px solid; display: inline-block; padding: 2.5px; margin-left:8px;margin-top:10px">
+                <i class="operator-subtractionIcon" style="font-size: 20px; color: #460073;"></i>
+              </div>
             </div>
-            <div id="division-operator" draggable="true" style="border: black 1px solid; display: inline-block; padding: 2.5px;margin-left:8px;margin-right:8px;margin-top:10px">
-              <i class="operator-divisonIcon" style="font-size: 20px; color: #460073;"></i>
-            </div></div>
+            <div>
+              <div id="multiplication-operator" draggable="true" style="border: black 1px solid; display: inline-block;  padding: 2.5px;margin-left:8px;margin-right:8px;margin-top:10px">
+                <i class="operator-multiplicationIcon" style="font-size: 20px; color: #460073;"></i>
+              </div>
+              <div id="division-operator" draggable="true" style="border: black 1px solid; display: inline-block; padding: 2.5px;margin-left:8px;margin-right:8px;margin-top:10px">
+                <i class="operator-divisonIcon" style="font-size: 20px; color: #460073;"></i>
+              </div>
+            </div>
           </div>
           <div style="text-align:center;margin-top:5px">Operators</div>
           <hr>
@@ -355,7 +366,7 @@
               <div style="text-align:right;padding-top:5px">Mapper Widget</div>
             </div>
           </div>
-          <hr>  
+          <hr>
           <div style="text-align:center;">
             <div id="isNumericData" draggable="true" style="border: black 1px solid; display: inline-block; padding: 2.5px; margin: 5px">
               <i class="value-number" style="font-size: 20px; color: #460073;"></i>

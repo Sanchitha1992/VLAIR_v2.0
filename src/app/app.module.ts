@@ -11,6 +11,8 @@ import { DrawVizComponent } from './draw-viz/draw-viz.component';
 import { ExperimentComponent } from './experiment/experiment.component';
 import { HttpClientModule } from '@angular/common/http';
 import { DrawVisualComponent } from './draw-visual/draw-visual.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @NgModule({
   declarations: [
@@ -22,7 +24,9 @@ import { DrawVisualComponent } from './draw-visual/draw-visual.component';
     AppRoutingModule,
     FormsModule,
     AgGridModule.withComponents([]),
-    HttpClientModule
+    HttpClientModule,
+    BrowserAnimationsModule,
+    MatTabsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
