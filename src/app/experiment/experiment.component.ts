@@ -58,7 +58,7 @@ export class ExperimentComponent implements OnInit {
   }
   distinctlabel: any[];
   trainComplete: boolean = null;
-  url: string = 'http://vlairml.australiaeast.cloudapp.azure.com:5000/';
+  url: string = 'http://127.0.0.1:5000/';
   trainlogs: string = '';
   compareResults: boolean = false;
   train() {
@@ -138,93 +138,123 @@ export class ExperimentComponent implements OnInit {
 
       for (let i = 0; i < unique.length; i++) {
         for (let j = 0; j < unique.length; j++) {
-          this.testlogs.cm[i][j] = 0;
+          this.testlogs.cm[i][j] = {'count': 0,'ischecked':false};
           for (let k = 0; k < this.testlogs.testlabels.length; k++) {
             if (this.testlogs.testlabels[k] == unique[i] && this.testlogs.predictedlabels[k] == unique[j]) {
-              this.testlogs.cm[i][j]++;
+              this.testlogs.cm[i][j].count++;
             }
           }
         }
       }
 
       this.uniquelabels = unique.map((x: string) => x.replace('Test\\', ''));
+      for (let i = 0; i < this.uniquelabels.length; i++) {
+        this.trainColumnCheck.push(false)
+        this.testColumnCheck.push(false)
+      }
       for (let i = 0; i < unique.length; i++) {
         this.trainlogcm.push([]);
         for (let j = 0; j < unique.length; j++) {
-          this.trainlogcm[i].push(0)
+          this.trainlogcm[i].push({'count': 0,'ischecked':false})
         }
-        this.trainlogcm[i][i] = this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[i]).length;
+        this.trainlogcm[i][i] = { 'count': this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[i]).length, 'ischecked': false };
       }
     });
   }
-
-  renderSection(sectionSelected, set, index, secondindex) {
-    if (sectionSelected == 1) {
-      this.section1 = [];
-      this.section1set=set
-      if (set == 'train') {
-        this.section1 = this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => x.data)
-
+  trainColumnCheck = []
+  testColumnCheck = []
+  multiplerenderColumn(sectionSelected, set, index, ischecked) {
+    if (set == 'train') {
+      this.renderSection(sectionSelected, set, index, 0, ischecked)
+      this.trainlogcm[index][index].ischecked = ischecked
+    } else {
+      for (let i = 0; i < this.uniquelabels.length; i++) {
+        this.renderSection(sectionSelected, set, i, index, ischecked)
+        this.testlogs.cm[i][index].ischecked = ischecked
       }
-      else {
-        let unique = [...new Set(this.testlogs.testlabels)];
+    }
+  }
 
-        for (let k = 0; k < this.testlogs.testlabels.length; k++) {
-          if (this.testlogs.testlabels[k] == unique[index] && this.testlogs.predictedlabels[k] == unique[secondindex]) {
-            this.section1.push(this.testlogs.data[k]);
+  renderSection(sectionSelected, set, index, secondindex,ischecked) {
+    if (sectionSelected == 1) {
+      this.section1set = set
+      if (ischecked) {
+        if (set == 'train') {
+          this.section1 = this.section1.concat(this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
+        }
+        else {
+          let unique = [...new Set(this.testlogs.testlabels)];
+          for (let k = 0; k < this.testlogs.testlabels.length; k++) {
+            if (this.testlogs.testlabels[k] == unique[index] && this.testlogs.predictedlabels[k] == unique[secondindex]) {
+              this.section1.push({ 'data': this.testlogs.data[k], 'typename': set + index + ':' + secondindex, 'type': set });
+            }
           }
         }
+      } else {
+        this.section1 = this.section1.filter(x => x['typename'] != set + index + ':' + secondindex)
+
       }
     }
     else if (sectionSelected == 2) {
-      this.section2 = [];
       this.section2set = set
-      if (set == 'train') {
-        this.section2 = this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => x.data)
-      }
-      else {
-        let unique = [...new Set(this.testlogs.testlabels)];
+      if (ischecked) {
+        if (set == 'train') {
+          this.section2 = this.section2.concat(this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
+        }
+        else {
+          let unique = [...new Set(this.testlogs.testlabels)];
 
-        for (let k = 0; k < this.testlogs.testlabels.length; k++) {
-          if (this.testlogs.testlabels[k] == unique[index] && this.testlogs.predictedlabels[k] == unique[secondindex]) {
-            this.section2.push(this.testlogs.data[k]);
+          for (let k = 0; k < this.testlogs.testlabels.length; k++) {
+            if (this.testlogs.testlabels[k] == unique[index] && this.testlogs.predictedlabels[k] == unique[secondindex]) {
+              this.section2.push({ 'data': this.testlogs.data[k], 'typename': set + index + ':' + secondindex, 'type': set });
+            }
           }
         }
+      }
+      else {
+        this.section2 = this.section2.filter(x => x['typename'] != set + index + ':' + secondindex)
       }
     }
     else if (sectionSelected == 3) {
-      this.section3 = [];
       this.section3set = set
-      if (set == 'train') {
-        this.section3 = this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => x.data)
-      }
-      else {
-        let unique = [...new Set(this.testlogs.testlabels)];
+      if (ischecked) {
+        if (set == 'train') {
+          this.section3 = this.section3.concat(this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
+        }
+        else {
+          let unique = [...new Set(this.testlogs.testlabels)];
 
-        for (let k = 0; k < this.testlogs.testlabels.length; k++) {
-          if (this.testlogs.testlabels[k] == unique[index] && this.testlogs.predictedlabels[k] == unique[secondindex]) {
-            this.section3.push(this.testlogs.data[k]);
+          for (let k = 0; k < this.testlogs.testlabels.length; k++) {
+            if (this.testlogs.testlabels[k] == unique[index] && this.testlogs.predictedlabels[k] == unique[secondindex]) {
+              this.section3.push({ 'data': this.testlogs.data[k], 'typename': set + index + ':' + secondindex, 'type': set });
+            }
           }
         }
+      }
+      else {
+        this.section3 = this.section3.filter(x => x['typename'] != set + index + ':' + secondindex)
       }
     }
     else if (sectionSelected == 4) {
-      this.section4 = [];
       this.section4set = set
-      if (set == 'train') {
-        this.section4 = this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => x.data)
-      }
-      else {
-        let unique = [...new Set(this.testlogs.testlabels)];
+      if (ischecked) {
+        if (set == 'train') {
+          this.section4 = this.section4.concat(this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
+        }
+        else {
+          let unique = [...new Set(this.testlogs.testlabels)];
 
-        for (let k = 0; k < this.testlogs.testlabels.length; k++) {
-          if (this.testlogs.testlabels[k] == unique[index] && this.testlogs.predictedlabels[k] == unique[secondindex]) {
-            this.section4.push(this.testlogs.data[k]);
+          for (let k = 0; k < this.testlogs.testlabels.length; k++) {
+            if (this.testlogs.testlabels[k] == unique[index] && this.testlogs.predictedlabels[k] == unique[secondindex]) {
+              this.section4.push({ 'data': this.testlogs.data[k], 'typename': set + index + ':' + secondindex, 'type': set });
+            }
           }
         }
       }
+      else {
+        this.section4 = this.section4.filter(x => x['typename'] != set + index + ':' + secondindex)
+      }
     }
-    this.sectionSelected = 0;
   }
   section4 = [];
   section3 = [];
