@@ -7,5 +7,7 @@ export class DataService {
 
   rowdata: any;
   canvasCollection: any;
+  validationCollection: any;
   constructor() { }
+  validationlogs: any;
 }

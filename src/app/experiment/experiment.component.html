@@ -1,82 +1,17 @@
-<div *ngIf="compareResults==false">
-   <div>
-    <div style="margin:10px;margin-right:15px;padding: 10px; box-shadow: 2px 0 8px #96968c38;">
-      <span>Train %</span><span><input type="number" [ngModel]="trainPercent" (ngModelChange)="trainChange($event)" /></span>
-      <span>Test %</span><span><input type="text" disabled [ngModel]="testPercent" /></span>
-      <span><span [class.redsquare]="showTrain==true" [class.redsquareEmpty]="showTrain==false" (click)="showTrain=!showTrain"></span> Train</span>
-      <span><span [class.greensquare]="showTest==true" [class.greensquareEmpty]="showTest==false" (click)="showTest=!showTest"></span> Test</span>
-
-      <span style="margin-left:30px;">Zoom:</span>
-      <span>
-        <select [(ngModel)]="zoomPercentage">
-          <option value="100">100%</option>
-          <option value="75">75%</option>
-          <option value="50">50%</option>
-          <option value="20">20%</option>
-          <option value="10">10%</option>
-        </select>
-      </span>
-    </div>
-    <div class="tab">
-      <div style="background-color: #510085;color:white ">Label</div>
-      <div *ngFor="let label of distinctlabel" [style.background-color]="selectedLabel==label?'rgb(232 196 255)':'white'" (click)="selectedLabel=label">
-        {{label}}
-      </div>
-    </div>
-    <div class="tabcontent">
-      <div class="flex-container" style="overflow: auto;">
-        <ng-container *ngFor="let col of canvasCollection;let i=index">
-          <div *ngIf="col.label==selectedLabel && ((col.datasetSelection=='train' && showTrain) || (col.datasetSelection=='test' && showTest))" style="margin:4px;">
-            <div (click)="revertDataSelection(col)" [style.border]="col.datasetSelection=='train'?'2px solid red':'2px solid green'">
-              <img [src]="col.data" [style.width]="(imgWidth*zoomPercentage/100)+'px'" (load)="loadImage($event)" />
-            </div>
-            <!-- <div style="text-align: center;">
-               <div>
-                 <input type="radio" [name]="'datasetSelection'+i" [(ngModel)]="col.datasetSelection" value="train" /><span>Train</span>
-               </div>
-               <div>
-                 <input type="radio" [name]="'datasetSelection'+i" [(ngModel)]="col.datasetSelection" value="test" /><span>Test</span>
-               </div>
-             </div>-->
-          </div>
-        </ng-container>
-      </div>
-
-    </div>
-  </div>
-
-  <!--<div class="tabcontent" *ngFor="let col of canvasCollection;let i=index" [style.display]="i==selectedIndex?'block':'none'" >
-    <img [src]="col.data" (load)="loadImage($event)" />
-  </div>-->
-  
-      <div style="margin-left: 43%;">
-        <button [class.disabled]="trainComplete==true" (click)="train()" style="margin-top:15px;">Train</button>
-        <button style="margin-top:15px;margin-left:10px;" (click)="test()">Test</button>
-      </div>
-      <div style="margin-left: 41%;margin-top:15px">
-        <span *ngIf="trainComplete==false" style="margin-top:5px;margin-left:15px">Training Inprogress...</span>
-        <span *ngIf="trainComplete==true" style="margin-top:5px;margin-left:15px">Training Complete</span>
-        <a style="margin-left:5px" *ngIf="trainComplete==true" (click)="showModal=true">
-          <h8> View Logs</h8>
-        </a>
-        <div>
-           <span *ngIf="testComplete==false" style="margin-top:5px;margin-left:15px">Test Inprogress...</span>
-           <span *ngIf="testComplete==true" style="margin-top:5px;margin-left:15px">Test Complete</span>
-        </div>
-      </div>
-  <div class="row flex-container">  
+<div *ngIf="showValResults==true">
+  <div class="row flex-container">
     <div style="flex:50%;">
-      <div class="flex-container" *ngIf="testlogs">
+      <div class="flex-container" *ngIf="validationlogs">
         <div class="flex-item" style="margin-top:15px;margin-left:15%">
-          <div><span>Accuracy:</span><span>{{testlogs.accuracy}}</span></div>
-          <div><span>Precision:</span><span>{{testlogs.precision}}</span></div>
-          <div><span>Recall:</span><span>{{testlogs.recall}}</span></div>
-          <div><span>F1-Score:</span><span>{{testlogs.f1score}}</span></div>
+          <div><span>Accuracy:</span><span>{{validationlogs.accuracy}}</span></div>
+          <div><span>Precision:</span><span>{{validationlogs.precision}}</span></div>
+          <div><span>Recall:</span><span>{{validationlogs.recall}}</span></div>
+          <div><span>F1-Score:</span><span>{{validationlogs.f1score}}</span></div>
         </div>
       </div>
     </div>
     <div style="flex:50%">
-      <div *ngIf="testlogs">
+      <div *ngIf="validationlogs">
         <span>Confusion Matrix</span>
         <table style="width:300px">
           <tr>
@@ -84,8 +19,8 @@
             <td *ngFor="let label of uniquelabels;">{{label}}</td>
           </tr>
 
-          <tr *ngFor="let row of testlogs.cm;let i=index">
-            <td><a href="javascript:;" (click)="showResultAnalysis(uniquelabels[i])">{{uniquelabels[i]}}</a></td>
+          <tr *ngFor="let row of validationlogs.cm;let i=index">
+            <td><a href="javascript:;">{{uniquelabels[i]}}</a></td>
             <td *ngFor="let cell of row">
               {{cell.count}}
             </td>
@@ -94,105 +29,145 @@
       </div>
     </div>
   </div>
-  <div style="text-align: center;">
-    <button *ngIf="testComplete==true" (click)="compareResults=true">Compare Results</button>
-  </div>
-</div>
-<div class="myModal" *ngIf="showResultAnalysisPopup==true">
-  <div>
-  <div style="margin:5px;display: flex;">
-    <div style="float: left;flex:auto">  Result analysis</div>
-    <div (click)="showResultAnalysisPopup=false" style="float:right">X</div>
-  </div>
-    <div style="margin-left:5px">
-      <div class="flex-container">
-    <div class="flex-item">{{selectedResultAnalysisName}}</div>
-    <div class="flex-item">
-      <select (change)="showpredictedResults($event.target.value)">
-        <ng-container *ngFor="let name of notselectedUniqueLabels">
-        <option [value]="name">
-        {{name}}
-      </option>
-    </ng-container>
-  </select>
-    </div>
-  </div>
-  <div class="flex-container">
-    <div class="flex-item">
-      <select (change)="selectedPredictedCrctImage=testlogs.data[$event.target.value]"><ng-container  *ngFor="let val of predictedImageNamesCrct">
-        <option [value]="val">{{testlogs.predictedlabels[val]}}</option>
-      </ng-container>
-    </select>
-    </div>
-    <div class="flex-item">
-      <select (change)="selectedPredictedFaultImage=testlogs.data[$event.target.value]">
-        <ng-container *ngFor="let val of predictedImageNamesFault">
-        <option [value]="val">{{testlogs.predictedlabels[val]}}</option>
-      </ng-container>
-    </select>
-    </div>
-  </div>
-  <div class="flex-container">
-    <div class="flex-item"><img [src]="selectedPredictedCrctImage"/></div>
-    <div class="flex-item"><img [src]="selectedPredictedFaultImage"/></div>
-  </div>
-  </div>
-</div>
-</div>
-<div class="myModal" *ngIf="showModal">
-  <div style="margin:5px;display: flex;">
-  <div style="float: left;flex:auto">Results</div>
-  <div (click)="showModal=false" style="float:right">X</div>
-</div><div style="margin-left: 5px;">
-  <div class="flex-container" *ngIf="trainlogs">
-    <div class="flex-item"><b>Epoch</b></div>
-    <div class="flex-item"><b>Loss</b></div>
-    <div class="flex-item"><b>Categorical Accuracy</b></div>
-  </div>
-<ng-container *ngIf="trainlogs">
-  <div class="flex-container" *ngFor="let loss of trainlogs.loss;let i =index">
-<div class="flex-item">{{i+1}}</div>
-<div class="flex-item">{{loss}}</div>
-<div class="flex-item">{{trainlogs.categorical_accuracy[i]}}</div>
-</div>
-</ng-container>
-</div>
-</div>
-<ng-container *ngIf="compareResults==true">
-  <div style="display:flex">
-    <div style="flex:70%; margin-left:15px; margin-top:30px;">
-      <div style="display: flex ">
-        <div style="flex: 50%; border: solid 1px black; height: 250px; overflow: auto " [style.background-color]="sectionSelected==1?'yellow':'white'" >
-          <div>
-            <input  type="checkbox" (click)="sectionSelected=sectionSelected==1?0:1" />
-            <img [src]="item.data" *ngFor="let item of section1" style="border-width:1px;border-style:solid" [style.border-color]="item.type=='train'?'green':'red'" />
-          </div>
-        </div>
-        <div style="flex: 50%; border: solid 1px black; height: 250px; overflow: auto "  [style.background-color]="sectionSelected==2?'yellow':'white'"  >
-          <div>
-            <input type="checkbox" (click)="sectionSelected=sectionSelected==2?0:2" />
-            <img [src]="item.data" *ngFor="let item of section2" style="border-width:1px;border-style:solid" [style.border-color]="item.type=='train'?'green':'red'" />
-          </div>
-        </div>
-      </div>
-      <div style="display: flex">
-        <div style="flex: 50%; border: solid 1px black; height: 250px; overflow: auto "  [style.background-color]="sectionSelected==3?'yellow':'white'">
-          <div>
-            <input type="checkbox" (click)="sectionSelected=sectionSelected==3?0:3" />
 
-            <img [src]="item.data" *ngFor="let item of section3" style="border-width:1px;border-style:solid" [style.border-color]="item.type=='train'?'green':'red'" />
-          </div>
+</div>
+<div *ngIf="showValResults==false">
+  <div *ngIf="compareResults==false">
+    <div>
+      <div style="margin:10px;margin-right:15px;padding: 10px; box-shadow: 2px 0 8px #96968c38;">
+        <span>Train %</span><span><input type="number" [ngModel]="trainPercent" (ngModelChange)="trainChange($event)" /></span>
+        <span>Test %</span><span><input type="text" disabled [ngModel]="testPercent" /></span>
+        <span><span [class.redsquare]="showTrain==true" [class.redsquareEmpty]="showTrain==false" (click)="showTrain=!showTrain"></span> Train</span>
+        <span><span [class.greensquare]="showTest==true" [class.greensquareEmpty]="showTest==false" (click)="showTest=!showTest"></span> Test</span>
+
+        <span style="margin-left:30px;">Zoom:</span>
+        <span>
+          <select [(ngModel)]="zoomPercentage">
+            <option value="100">100%</option>
+            <option value="75">75%</option>
+            <option value="50">50%</option>
+            <option value="20">20%</option>
+            <option value="10">10%</option>
+          </select>
+        </span>
+      </div>
+      <div class="tab">
+        <div style="background-color: #510085;color:white ">Label</div>
+        <div *ngFor="let label of distinctlabel" [style.background-color]="selectedLabel==label?'rgb(232 196 255)':'white'" (click)="selectedLabel=label">
+          {{label}}
         </div>
-        <div style="flex: 50%; border: solid 1px black; height: 250px;overflow:auto"  [style.background-color]="sectionSelected==4?'yellow':'white'">
-          <div>
-            <input type="checkbox" (click)="sectionSelected=sectionSelected==4?0:4" />
-            <img [src]="item.data" *ngFor="let item of section4" style="border-width:1px;border-style:solid" [style.border-color]="item.type=='train'?'green':'red'" />
+      </div>
+      <div class="tabcontent">
+        <div class="flex-container" style="overflow: auto;">
+          <ng-container *ngFor="let col of canvasCollection;let i=index">
+            <div *ngIf="col.label==selectedLabel && ((col.datasetSelection=='train' && showTrain) || (col.datasetSelection=='test' && showTest))" style="margin:4px;">
+              <div (click)="revertDataSelection(col)" [style.border]="col.datasetSelection=='train'?'2px solid red':'2px solid green'">
+                <img [src]="col.data" [style.width]="(imgWidth*zoomPercentage/100)+'px'" (load)="loadImage($event)" />
+              </div>
+              <!-- <div style="text-align: center;">
+                 <div>
+                   <input type="radio" [name]="'datasetSelection'+i" [(ngModel)]="col.datasetSelection" value="train" /><span>Train</span>
+                 </div>
+                 <div>
+                   <input type="radio" [name]="'datasetSelection'+i" [(ngModel)]="col.datasetSelection" value="test" /><span>Test</span>
+                 </div>
+               </div>-->
+            </div>
+          </ng-container>
+        </div>
+
+      </div>
+    </div>
+
+    <!--<div class="tabcontent" *ngFor="let col of canvasCollection;let i=index" [style.display]="i==selectedIndex?'block':'none'" >
+      <img [src]="col.data" (load)="loadImage($event)" />
+    </div>-->
+
+    <div style="margin-left: 43%;">
+      <button [class.disabled]="trainComplete==true" (click)="train()" style="margin-top:15px;">Train</button>
+      <button style="margin-top:15px;margin-left:10px;" (click)="test()">Test</button>
+      <button style="margin-top:15px;margin-left:10px;" (click)="validate()">Validate</button>
+    </div>
+    <div style="margin-left: 41%;margin-top:15px">
+      <span *ngIf="trainComplete==false" style="margin-top:5px;margin-left:15px">Training Inprogress...</span>
+      <span *ngIf="trainComplete==true" style="margin-top:5px;margin-left:15px">Training Complete</span>
+      <a style="margin-left:5px" *ngIf="trainComplete==true" (click)="showModal=true">
+        <h8> View Logs</h8>
+      </a>
+      <div>
+        <span *ngIf="testComplete==false" style="margin-top:5px;margin-left:15px">Test Inprogress...</span>
+        <span *ngIf="testComplete==true" style="margin-top:5px;margin-left:15px">Test Complete</span>
+      </div>
+    </div>
+    <div class="row flex-container">
+      <div style="flex:50%;">
+        <div class="flex-container" *ngIf="testlogs">
+          <div class="flex-item" style="margin-top:15px;margin-left:15%">
+            <div><span>Accuracy:</span><span>{{testlogs.accuracy}}</span></div>
+            <div><span>Precision:</span><span>{{testlogs.precision}}</span></div>
+            <div><span>Recall:</span><span>{{testlogs.recall}}</span></div>
+            <div><span>F1-Score:</span><span>{{testlogs.f1score}}</span></div>
           </div>
         </div>
       </div>
+      <div style="flex:50%">
+        <div *ngIf="testlogs">
+          <span>Confusion Matrix</span>
+          <table style="width:300px">
+            <tr>
+              <td></td>
+              <td *ngFor="let label of uniquelabels;">{{label}}</td>
+            </tr>
+
+            <tr *ngFor="let row of testlogs.cm;let i=index">
+              <td><a href="javascript:;" (click)="showResultAnalysis(uniquelabels[i])">{{uniquelabels[i]}}</a></td>
+              <td *ngFor="let cell of row">
+                {{cell.count}}
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
     </div>
-    <div style="flex: 30% ;margin-left:30px;margin-top:30px;margin-right:30px">
-       <div  *ngIf="testlogs" >
+    <div style="text-align: center;">
+      <button *ngIf="testComplete==true" (click)="compareResults=true">Compare Results</button>
+    </div>
+  </div>
+  <ng-container *ngIf="compareResults==true">
+    <div style="display:flex">
+      <div style="flex:70%; margin-left:15px; margin-top:30px;">
+        <div style="display: flex ">
+          <div style="flex: 50%; border: solid 1px black; height: 250px; overflow: auto " [style.background-color]="sectionSelected==1?'yellow':'white'">
+            <div>
+              <input type="checkbox" (click)="sectionSelected=sectionSelected==1?0:1" />
+              <img [src]="item.data" *ngFor="let item of section1" style="border-width:1px;border-style:solid" [style.border-color]="item.type=='train'?'green':'red'" />
+            </div>
+          </div>
+          <div style="flex: 50%; border: solid 1px black; height: 250px; overflow: auto " [style.background-color]="sectionSelected==2?'yellow':'white'">
+            <div>
+              <input type="checkbox" (click)="sectionSelected=sectionSelected==2?0:2" />
+              <img [src]="item.data" *ngFor="let item of section2" style="border-width:1px;border-style:solid" [style.border-color]="item.type=='train'?'green':'red'" />
+            </div>
+          </div>
+        </div>
+        <div style="display: flex">
+          <div style="flex: 50%; border: solid 1px black; height: 250px; overflow: auto " [style.background-color]="sectionSelected==3?'yellow':'white'">
+            <div>
+              <input type="checkbox" (click)="sectionSelected=sectionSelected==3?0:3" />
+
+              <img [src]="item.data" *ngFor="let item of section3" style="border-width:1px;border-style:solid" [style.border-color]="item.type=='train'?'green':'red'" />
+            </div>
+          </div>
+          <div style="flex: 50%; border: solid 1px black; height: 250px;overflow:auto" [style.background-color]="sectionSelected==4?'yellow':'white'">
+            <div>
+              <input type="checkbox" (click)="sectionSelected=sectionSelected==4?0:4" />
+              <img [src]="item.data" *ngFor="let item of section4" style="border-width:1px;border-style:solid" [style.border-color]="item.type=='train'?'green':'red'" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="flex: 30% ;margin-left:30px;margin-top:30px;margin-right:30px">
+        <div *ngIf="testlogs">
           <span>Train Confusion Matrix</span>
           <table style="width:400px">
             <tr>
@@ -204,11 +179,11 @@
             </tr>
             <tr *ngFor="let row of trainlogcm;let i=index">
               <td>
-              <h13>{{uniquelabels[i]}}</h13>
+                <h13>{{uniquelabels[i]}}</h13>
               </td>
               <td *ngFor="let cell of row;let j=index">
                 <input type="checkbox" [ngModel]="cell.ischecked" (ngModelChange)="renderSection(sectionSelected,'train',i,0,$event)" />
-                <span >{{cell.count}}</span>
+                <span>{{cell.count}}</span>
               </td>
             </tr>
           </table>
@@ -218,7 +193,7 @@
               <td></td>
               <td *ngFor="let label of uniquelabels;let i=index">
                 <input type="checkbox" [ngModel]="trainColumnCheck[i]" (ngModelChange)="multiplerenderColumn(sectionSelected, 'test', i, $event)" />
-              {{label}}
+                {{label}}
               </td>
             </tr>
             <tr *ngFor="let row of testlogs.cm;let i=index">
@@ -228,18 +203,79 @@
                 <span>{{cell.count}}</span>
               </td>
             </tr>
-         </table>
+          </table>
         </div>
       </div>
     </div>
     <div style="text-align:center">
       <button>Close</button>
     </div>
-  <!--<div *ngFor="let filename of testlogs.testfilenames;let i =index">
-    <div>{{filename}}</div>
-    <div>{{testlogs.testlabels[i]}}</div>
-    <div>{{testlogs.predictedlabels[i]}}</div>
-    <div><img [src]="testlogs.data[i]" /></div>
-  </div>-->
-</ng-container>
-
+    <!--<div *ngFor="let filename of testlogs.testfilenames;let i =index">
+      <div>{{filename}}</div>
+      <div>{{testlogs.testlabels[i]}}</div>
+      <div>{{testlogs.predictedlabels[i]}}</div>
+      <div><img [src]="testlogs.data[i]" /></div>
+    </div>-->
+  </ng-container>
+</div>
+<div class="myModal" *ngIf="showResultAnalysisPopup==true">
+  <div>
+    <div style="margin:5px;display: flex;">
+      <div style="float: left;flex:auto">  Result analysis</div>
+      <div (click)="showResultAnalysisPopup=false" style="float:right">X</div>
+    </div>
+    <div style="margin-left:5px">
+      <div class="flex-container">
+        <div class="flex-item">{{selectedResultAnalysisName}}</div>
+        <div class="flex-item">
+          <select (change)="showpredictedResults($event.target.value)">
+            <ng-container *ngFor="let name of notselectedUniqueLabels">
+              <option [value]="name">
+                {{name}}
+              </option>
+            </ng-container>
+          </select>
+        </div>
+      </div>
+      <div class="flex-container">
+        <div class="flex-item">
+          <select (change)="selectedPredictedCrctImage=testlogs.data[$event.target.value]">
+            <ng-container *ngFor="let val of predictedImageNamesCrct">
+              <option [value]="val">{{testlogs.predictedlabels[val]}}</option>
+            </ng-container>
+          </select>
+        </div>
+        <div class="flex-item">
+          <select (change)="selectedPredictedFaultImage=testlogs.data[$event.target.value]">
+            <ng-container *ngFor="let val of predictedImageNamesFault">
+              <option [value]="val">{{testlogs.predictedlabels[val]}}</option>
+            </ng-container>
+          </select>
+        </div>
+      </div>
+      <div class="flex-container">
+        <div class="flex-item"><img [src]="selectedPredictedCrctImage" /></div>
+        <div class="flex-item"><img [src]="selectedPredictedFaultImage" /></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="myModal" *ngIf="showModal">
+  <div style="margin:5px;display: flex;">
+    <div style="float: left;flex:auto">Results</div>
+    <div (click)="showModal=false" style="float:right">X</div>
+  </div><div style="margin-left: 5px;">
+    <div class="flex-container" *ngIf="trainlogs">
+      <div class="flex-item"><b>Epoch</b></div>
+      <div class="flex-item"><b>Loss</b></div>
+      <div class="flex-item"><b>Categorical Accuracy</b></div>
+    </div>
+    <ng-container *ngIf="trainlogs">
+      <div class="flex-container" *ngFor="let loss of trainlogs.loss;let i =index">
+        <div class="flex-item">{{i+1}}</div>
+        <div class="flex-item">{{loss}}</div>
+        <div class="flex-item">{{trainlogs.categorical_accuracy[i]}}</div>
+      </div>
+    </ng-container>
+  </div>
+</div>

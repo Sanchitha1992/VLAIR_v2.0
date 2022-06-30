@@ -52,7 +52,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   midScroll: boolean;
   constructor(private route: ActivatedRoute, private dataService: DataService, private router: Router) { }
   public selection: boolean;
-
+  validationdata: any;
 
   crop() {
     console.log(canvas.getObjects());
@@ -107,6 +107,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     //this.loaddata(0);
     this.loadUndoRedo();
     this.loadSelector();
+    this.validationdata = JSON.parse(sessionStorage["validationdata"]);
 
   }
   loadSelector() {
@@ -285,12 +286,18 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   }
   rightcanvases: any[] = [];
   loading: boolean;
-  applyChanges() {
+
+  apply() {
+    this.applyChanges(this.rowData, 'canvas')
+    this.applyChanges(this.validationdata, 'valcanvas')
+
+  }
+  applyChanges(data,canvas) {
     this.loading = true
     let selectionrect = this.canvas.getObjects().find(a => a.typename == 'selectionrect')
     console.log(selectionrect.left)
-    for (let i = 0; i < this.rowData.length; i++) {
-      let rightcanvas = new fabric.Canvas("canvas" + i);
+    for (let i = 0; i < data.length; i++) {
+      let rightcanvas = new fabric.Canvas(canvas + i);
       rightcanvas.setDimensions({ width: selectionrect.width, height: selectionrect.height });
 
       let canvasObjects = this.canvas.getObjects();
@@ -2352,11 +2359,19 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   experimentVisible = false;
   navigateML() {
     this.dataService.canvasCollection = [];
+    this.dataService.validationCollection = [];
     for (let i = 0; i < this.rowData.length; i++) {
       this.dataService.canvasCollection
         .push({
           data: (document.getElementById("canvas" + i) as any)
             .toDataURL("image/png"), label: this.rowData[i][Object.keys(this.rowData[0])[Object.keys(this.rowData[0]).length - 1]], datasetSelection: 'train'
+        })
+    }
+    for (let i = 0; i < this.validationdata.length; i++) {
+      this.dataService.validationCollection
+        .push({
+          data: (document.getElementById("valcanvas" + i) as any)
+            .toDataURL("image/png"), label: this.validationdata[i][Object.keys(this.validationdata[0])[Object.keys(this.validationdata[0]).length - 1]], datasetSelection: 'validation'
         })
     }
     this.experimentVisible = true;

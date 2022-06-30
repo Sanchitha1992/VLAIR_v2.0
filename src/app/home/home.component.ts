@@ -220,6 +220,14 @@ export class HomeComponent implements OnInit {
         }
       })
     })
+    this.validationdata.forEach(ele => {
+      Object.keys(ele).forEach(key => {
+        if (key.indexOf('type') > -1) {
+          delete ele[key];
+        }
+        delete ele['validation']
+      })
+    })
     sessionStorage.setItem('rowdata', JSON.stringify(this.rowData));
     sessionStorage.setItem('validationdata', JSON.stringify(this.validationdata));
     sessionStorage.setItem('selectedlabel', this.selectedlabel);

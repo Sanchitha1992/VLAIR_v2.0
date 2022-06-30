@@ -76,6 +76,40 @@ export class ExperimentComponent implements OnInit {
     });
   }
 
+  validateComplete: boolean;
+  validationlogs: any;
+  showValResults: boolean=false;
+  validate() {
+    const headers = new HttpHeaders().set('Access-Control-Allow-Origin', '*');
+    this.validateComplete = false;
+    this.dataService.validationCollection.forEach((element, index) => {
+      element.name = 'validate' + index;
+    });
+    this.httpClient.post(this.url + 'validate', { data: this.dataService.validationCollection }).subscribe((data: any) => {
+      this.showValResults = true;
+      this.validateComplete = true;
+      this.validationlogs = data;
+      this.validationlogs.data = [];
+
+      this.validationlogs.valfilenames.forEach((element, index) => {
+        this.validationlogs.data.push(this.dataService.validationCollection.find(x => x.name == element.replace('.png', '')).data);
+      });
+      console.log(this.validationlogs)
+      let unique = [...new Set(this.validationlogs.vallabels)];
+
+      for (let i = 0; i < unique.length; i++) {
+        for (let j = 0; j < unique.length; j++) {
+          this.validationlogs.cm[i][j] = { 'count': 0, 'ischecked': false };
+          for (let k = 0; k < this.validationlogs.vallabels.length; k++) {
+            if (this.validationlogs.vallabels[k] == unique[i] && this.validationlogs.predictedlabels[k] == unique[j]) {
+              this.validationlogs.cm[i][j].count++;
+            }
+          }
+        }
+      }
+      this.dataService.validationlogs = this.validationlogs
+    });
+  }
   selectedResultAnalysisName: string;
   predictedResultAnalysisName: string;
   predictedImageNamesCrct: number[] = [];

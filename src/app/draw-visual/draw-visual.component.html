@@ -6,11 +6,11 @@
   </div>
 </div>
 <div [style.display]="experimentVisible==false?'block':'none'">
-  <mat-tab-group>
+  <!--<mat-tab-group>
     <mat-tab label="First"> Content 1 </mat-tab>
     <mat-tab label="Second"> Content 2 </mat-tab>
     <mat-tab label="Third"> Content 3 </mat-tab>
-  </mat-tab-group>
+  </mat-tab-group>-->
   <div style="display: flex; height: 100vh;overflow:hidden">
     <div style="flex:15%" id="leftpanel">
       <div style="width:200px;height:100vh;overflow:auto">
@@ -96,7 +96,7 @@
               <div style="text-align:center;padding-top: 8px;">View Mode</div>
             </div>
             <div class="inlinediv" style="padding-left:15px;padding-right:15px;padding-bottom:23px;padding-top:12px;cursor:pointer">
-              <div style="display: inline-block; background-color: black; color: white;padding:3px;" class="keys" (click)="applyChanges()">
+              <div style="display: inline-block; background-color: black; color: white;padding:3px;" class="keys" (click)="apply()">
                 Apply All
               </div>
             </div>
@@ -387,6 +387,9 @@
       <div class="loader" *ngIf="loading"></div>
       <div class="inlinediv" *ngFor="let key of rowData;let i=index">
         <canvas [id]="'canvas'+i" width="150" height="100"></canvas>
+      </div>
+      <div class="inlinediv" *ngFor="let key of validationdata;let i=index">
+        <canvas [id]="'valcanvas'+i" width="150" height="100"></canvas>
       </div>
     </div>
   </div>
