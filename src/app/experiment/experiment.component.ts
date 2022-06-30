@@ -80,6 +80,9 @@ export class ExperimentComponent implements OnInit {
   validationlogs: any;
   showValResults: boolean=false;
   validate() {
+    if (!confirm("Do you want to proceed with validation?")) {
+      return;
+    }
     const headers = new HttpHeaders().set('Access-Control-Allow-Origin', '*');
     this.validateComplete = false;
     this.dataService.validationCollection.forEach((element, index) => {
