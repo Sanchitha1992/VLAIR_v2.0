@@ -1140,10 +1140,11 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       }
       else if (source != null && (source.typename == 'outputport' || source.typename == 'key') && event.target != null && event.target.typename == 'isNumericData') {
         let mapper = this.bottomcanvas.getObjects().find(x => x.typename != null && x.mainname == 'mapper')
-        let line = new fabric.Line([source.left, source.top + (source.radius / 2), event.target.left, event.target.top + (event.target.height / 2)], { stroke: 'black', selectable: false, typename: 'line' + mapper.leftitems.length });
+        let line = new fabric.Line([source.left, source.top + (source.radius / 2), event.target.left, event.target.top + (event.target.height / 2)], { stroke: 'black', selectable: false });
         event.target.value = this.rowData[this.rowIndex][source.fieldName];
         for (let l = 0; l < mapper.leftitems.length; l++) {
           if (mapper.leftitems[l] == event.target) {
+            line.typename = 'line' + l;
             this.bottomcanvas.remove(this.bottomcanvas.getObjects().find(x => x.typename == 'line' + l))
             break;
           }
