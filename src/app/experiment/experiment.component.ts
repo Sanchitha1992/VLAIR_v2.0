@@ -102,7 +102,7 @@ export class ExperimentComponent implements OnInit {
 
       for (let i = 0; i < unique.length; i++) {
         for (let j = 0; j < unique.length; j++) {
-          this.validationlogs.cm[i][j] = { 'count': 0, 'ischecked': false };
+          this.validationlogs.cm[i][j] = { 'count': 0, 'ischecked': [false,false,false,false] };
           for (let k = 0; k < this.validationlogs.vallabels.length; k++) {
             if (this.validationlogs.vallabels[k] == unique[i] && this.validationlogs.predictedlabels[k] == unique[j]) {
               this.validationlogs.cm[i][j].count++;
@@ -175,7 +175,7 @@ export class ExperimentComponent implements OnInit {
 
       for (let i = 0; i < unique.length; i++) {
         for (let j = 0; j < unique.length; j++) {
-          this.testlogs.cm[i][j] = {'count': 0,'ischecked':false};
+          this.testlogs.cm[i][j] = {'count': 0,'ischecked':[false,false,false,false]};
           for (let k = 0; k < this.testlogs.testlabels.length; k++) {
             if (this.testlogs.testlabels[k] == unique[i] && this.testlogs.predictedlabels[k] == unique[j]) {
               this.testlogs.cm[i][j].count++;
@@ -186,15 +186,17 @@ export class ExperimentComponent implements OnInit {
 
       this.uniquelabels = unique.map((x: string) => x.replace('Test\\', ''));
       for (let i = 0; i < this.uniquelabels.length; i++) {
-        this.trainColumnCheck.push(false)
-        this.testColumnCheck.push(false)
+        this.trainColumnCheck.push([false,false,false,false])
+        this.testColumnCheck.push([false, false, false, false]);
+        this.trainRowCheck.push([false, false, false, false])
+        this.testRowCheck.push([false, false, false, false]);
       }
       for (let i = 0; i < unique.length; i++) {
         this.trainlogcm.push([]);
         for (let j = 0; j < unique.length; j++) {
-          this.trainlogcm[i].push({'count': 0,'ischecked':false})
+          this.trainlogcm[i].push({'count': 0,'ischecked':[false,false,false,false]})
         }
-        this.trainlogcm[i][i] = { 'count': this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[i]).length, 'ischecked': false };
+        this.trainlogcm[i][i] = { 'count': this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[i]).length, 'ischecked': [false,false,false,false] };
       }
     });
   }
@@ -206,13 +208,15 @@ export class ExperimentComponent implements OnInit {
     if (set == 'train') {
       this.renderSection(sectionSelected, set, index, 0, ischecked)
       for (let i = 0; i < this.uniquelabels.length; i++) {
-        this.trainlogcm[i][index].ischecked = ischecked
+        this.trainlogcm[i][index].ischecked[sectionSelected] = ischecked
       }
+      this.trainColumnCheck[index][sectionSelected] = ischecked
     } else {
       for (let i = 0; i < this.uniquelabels.length; i++) {
         this.renderSection(sectionSelected, set, i, index, ischecked)
-        this.testlogs.cm[i][index].ischecked = ischecked
+        this.testlogs.cm[i][index].ischecked[sectionSelected] = ischecked
       }
+      this.testColumnCheck[index][sectionSelected] = ischecked
     }
   }
 
@@ -220,22 +224,25 @@ export class ExperimentComponent implements OnInit {
     if (set == 'train') {
       this.renderSection(sectionSelected, set, 0, index, ischecked)
       for (let i = 0; i < this.uniquelabels.length; i++) {
-        this.trainlogcm[index][i].ischecked = ischecked
+        this.trainlogcm[index][i].ischecked[sectionSelected] = ischecked
       }
+      this.trainRowCheck[index][sectionSelected] = ischecked
     } else {
       for (let i = 0; i < this.uniquelabels.length; i++) {
-        this.renderSection(sectionSelected, set, index,i , ischecked)
-        this.testlogs.cm[index][i].ischecked = ischecked
+        this.renderSection(sectionSelected, set, index, i, ischecked)
+        this.testlogs.cm[index][i].ischecked[sectionSelected] = ischecked
       }
+      this.testRowCheck[index][sectionSelected] = ischecked
     }
   }
 
-  renderSection(sectionSelected, set, index, secondindex,ischecked) {
+  renderSection(sectionSelected, set, index, secondindex, ischecked) {
     if (sectionSelected == 1) {
       this.section1set = set
       if (ischecked) {
         if (set == 'train') {
           this.section1 = this.section1.concat(this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
+          this.trainlogcm[index][secondindex].ischecked[sectionSelected] = ischecked
         }
         else {
           let unique = [...new Set(this.testlogs.testlabels)];
@@ -244,6 +251,7 @@ export class ExperimentComponent implements OnInit {
               this.section1.push({ 'data': this.testlogs.data[k], 'typename': set + index + ':' + secondindex, 'type': set });
             }
           }
+          this.testlogs.cm[index][secondindex].ischecked[sectionSelected] = ischecked
         }
       } else {
         this.section1 = this.section1.filter(x => x['typename'] != set + index + ':' + secondindex)
@@ -255,6 +263,7 @@ export class ExperimentComponent implements OnInit {
       if (ischecked) {
         if (set == 'train') {
           this.section2 = this.section2.concat(this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
+          this.trainlogcm[index][secondindex].ischecked[sectionSelected] = ischecked
         }
         else {
           let unique = [...new Set(this.testlogs.testlabels)];
@@ -264,6 +273,7 @@ export class ExperimentComponent implements OnInit {
               this.section2.push({ 'data': this.testlogs.data[k], 'typename': set + index + ':' + secondindex, 'type': set });
             }
           }
+          this.testlogs.cm[index][secondindex].ischecked[sectionSelected] = ischecked
         }
       }
       else {
@@ -275,6 +285,7 @@ export class ExperimentComponent implements OnInit {
       if (ischecked) {
         if (set == 'train') {
           this.section3 = this.section3.concat(this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
+          this.trainlogcm[index][secondindex].ischecked[sectionSelected] = ischecked
         }
         else {
           let unique = [...new Set(this.testlogs.testlabels)];
@@ -284,6 +295,7 @@ export class ExperimentComponent implements OnInit {
               this.section3.push({ 'data': this.testlogs.data[k], 'typename': set + index + ':' + secondindex, 'type': set });
             }
           }
+          this.testlogs.cm[index][secondindex].ischecked[sectionSelected] = ischecked
         }
       }
       else {
@@ -295,6 +307,7 @@ export class ExperimentComponent implements OnInit {
       if (ischecked) {
         if (set == 'train') {
           this.section4 = this.section4.concat(this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
+          this.trainlogcm[index][secondindex].ischecked[sectionSelected] = ischecked
         }
         else {
           let unique = [...new Set(this.testlogs.testlabels)];
@@ -304,6 +317,7 @@ export class ExperimentComponent implements OnInit {
               this.section4.push({ 'data': this.testlogs.data[k], 'typename': set + index + ':' + secondindex, 'type': set });
             }
           }
+          this.testlogs.cm[index][secondindex].ischecked[sectionSelected] = ischecked
         }
       }
       else {

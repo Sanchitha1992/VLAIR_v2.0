@@ -172,17 +172,17 @@
             <tr>
               <td></td>
               <td *ngFor="let label of uniquelabels;let i=index">
-                <input type="checkbox" [ngModel]="trainColumnCheck[i]" (ngModelChange)="multiplerenderColumn(sectionSelected, 'train', i, $event)" />
+                <input type="checkbox" *ngIf="trainColumnCheck!=null"  [ngModel]="trainColumnCheck[i][sectionSelected]" (ngModelChange)="multiplerenderColumn(sectionSelected, 'train', i, $event)" />
                 {{label}}
               </td>
             </tr>
             <tr *ngFor="let row of trainlogcm;let i=index">
               <td>
-                <input type="checkbox" [ngModel]="trainRowCheck[i]" (ngModelChange)="multiplerenderRow(sectionSelected, 'train', i, $event)" />
+                <input type="checkbox" *ngIf="trainRowCheck!=null" [ngModel]="trainRowCheck[i][sectionSelected]" (ngModelChange)="multiplerenderRow(sectionSelected, 'train', i, $event)" />
                 <h13>{{uniquelabels[i]}}</h13>
               </td>
               <td *ngFor="let cell of row;let j=index">
-                <input type="checkbox" [ngModel]="cell.ischecked" (ngModelChange)="renderSection(sectionSelected,'train',i,0,$event)" />
+                <input type="checkbox"  [ngModel]="cell.ischecked[sectionSelected]" (ngModelChange)="renderSection(sectionSelected,'train',i,0,$event)" />
                 <span>{{cell.count}}</span>
               </td>
             </tr>
@@ -192,17 +192,17 @@
             <tr>
               <td></td>
               <td *ngFor="let label of uniquelabels;let i=index">
-                <input type="checkbox" [ngModel]="trainColumnCheck[i]" (ngModelChange)="multiplerenderColumn(sectionSelected, 'test', i, $event)" />
+                <input type="checkbox" *ngIf="testColumnCheck!=null" [ngModel]="testColumnCheck[i][sectionSelected]" (ngModelChange)="multiplerenderColumn(sectionSelected, 'test', i, $event)" />
                 {{label}}
               </td>
             </tr>
             <tr *ngFor="let row of testlogs.cm;let i=index">
               <td>
-                <input type="checkbox" [ngModel]="testRowCheck[i]" (ngModelChange)="multiplerenderRow(sectionSelected, 'test', i, $event)" />
+                <input type="checkbox" *ngIf="testRowCheck!=null" [ngModel]="testRowCheck[i][sectionSelected]" (ngModelChange)="multiplerenderRow(sectionSelected, 'test', i, $event)" />
                 {{uniquelabels[i]}}
               </td>
               <td *ngFor="let cell of row;let j=index">
-                <input type="checkbox" [ngModel]="cell.ischecked" (ngModelChange)="renderSection(sectionSelected,'test',i,j,$event)" />
+                <input type="checkbox" [ngModel]="cell.ischecked[sectionSelected]" (ngModelChange)="renderSection(sectionSelected,'test',i,j,$event)" />
                 <span>{{cell.count}}</span>
               </td>
             </tr>
