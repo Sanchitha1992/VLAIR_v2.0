@@ -58,7 +58,7 @@ export class ExperimentComponent implements OnInit {
   }
   distinctlabel: any[];
   trainComplete: boolean = null;
-  url: string = 'http://vlairml.australiaeast.cloudapp.azure.com:5000/';
+  url: string = 'http://127.0.0.1:5000/';
   trainlogs: string = '';
   compareResults: boolean = false;
   train() {
@@ -199,15 +199,33 @@ export class ExperimentComponent implements OnInit {
     });
   }
   trainColumnCheck = []
+  trainRowCheck = [];
   testColumnCheck = []
+  testRowCheck=[]
   multiplerenderColumn(sectionSelected, set, index, ischecked) {
     if (set == 'train') {
       this.renderSection(sectionSelected, set, index, 0, ischecked)
-      this.trainlogcm[index][index].ischecked = ischecked
+      for (let i = 0; i < this.uniquelabels.length; i++) {
+        this.trainlogcm[i][index].ischecked = ischecked
+      }
     } else {
       for (let i = 0; i < this.uniquelabels.length; i++) {
         this.renderSection(sectionSelected, set, i, index, ischecked)
         this.testlogs.cm[i][index].ischecked = ischecked
+      }
+    }
+  }
+
+  multiplerenderRow(sectionSelected, set, index, ischecked) {
+    if (set == 'train') {
+      this.renderSection(sectionSelected, set, 0, index, ischecked)
+      for (let i = 0; i < this.uniquelabels.length; i++) {
+        this.trainlogcm[index][i].ischecked = ischecked
+      }
+    } else {
+      for (let i = 0; i < this.uniquelabels.length; i++) {
+        this.renderSection(sectionSelected, set, index,i , ischecked)
+        this.testlogs.cm[index][i].ischecked = ischecked
       }
     }
   }

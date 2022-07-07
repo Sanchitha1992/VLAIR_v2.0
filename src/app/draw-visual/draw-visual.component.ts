@@ -310,14 +310,22 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           }
           else {
             let value = i
-            height = eval(canvasObjects[j].heightColumn)
+            if (canvas == 'valcanvas') {
+              height = eval(canvasObjects[j].heightColumn.replace('rowData', 'validationdata'))
+            } else {
+              height = eval(canvasObjects[j].heightColumn)
+            }
           }
           if (canvasObjects[j].widthColumn == null) {
             width = canvasObjects[j].width * canvasObjects[j].scaleX
           }
           else {
             let value = i
-            width = eval(canvasObjects[j].widthColumn)
+            if (canvas == 'valcanvas') {
+              width = eval(canvasObjects[j].widthColumn.replace('rowData','validationdata'))
+            } else {
+              width = eval(canvasObjects[j].widthColumn)
+            }
           }
           obj = new fabric.Rect({
             left: canvasObjects[j].left - selectionrect.left, top: canvasObjects[j].top - selectionrect.top,
@@ -358,7 +366,22 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
   changeColor(value) {
     this.selectedObject.fill = value
-    this.selectedObject.border = value
+    this.selectedObject.stroke = value
+    this.color=value
+    this.canvas.renderAll();
+  }
+
+  changeLengthOperand(value) {
+    this.selectedObject.height = eval(this.length + this.lengthOperator + value);
+    this.selectedObject.heightColumn = this.selectedObject.heightColumn.replace(this.lengthOperand,value)
+    this.lengthOperand = value;
+    this.canvas.renderAll();
+  }
+
+  changeWidthOperand(value) {
+    this.selectedObject.width = eval(this.width + this.widthOperator + value);
+    this.selectedObject.widthColumn = this.selectedObject.widthColumn.replace(this.widthOperand, value)
+    this.widthOperand = value;
     this.canvas.renderAll();
   }
 
@@ -539,10 +562,10 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
               return (x.length == 1) ? "0" + x : x;
             }).join("");
           }
-          let obj = this.canvas.getActiveObject();
-          if (obj.heightColumn != null) {
-            this.length = eval(obj.heightColumn.split('*')[0].split('/')[0])
-            this.lengthTitle = obj.mappedheight;
+          let value = this.rowIndex;
+          if (this.selectedObject.heightColumn != null) {
+            this.length = eval(this.selectedObject.heightColumn.split('*')[0].split('/')[0])
+            this.lengthTitle = this.selectedObject.mappedheight;
           }
           else {
             if (this.lengthOperator == '*') {
@@ -551,10 +574,11 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             else if (this.lengthOperator == '/') {
               this.length = this.selectedObject.height * this.lengthOperand;
             }
+            this.lengthTitle=''
           }
-          if (obj.widthColumn != null) {
-            this.width = eval(obj.widthColumn.split('*')[0].split('/')[0])
-            this.widthTitle = obj.mappedwidth;
+          if (this.selectedObject.widthColumn != null) {
+            this.width = eval(this.selectedObject.widthColumn.split('*')[0].split('/')[0])
+            this.widthTitle = this.selectedObject.mappedwidth;
           }
           else {
             if (this.widthOperator == '*') {
@@ -563,6 +587,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             else if (this.widthOperator == '/') {
               this.width = this.selectedObject.width * this.widthOperand;
             }
+            this.widthTitle=''
           }
           this.area = this.width * this.length;
           this.areaOperand = this.widthOperand * this.lengthOperand;
@@ -612,7 +637,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           this.area = 3.14 * this.selectedObject.radius * this.selectedObject.radius;
           this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': false, 'width': false, 'side': false, 'radius': true, 'area': true, 'rotation': true }
         }
-        setTimeout(() => { this.draganddropFunction(); }, 1000)
+        //setTimeout(() => { this.draganddropFunction(); }, 1000)
 
       },
       'object:rotating': (e) => {
