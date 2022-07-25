@@ -50,7 +50,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   radiusTitle: string = ''
   rotation: any;
   midScroll: boolean;
-  constructor(private route: ActivatedRoute, private dataService: DataService, private router: Router) { }
+  constructor(private route: ActivatedRoute, private dataService: DataService, private router: Router,private activatedRoute:ActivatedRoute) { }
   public selection: boolean;
   validationdata: any;
 
@@ -109,6 +109,9 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     this.loadSelector();
     this.validationdata = JSON.parse(sessionStorage["validationdata"]);
 
+    if(this.activatedRoute.snapshot.queryParams['experiment'] =='true'){
+      this.experimentVisible=true;
+    }
   }
   loadSelector() {
     let isDown, origX, origY, rect;
@@ -2400,7 +2403,10 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             .toDataURL("image/png"), label: this.validationdata[i][Object.keys(this.validationdata[0])[Object.keys(this.validationdata[0]).length - 1]], datasetSelection: 'validation'
         })
     }
-    this.experimentVisible = true;
+    localStorage.setItem('canvasCollection',JSON.stringify(this.dataService.canvasCollection))
+    localStorage.setItem('validationCollection',JSON.stringify(this.dataService.validationCollection))
+    window.open('/drawVisual?experiment=true')
+  
   }
 
   backToViz() {

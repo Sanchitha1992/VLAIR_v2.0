@@ -59,7 +59,7 @@
       </div>
       <div class="tabcontent">
         <div class="flex-container" style="overflow: auto;">
-          <ng-container *ngFor="let col of canvasCollection;let i=index">
+          <ng-container *ngFor="let col of dataService.canvasCollection;let i=index">
             <div *ngIf="col.label==selectedLabel && ((col.datasetSelection=='train' && showTrain) || (col.datasetSelection=='test' && showTest))" style="margin:4px;">
               <div (click)="revertDataSelection(col)" [style.border]="col.datasetSelection=='train'?'2px solid red':'2px solid green'">
                 <img [src]="col.data" [style.width]="(imgWidth*zoomPercentage/100)+'px'" (load)="loadImage($event)" />

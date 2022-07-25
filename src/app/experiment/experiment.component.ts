@@ -13,7 +13,6 @@ export class ExperimentComponent implements OnInit {
 
   constructor(private dataService: DataService, private httpClient: HttpClient) { }
 
-  canvasCollection: any;
   thumbnailCollection: any;
   selectedLabel: string;
   imgWidth: number;
@@ -27,38 +26,36 @@ export class ExperimentComponent implements OnInit {
 
   revertDataSelection(col) {
     col.datasetSelection = col.datasetSelection == 'train' ? 'test' : 'train'
-    this.trainPercent = parseFloat((this.canvasCollection.filter(x => x.datasetSelection == 'train').length*100 / this.canvasCollection.length).toFixed(2))
-    this.testPercent = parseFloat((this.canvasCollection.filter(x => x.datasetSelection == 'test').length*100 / this.canvasCollection.length).toFixed(2))
+    this.trainPercent = parseFloat((this.dataService.canvasCollection.filter(x => x.datasetSelection == 'train').length*100 / this.dataService.canvasCollection.length).toFixed(2))
+    this.testPercent = parseFloat((this.dataService.canvasCollection.filter(x => x.datasetSelection == 'test').length*100 / this.dataService.canvasCollection.length).toFixed(2))
   }
 
   trainChange(e) {
     this.testPercent = 100 - e;
-    this.canvasCollection.forEach(e => e.datasetSelection = 'test');
-    while (this.canvasCollection.filter(x => x.datasetSelection == 'train').length < Math.floor(this.canvasCollection.length * e / 100)) {
-      let randomnumber = Math.floor(Math.random() * this.canvasCollection.length);
-      this.canvasCollection[randomnumber].datasetSelection = 'train';
-      randomnumber = Math.floor(Math.random() * this.canvasCollection.length);
+    this.dataService.canvasCollection.forEach(e => e.datasetSelection = 'test');
+    while (this.dataService.canvasCollection.filter(x => x.datasetSelection == 'train').length < Math.floor(this.dataService.canvasCollection.length * e / 100)) {
+      let randomnumber = Math.floor(Math.random() * this.dataService.canvasCollection.length);
+      this.dataService.canvasCollection[randomnumber].datasetSelection = 'train';
+      randomnumber = Math.floor(Math.random() * this.dataService.canvasCollection.length);
     }
-    console.log(this.canvasCollection)
+    console.log(this.dataService.canvasCollection)
   }
   showTrain: boolean = true;
   showTest: boolean = true;
   showModal: boolean = false;
   ngOnInit(): void {
-    if (this.dataService.canvasCollection != null) {
-      this.canvasCollection = this.dataService.canvasCollection
-      localStorage.setItem("canvasCollection", JSON.stringify(this.canvasCollection));
+    if(sessionStorage.getItem("canvasCollection")==null){
+      sessionStorage.setItem("canvasCollection",localStorage.getItem("canvasCollection"))
     }
-    else if (localStorage.getItem("canvasCollection") != null) {
-      this.canvasCollection = JSON.parse(localStorage.getItem("canvasCollection"));
-    }
-    this.distinctlabel = [...new Set(this.canvasCollection.map(x => x.label))]
+      this.dataService.canvasCollection =this.dataService.canvasCollection= JSON.parse(sessionStorage.getItem("canvasCollection"));
+      this.dataService.validationCollection=JSON.parse(localStorage.getItem("validationCollection"));
+    this.distinctlabel = [...new Set(this.dataService.canvasCollection.map(x => x.label))]
     this.selectedLabel = this.distinctlabel[0];
     this.trainChange(this.trainPercent);
   }
   distinctlabel: any[];
   trainComplete: boolean = null;
-  url: string = 'http://127.0.0.1:5000/';
+  url: string = 'http://vlairml.australiaeast.cloudapp.azure.com:5000/';
   trainlogs: string = '';
   compareResults: boolean = false;
   train() {
@@ -69,7 +66,7 @@ export class ExperimentComponent implements OnInit {
       });
     }, 5000);
     this.trainComplete = false;
-    this.httpClient.post(this.url + 'train', { data: this.canvasCollection.filter(x => x.datasetSelection == 'train') }).subscribe((data: any) => {
+    this.httpClient.post(this.url + 'train', { data: this.dataService.canvasCollection.filter(x => x.datasetSelection == 'train') }).subscribe((data: any) => {
       this.trainlogs = JSON.parse(data.replace(/\'/g, '"'));
       clearInterval(interval);
       this.trainComplete = true;
@@ -159,16 +156,16 @@ export class ExperimentComponent implements OnInit {
   test() {
     const headers = new HttpHeaders().set('Access-Control-Allow-Origin', '*');
     this.testComplete = false;
-    this.canvasCollection.forEach((element, index) => {
+    this.dataService.canvasCollection.forEach((element, index) => {
       element.name = 'test' + index;
     });
-    this.httpClient.post(this.url + 'test', { data: this.canvasCollection.filter(x => x.datasetSelection == 'test') }).subscribe((data: any) => {
+    this.httpClient.post(this.url + 'test', { data: this.dataService.canvasCollection.filter(x => x.datasetSelection == 'test') }).subscribe((data: any) => {
       this.testComplete = true;
       this.testlogs = data;
       this.testlogs.data = [];
       this.trainlogcm = [];
       this.testlogs.testfilenames.forEach((element, index) => {
-        this.testlogs.data.push(this.canvasCollection.find(x => x.name == element.replace('.png', '')).data);
+        this.testlogs.data.push(this.dataService.canvasCollection.find(x => x.name == element.replace('.png', '')).data);
       });
       console.log(this.testlogs)
       let unique = [...new Set(this.testlogs.testlabels)];
@@ -196,7 +193,7 @@ export class ExperimentComponent implements OnInit {
         for (let j = 0; j < unique.length; j++) {
           this.trainlogcm[i].push({'count': 0,'ischecked':[false,false,false,false]})
         }
-        this.trainlogcm[i][i] = { 'count': this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[i]).length, 'ischecked': [false,false,false,false] };
+        this.trainlogcm[i][i] = { 'count': this.dataService.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[i]).length, 'ischecked': [false,false,false,false] };
       }
     });
   }
@@ -241,7 +238,7 @@ export class ExperimentComponent implements OnInit {
       this.section1set = set
       if (ischecked) {
         if (set == 'train') {
-          this.section1 = this.section1.concat(this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
+          this.section1 = this.section1.concat(this.dataService.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
           this.trainlogcm[index][secondindex].ischecked[sectionSelected] = ischecked
         }
         else {
@@ -262,7 +259,7 @@ export class ExperimentComponent implements OnInit {
       this.section2set = set
       if (ischecked) {
         if (set == 'train') {
-          this.section2 = this.section2.concat(this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
+          this.section2 = this.section2.concat(this.dataService.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
           this.trainlogcm[index][secondindex].ischecked[sectionSelected] = ischecked
         }
         else {
@@ -284,7 +281,7 @@ export class ExperimentComponent implements OnInit {
       this.section3set = set
       if (ischecked) {
         if (set == 'train') {
-          this.section3 = this.section3.concat(this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
+          this.section3 = this.section3.concat(this.dataService.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
           this.trainlogcm[index][secondindex].ischecked[sectionSelected] = ischecked
         }
         else {
@@ -306,7 +303,7 @@ export class ExperimentComponent implements OnInit {
       this.section4set = set
       if (ischecked) {
         if (set == 'train') {
-          this.section4 = this.section4.concat(this.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
+          this.section4 = this.section4.concat(this.dataService.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
           this.trainlogcm[index][secondindex].ischecked[sectionSelected] = ischecked
         }
         else {
