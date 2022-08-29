@@ -13,11 +13,13 @@ import { HttpClientModule } from '@angular/common/http';
 import { DrawVisualComponent } from './draw-visual/draw-visual.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatTabsModule } from '@angular/material/tabs';
+import { CompareComponent } from './compare/compare.component';
+import { ValidationComponent } from './validation/validation.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    LoginComponent,HomeComponent, DrawVizComponent, ExperimentComponent, DrawVisualComponent
+    LoginComponent,HomeComponent, DrawVizComponent, ExperimentComponent, DrawVisualComponent, CompareComponent, ValidationComponent
   ],
   imports: [
     BrowserModule,

@@ -6,7 +6,7 @@
         <div class="row">
           <div class="col-sm-2">
 
-            <label>Validation: </label><input style="margin-left:5px;height:20px;width:30px" type="text" [(ngModel)]="validationPercent" (change)="addfile(file)" /> %
+            <label>Validation: </label><input  type="text"  style="margin-left:5px;height:20px;width:30px"  [(ngModel)]="validationPercent" (change)="addfile(file)"  /> %
           </div><div class="col-sm-3">
             <label>Available rows:</label>
             <select class="ml-2" [(ngModel)]="nrows" (change)="selectrows(nrows)">
@@ -16,7 +16,7 @@
               <option value="clear">All</option>
             </select>
           </div>
-                <div class="col-sm-3">
+                <div class="col-sm-3"  *ngIf="rowData!=null">
                   <label>Select Label:</label>
                   <select [(ngModel)]="selectedlabel" class="ml-2">
                     <ng-container *ngFor="let item of rowData[0]|keyvalue">
@@ -111,7 +111,7 @@
   </table>
   <div *ngIf="rowData!=null">
     <button *ngIf="transform==false" style="margin-right: 10px;" type="button" class="btn btn-default btn-sm" (click)="transform=true"> Transform Data</button>
-    <button style="margin-right: 10px;" type="button" class="btn btn-default btn-sm" (click)="applyChanges()">Visualize</button>
+    <button style="margin-right: 10px;" type="button" class="btn btn-default btn-sm" *ngIf="selectedlabel!=null" (click)="applyChanges()">Visualize</button>
 
     <button style="margin-right: 10px;" *ngIf="transform==true" type="button" class="btn btn-default btn-sm" (click)="transform=false">Cancel</button>
     <button type="button" class="btn btn-default btn-sm" *ngIf="transform==true" (click)="validation()">Re-evaluate</button>

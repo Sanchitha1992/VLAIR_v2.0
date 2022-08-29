@@ -23,9 +23,11 @@ export class HomeComponent implements OnInit {
   constructor(private router: Router) { }
 
   ngOnInit(): void {
-    if (sessionStorage.getItem('rowdata') != null) {
-      this.rowData = JSON.parse(sessionStorage.getItem('rowdata'));
-      //this.dataService.rowdata = JSON.parse(JSON.stringify(this.rowData))
+    this.rowData = JSON.parse(sessionStorage.getItem('rowdata'));
+    this.validationdata = JSON.parse(sessionStorage.getItem('validationdata'));
+    this.selectedlabel = sessionStorage.getItem("selectedlabel") ;
+    //this.dataService.rowdata = JSON.parse(JSON.stringify(this.rowData))
+    if (this.rowData != null) {
       this.loaddata();
     }
   }
@@ -257,7 +259,7 @@ export class HomeComponent implements OnInit {
       element.sort = null;
     });
   }
-  validationPercent: number;
+  validationPercent: any="";
   backuprowdata: any;
   visible: boolean[];
   selectrows(nrows) {

@@ -1,0 +1,91 @@
+<div style="display:flex">
+  <div style="flex:70%; margin-left:15px; margin-top:30px;">
+    <span><span class="trainsquare"></span>&nbsp;Train</span>
+    <span><span class="testsquare"></span>&nbsp;Test</span>
+    <span><span class="correctsquare"></span>&nbsp;Correct</span>
+    <span><span class="incorrectsquare"></span>&nbsp;Incorrect</span>
+
+    <span style="margin-left:30px;">Zoom:</span>
+    <span>
+      <select [(ngModel)]="zoomPercentage">
+        <option value="100">100%</option>
+        <option value="75">75%</option>
+        <option value="50">50%</option>
+        <option value="20">20%</option>
+        <option value="10">10%</option>
+      </select>
+    </span>
+    <div style="display: flex ">
+      <div style="flex: 50%; height: 250px; overflow: auto; margin: 10px; margin-right: 15px; padding: 10px; box-shadow: rgb(0 0 0 / 75%) 0px 0px 3px " [style.background-color]="sectionSelected==1?'#e9cfec':'white'" (click)="sectionSelected=sectionSelected==1?0:1">
+
+        <div *ngFor="let item of section1" style="display:inline-block;">
+          <img [src]="item.data" style="border-width:4px;" [style.border-color]="item.pass?'blue':'red'" [style.border-style]="item.type=='train'?'solid':'dotted'" [style.width]="(imgWidth*zoomPercentage/100)+'px'" (load)="loadImage($event)" />
+        </div>
+
+      </div>
+      <div style="flex: 50%; height: 250px; overflow: auto; margin: 10px; margin-right: 15px; padding: 10px; box-shadow: rgb(0 0 0 / 75%) 0px 0px 3px " [style.background-color]="sectionSelected==2?'#e9cfec':'white'" (click)="sectionSelected=sectionSelected==2?0:2">
+        <div *ngFor="let item of section2" style="display:inline-block">
+          <img [src]="item.data" style="border-width:4px;" [style.border-color]="item.pass?'blue':'red'" [style.border-style]="item.type=='train'?'solid':'dotted'" [style.width]="(imgWidth*zoomPercentage/100)+'px'" (load)="loadImage($event)" />
+        </div>
+      </div>
+    </div>
+    <div style="display: flex">
+      <div style="flex: 50%; height: 250px; overflow: auto; margin: 10px; margin-right: 15px; padding: 10px; box-shadow: rgb(0 0 0 / 75%) 0px 0px 3px " [style.background-color]="sectionSelected==3?'#e9cfec':'white'" (click)="sectionSelected=sectionSelected==3?0:3">
+        <div *ngFor="let item of section3" style="display:inline-block">
+          <img [src]="item.data" style="border-width:4px;" [style.border-color]="item.pass?'blue':'red'" [style.border-style]="item.type=='train'?'solid':'dotted'" [style.width]="(imgWidth*zoomPercentage/100)+'px'" (load)="loadImage($event)" />
+        </div>
+      </div>
+      <div style="flex: 50%; height: 250px; overflow: auto; margin: 10px; margin-right: 15px; padding: 10px; box-shadow: rgb(0 0 0 / 75%) 0px 0px 3px " [style.background-color]="sectionSelected==4?'#e9cfec':'white'" (click)="sectionSelected=sectionSelected==4?0:4">
+        <div *ngFor="let item of section4" style="display:inline-block">
+          <img [src]="item.data" style="border-width:4px;" [style.border-color]="item.pass?'blue':'red'" [style.border-style]="item.type=='train'?'solid':'dotted'" [style.width]="(imgWidth*zoomPercentage/100)+'px'" (load)="loadImage($event)" />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="flex: 30% ;margin-left:30px;margin-top:30px;margin-right:30px">
+    <div *ngIf="testlogs">
+      <div style="padding: 3px;  "><h5>Train Confusion Matrix</h5></div>
+      <table style="width: 400px; font-size: 13px;">
+        <tr>
+          <td></td>
+          <td *ngFor="let label of uniquelabels;let i=index">
+            <input type="checkbox" *ngIf="trainColumnCheck!=null" style="display:inline-block" [ngModel]="trainColumnCheck[i][sectionSelected]" (ngModelChange)="multiplerenderColumn(sectionSelected, 'train', i, $event)" />
+            {{label}}
+          </td>
+        </tr>
+        <tr *ngFor="let row of trainlogs.cm;let i=index">
+          <td>
+            <input type="checkbox" *ngIf="trainRowCheck!=null" style="display:inline-block" [ngModel]="trainRowCheck[i][sectionSelected]" (ngModelChange)="multiplerenderRow(sectionSelected, 'train', i, $event)" />
+            {{uniquelabels[i]}}
+          </td>
+          <td *ngFor="let cell of row;let j=index">
+            <input type="checkbox" [ngModel]="cell.ischecked[sectionSelected]" style="display:inline-block" (ngModelChange)="renderSection(sectionSelected,'train',i,0,$event)" />
+            {{cell.count}}
+          </td>
+        </tr>
+      </table>
+      <br /><br />
+      <div style="padding: 3px;"><h5>Test Confusion Matrix</h5></div>
+      <table style="width:400px;font-size:13px">
+        <tr>
+          <td></td>
+          <td *ngFor="let label of uniquelabels;let i=index">
+            <input type="checkbox" *ngIf="testColumnCheck!=null" [ngModel]="testColumnCheck[i][sectionSelected]" (ngModelChange)="multiplerenderColumn(sectionSelected, 'test', i, $event)" style="display:inline-block" />
+            {{label}}
+          </td>
+        </tr>
+        <tr *ngFor="let row of testlogs.cm;let i=index">
+          <td>
+            <input type="checkbox" *ngIf="testRowCheck!=null" [ngModel]="testRowCheck[i][sectionSelected]" (ngModelChange)="multiplerenderRow(sectionSelected, 'test', i, $event)" style="display:inline-block" />
+            {{uniquelabels[i]}}
+          </td>
+          <td *ngFor="let cell of row;let j=index">
+            <input type="checkbox" [ngModel]="cell.ischecked[sectionSelected]" style="display:inline-block" (ngModelChange)="renderSection(sectionSelected,'test',i,j,$event)" />
+            <span>{{cell.count}}</span>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+

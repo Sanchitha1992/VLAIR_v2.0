@@ -2,6 +2,8 @@ import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { DataService } from '../services/dataservice/data.service';
 import * as d3 from 'd3';
+import { Title } from '@angular/platform-browser';
+import { Session } from 'inspector';
 
 declare const fabric: any;
 declare const Hammer: any;
@@ -50,7 +52,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   radiusTitle: string = ''
   rotation: any;
   midScroll: boolean;
-  constructor(private route: ActivatedRoute, private dataService: DataService, private router: Router,private activatedRoute:ActivatedRoute) { }
+  constructor(private route: ActivatedRoute, private dataService: DataService, private router: Router, private activatedRoute: ActivatedRoute, private title: Title) { }
   public selection: boolean;
   validationdata: any;
 
@@ -83,10 +85,11 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   yposition: number;
   color: string;
   bottomcanvas: any;
-
+  selectedLabel: string;
   ngOnInit(): void {
     if (sessionStorage.getItem('rowdata') != null) {
       this.rowData = this.dataService.rowdata = JSON.parse(sessionStorage.getItem('rowdata'));
+      this.selectedLabel = sessionStorage.getItem("selectedlabel");
       Object.keys(this.rowData[0]).forEach((element) => {
         this.keys.push(element);
         this.keyid.push(element);
@@ -112,6 +115,13 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     if(this.activatedRoute.snapshot.queryParams['experiment'] =='true'){
       this.experimentVisible=true;
     }
+    if (this.activatedRoute.snapshot.queryParams['etab'] != null) {
+      this.title.setTitle("Experiment " + this.activatedRoute.snapshot.queryParams['etab']);
+    }
+  }
+
+  goback() {
+    this.router.navigate(["/home"]);
   }
   loadSelector() {
     let isDown, origX, origY, rect;
@@ -2390,24 +2400,41 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     this.dataService.canvasCollection = [];
     this.dataService.validationCollection = [];
     for (let i = 0; i < this.rowData.length; i++) {
+      let canvas = <HTMLCanvasElement>document.getElementById('canvas'+i);
+      let newCanvas = <HTMLCanvasElement>canvas.cloneNode(true);
+      let ctx = newCanvas.getContext('2d');
+
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+      ctx.drawImage(canvas, 0, 0);
+
       this.dataService.canvasCollection
         .push({
-          data: (document.getElementById("canvas" + i) as any)
-            .toDataURL("image/png"), label: this.rowData[i][Object.keys(this.rowData[0])[Object.keys(this.rowData[0]).length - 1]], datasetSelection: 'train'
+          data: newCanvas.toDataURL("image/png"), label: this.rowData[i][Object.keys(this.rowData[0])[Object.keys(this.rowData[0]).length - 1]], datasetSelection: 'train'
         })
     }
     for (let i = 0; i < this.validationdata.length; i++) {
+      let canvas = <HTMLCanvasElement>document.getElementById('valcanvas' + i);
+      let newCanvas = <HTMLCanvasElement>canvas.cloneNode(true);
+      let ctx = newCanvas.getContext('2d');
+
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+      ctx.drawImage(canvas, 0, 0);
+
       this.dataService.validationCollection
         .push({
-          data: (document.getElementById("valcanvas" + i) as any)
+          data: newCanvas
             .toDataURL("image/png"), label: this.validationdata[i][Object.keys(this.validationdata[0])[Object.keys(this.validationdata[0]).length - 1]], datasetSelection: 'validation'
         })
     }
-    localStorage.setItem('canvasCollection',JSON.stringify(this.dataService.canvasCollection))
-    localStorage.setItem('validationCollection',JSON.stringify(this.dataService.validationCollection))
-    window.open('/drawVisual?experiment=true')
+    ++this.experiment;
+    sessionStorage.setItem('canvasCollection&e' + this.experiment, JSON.stringify(this.dataService.canvasCollection))
+    localStorage.setItem('validationCollection' , JSON.stringify(this.dataService.validationCollection))
+    window.open('/drawVisual?experiment=true&etab=' + this.experiment);
   
   }
+  experiment: number = 0;
 
   backToViz() {
     this.experimentVisible = false;

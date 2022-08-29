@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Local } from 'protractor/built/driverProviders';
 import { DataService } from '../services/dataservice/data.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http'
+import { ActivatedRoute, Router } from '@angular/router';
+import { Title } from '@angular/platform-browser';
+import { Session } from 'protractor';
 
 
 @Component({
@@ -11,7 +14,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http'
 })
 export class ExperimentComponent implements OnInit {
 
-  constructor(private dataService: DataService, private httpClient: HttpClient) { }
+  constructor(private dataService: DataService, private httpClient: HttpClient, private router: Router, private title: Title, private activatedRoute: ActivatedRoute) { }
 
   thumbnailCollection: any;
   selectedLabel: string;
@@ -44,19 +47,16 @@ export class ExperimentComponent implements OnInit {
   showTest: boolean = true;
   showModal: boolean = false;
   ngOnInit(): void {
-    if(sessionStorage.getItem("canvasCollection")==null){
-      sessionStorage.setItem("canvasCollection",localStorage.getItem("canvasCollection"))
-    }
-      this.dataService.canvasCollection =this.dataService.canvasCollection= JSON.parse(sessionStorage.getItem("canvasCollection"));
-      this.dataService.validationCollection=JSON.parse(localStorage.getItem("validationCollection"));
+    this.dataService.canvasCollection = this.dataService.canvasCollection = JSON.parse(sessionStorage.getItem("canvasCollection&e" + this.activatedRoute.snapshot.queryParams['etab']));
+     this.dataService.validationCollection=JSON.parse(localStorage.getItem("validationCollection"));
     this.distinctlabel = [...new Set(this.dataService.canvasCollection.map(x => x.label))]
     this.selectedLabel = this.distinctlabel[0];
     this.trainChange(this.trainPercent);
   }
   distinctlabel: any[];
   trainComplete: boolean = null;
-  url: string = 'http://vlairml.australiaeast.cloudapp.azure.com:5000/';
-  trainlogs: string = '';
+  url: string = 'http://localhost:5000/';
+  trainlogs: any ;
   compareResults: boolean = false;
   train() {
     const headers = new HttpHeaders().set('Access-Control-Allow-Origin', '*');
@@ -81,12 +81,11 @@ export class ExperimentComponent implements OnInit {
       return;
     }
     const headers = new HttpHeaders().set('Access-Control-Allow-Origin', '*');
-    this.validateComplete = false;
+    //this.validateComplete = false;
     this.dataService.validationCollection.forEach((element, index) => {
       element.name = 'validate' + index;
     });
     this.httpClient.post(this.url + 'validate', { data: this.dataService.validationCollection }).subscribe((data: any) => {
-      this.showValResults = true;
       this.validateComplete = true;
       this.validationlogs = data;
       this.validationlogs.data = [];
@@ -108,8 +107,13 @@ export class ExperimentComponent implements OnInit {
         }
       }
       this.dataService.validationlogs = this.validationlogs
+      localStorage.setItem("uniquelabels", JSON.stringify(this.uniquelabels));
+      localStorage.setItem("validationlogs", JSON.stringify(this.validationlogs));
+      window.open("/validate?etab=" + this.activatedRoute.snapshot.queryParams["etab"] + "&vtab=" + ++this.validatetab);
     });
   }
+  comparetab: number = 0
+  validatetab: number = 0
   selectedResultAnalysisName: string;
   predictedResultAnalysisName: string;
   predictedImageNamesCrct: number[] = [];
@@ -152,7 +156,6 @@ export class ExperimentComponent implements OnInit {
   showResultAnalysisPopup: boolean = false;
   testlogs: any;
   testComplete: boolean;
-  trainlogcm: any;
   test() {
     const headers = new HttpHeaders().set('Access-Control-Allow-Origin', '*');
     this.testComplete = false;
@@ -163,9 +166,11 @@ export class ExperimentComponent implements OnInit {
       this.testComplete = true;
       this.testlogs = data;
       this.testlogs.data = [];
-      this.trainlogcm = [];
+      this.trainlogs.cm = [];
+      this.testlogs.label = [];
       this.testlogs.testfilenames.forEach((element, index) => {
         this.testlogs.data.push(this.dataService.canvasCollection.find(x => x.name == element.replace('.png', '')).data);
+        this.testlogs.label.push(this.dataService.canvasCollection.find(x => x.name == element.replace('.png', '')).label);
       });
       console.log(this.testlogs)
       let unique = [...new Set(this.testlogs.testlabels)];
@@ -189,11 +194,11 @@ export class ExperimentComponent implements OnInit {
         this.testRowCheck.push([false, false, false, false]);
       }
       for (let i = 0; i < unique.length; i++) {
-        this.trainlogcm.push([]);
+        this.trainlogs.cm.push([]);
         for (let j = 0; j < unique.length; j++) {
-          this.trainlogcm[i].push({'count': 0,'ischecked':[false,false,false,false]})
+          this.trainlogs.cm[i].push({'count': 0,'ischecked':[false,false,false,false]})
         }
-        this.trainlogcm[i][i] = { 'count': this.dataService.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[i]).length, 'ischecked': [false,false,false,false] };
+        this.trainlogs.cm[i][i] = { 'count': this.dataService.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[i]).length, 'ischecked': [false,false,false,false] };
       }
     });
   }
@@ -205,7 +210,7 @@ export class ExperimentComponent implements OnInit {
     if (set == 'train') {
       this.renderSection(sectionSelected, set, index, 0, ischecked)
       for (let i = 0; i < this.uniquelabels.length; i++) {
-        this.trainlogcm[i][index].ischecked[sectionSelected] = ischecked
+        this.trainlogs.cm[i][index].ischecked[sectionSelected] = ischecked
       }
       this.trainColumnCheck[index][sectionSelected] = ischecked
     } else {
@@ -221,7 +226,7 @@ export class ExperimentComponent implements OnInit {
     if (set == 'train') {
       this.renderSection(sectionSelected, set, 0, index, ischecked)
       for (let i = 0; i < this.uniquelabels.length; i++) {
-        this.trainlogcm[index][i].ischecked[sectionSelected] = ischecked
+        this.trainlogs.cm[index][i].ischecked[sectionSelected] = ischecked
       }
       this.trainRowCheck[index][sectionSelected] = ischecked
     } else {
@@ -238,14 +243,14 @@ export class ExperimentComponent implements OnInit {
       this.section1set = set
       if (ischecked) {
         if (set == 'train') {
-          this.section1 = this.section1.concat(this.dataService.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
-          this.trainlogcm[index][secondindex].ischecked[sectionSelected] = ischecked
+          this.section1 = this.section1.concat(this.dataService.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set,'label':x.data } }))
+          this.trainlogs.cm[index][secondindex].ischecked[sectionSelected] = ischecked
         }
         else {
           let unique = [...new Set(this.testlogs.testlabels)];
           for (let k = 0; k < this.testlogs.testlabels.length; k++) {
             if (this.testlogs.testlabels[k] == unique[index] && this.testlogs.predictedlabels[k] == unique[secondindex]) {
-              this.section1.push({ 'data': this.testlogs.data[k], 'typename': set + index + ':' + secondindex, 'type': set });
+              this.section1.push({ 'data': this.testlogs.data[k], 'typename': set + index + ':' + secondindex, 'type': set});
             }
           }
           this.testlogs.cm[index][secondindex].ischecked[sectionSelected] = ischecked
@@ -260,7 +265,7 @@ export class ExperimentComponent implements OnInit {
       if (ischecked) {
         if (set == 'train') {
           this.section2 = this.section2.concat(this.dataService.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
-          this.trainlogcm[index][secondindex].ischecked[sectionSelected] = ischecked
+          this.trainlogs.cm[index][secondindex].ischecked[sectionSelected] = ischecked
         }
         else {
           let unique = [...new Set(this.testlogs.testlabels)];
@@ -282,7 +287,7 @@ export class ExperimentComponent implements OnInit {
       if (ischecked) {
         if (set == 'train') {
           this.section3 = this.section3.concat(this.dataService.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
-          this.trainlogcm[index][secondindex].ischecked[sectionSelected] = ischecked
+          this.trainlogs.cm[index][secondindex].ischecked[sectionSelected] = ischecked
         }
         else {
           let unique = [...new Set(this.testlogs.testlabels)];
@@ -304,7 +309,7 @@ export class ExperimentComponent implements OnInit {
       if (ischecked) {
         if (set == 'train') {
           this.section4 = this.section4.concat(this.dataService.canvasCollection.filter(x => x.datasetSelection == 'train' && x.label == this.uniquelabels[index]).map(x => { return { 'data': x.data, 'typename': set + index + ':' + secondindex, 'type': set } }))
-          this.trainlogcm[index][secondindex].ischecked[sectionSelected] = ischecked
+          this.trainlogs.cm[index][secondindex].ischecked[sectionSelected] = ischecked
         }
         else {
           let unique = [...new Set(this.testlogs.testlabels)];
@@ -333,5 +338,14 @@ export class ExperimentComponent implements OnInit {
   uniquelabels: any;
   zoomPercentage: number = 100;
   sectionSelected: number;
+
+  navigateToCompare() {
+    ++this.comparetab;
+
+    sessionStorage.setItem("testlogs&e" + this.activatedRoute.snapshot.queryParams["etab"] + '&c' + this.comparetab, JSON.stringify(this.testlogs));
+    sessionStorage.setItem("trainlogs&e" + this.activatedRoute.snapshot.queryParams["etab"] + '&c' + this.comparetab, JSON.stringify(this.trainlogs));
+    sessionStorage.setItem('uniquelabels&e' + this.activatedRoute.snapshot.queryParams["etab"] + '&c' + this.comparetab, JSON.stringify(this.uniquelabels))
+    window.open("/compare?etab=" + this.activatedRoute.snapshot.queryParams["etab"] + "&ctab=" + this.comparetab);
+  }
 }
 

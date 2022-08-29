@@ -1,0 +1,16 @@
+<div *ngIf="validationlogs">
+  <span>Confusion Matrix</span>
+  <table style="width:300px">
+    <tr>
+      <td></td>
+      <td *ngFor="let label of uniquelabels;">{{label}}</td>
+    </tr>
+
+    <tr *ngFor="let row of validationlogs.cm;let i=index">
+      <td><a href="javascript:;">{{uniquelabels[i]}}</a></td>
+      <td *ngFor="let cell of row">
+        {{cell.count}}
+      </td>
+    </tr>
+  </table>
+</div>

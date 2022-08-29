@@ -3,10 +3,12 @@
     <div style="flex:50%;">
       <div class="flex-container" *ngIf="validationlogs">
         <div class="flex-item" style="margin-top:15px;margin-left:15%">
-          <div><span>Accuracy:</span><span>{{validationlogs.accuracy}}</span></div>
-          <div><span>Precision:</span><span>{{validationlogs.precision}}</span></div>
-          <div><span>Recall:</span><span>{{validationlogs.recall}}</span></div>
-          <div><span>F1-Score:</span><span>{{validationlogs.f1score}}</span></div>
+          <table>
+            <tr><td><b>Accuracy</b></td><td>{{validationlogs.accuracy}}</td></tr>
+            <tr><td><b>Precision:</b></td><td>{{validationlogs.precision}}</td></tr>
+            <tr><td><b>Recall:</b></td><td>{{validationlogs.recall}}</td></tr>
+            <tr><td><b>F1-Score:</b></td><td>{{validationlogs.f1score}}</td></tr>
+          </table>
         </div>
       </div>
     </div>
@@ -61,7 +63,7 @@
         <div class="flex-container" style="overflow: auto;">
           <ng-container *ngFor="let col of dataService.canvasCollection;let i=index">
             <div *ngIf="col.label==selectedLabel && ((col.datasetSelection=='train' && showTrain) || (col.datasetSelection=='test' && showTest))" style="margin:4px;">
-              <div (click)="revertDataSelection(col)" [style.border]="col.datasetSelection=='train'?'2px solid red':'2px solid green'">
+              <div (click)="revertDataSelection(col)" [style.border]="col.datasetSelection=='train'?'4px solid black':'4px dotted black'">
                 <img [src]="col.data" [style.width]="(imgWidth*zoomPercentage/100)+'px'" (load)="loadImage($event)" />
               </div>
               <!-- <div style="text-align: center;">
@@ -106,11 +108,13 @@
     <div class="row flex-container">
       <div style="flex:50%;">
         <div class="flex-container" *ngIf="testlogs">
-          <div class="flex-item" style="margin-top:15px;margin-left:15%">
-            <div><span>Accuracy:</span><span>{{testlogs.accuracy}}</span></div>
-            <div><span>Precision:</span><span>{{testlogs.precision}}</span></div>
-            <div><span>Recall:</span><span>{{testlogs.recall}}</span></div>
-            <div><span>F1-Score:</span><span>{{testlogs.f1score}}</span></div>
+          <div  style="margin-top:15px;margin-left:15%;font-size:12px">
+            <table>
+              <tr><td><b>Accuracy</b></td><td>{{testlogs.accuracy}}</td></tr>
+              <tr><td><b>Precision:</b></td><td>{{testlogs.precision}}</td></tr>
+              <tr><td><b>Recall:</b></td><td>{{testlogs.recall}}</td></tr>
+              <tr><td><b>F1-Score:</b></td><td>{{testlogs.f1score}}</td></tr>
+            </table>
           </div>
         </div>
       </div>
@@ -134,7 +138,8 @@
       </div>
     </div>
     <div style="text-align: center;">
-      <button *ngIf="testComplete==true" (click)="compareResults=true">Compare Results</button>
+      <!--<button *ngIf="testComplete==true" (click)="compareResults=true">Compare Results</button>-->
+      <button *ngIf="testComplete==true" (click)="navigateToCompare()">Compare Results</button>
     </div>
   </div>
   <ng-container *ngIf="compareResults==true">

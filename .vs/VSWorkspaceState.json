@@ -3,8 +3,11 @@
     "",
     "\\src",
     "\\src\\app",
-    "\\src\\app\\home",
-    "\\src\\app\\login"
+    "\\src\\app\\compare",
+    "\\src\\app\\draw-visual",
+    "\\src\\app\\experiment",
+    "\\src\\app\\validation"
   ],
+  "SelectedNode": "\\angular.json",
   "PreviewInSolutionExplorer": false
 }

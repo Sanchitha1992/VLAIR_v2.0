@@ -36,7 +36,7 @@
           <div style="flex:82.5%;">
             <div class="inlinediv" style="padding-left:3px;padding-right:13px;padding-top:1px;cursor:default">
               <ul>
-                <li><img src="assets/images/left_arrow.png" width="25" height="25" style="margin-left:10px" /></li>
+                <li><img src="assets/images/left_arrow.png" width="25" height="25" style="margin-left:10px" (click)="goback()" /></li>
               </ul>
               <div style="text-align:center;padding-left:9px">Previous</div>
             </div>
@@ -326,9 +326,11 @@
             <img src="assets/images/larrow.png" width="23" height="23" style="margin:10px" />
           </div>
           <div style="display:inline-block;width:920px;overflow-x:auto;white-space:nowrap" #keytab id="keytab">
-            <div [style.backgroundColor]="keybg[i]" class="keys" *ngFor="let key of keys;let i=index" [id]="'id'+keyid[i]">
-              {{key}}
-            </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <ng-container *ngFor="let key of keys;let i=index">
+              <div [style.backgroundColor]="keybg[i]" *ngIf="key!=selectedLabel" class="keys" [id]="'id'+keyid[i]">
+                {{key}}
+              </div>
+            </ng-container>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
           <div style="display:inline-block" *ngIf="midScroll" (click)="scrollRight()">
             <img src="assets/images/rarrow.png" width="23" height="23" style="margin: 10px " />
