@@ -52,6 +52,14 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   radiusTitle: string = ''
   rotation: any;
   midScroll: boolean;
+    radiusx: any;
+    radiusy: any;
+    radiusxTitle: any;
+    radiusxOperator: string='*';
+    radiusxOperand: any='10';
+    radiusyTitle: string;
+    radiusyOperator: string='*';
+    radiusyOperand: any='10';
   constructor(private route: ActivatedRoute, private dataService: DataService, private router: Router, private activatedRoute: ActivatedRoute, private title: Title) { }
   public selection: boolean;
   validationdata: any;
@@ -86,6 +94,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   color: string;
   bottomcanvas: any;
   selectedLabel: string;
+  rightcanvasarray = [];
+  validationcanvasarray=[]
   ngOnInit(): void {
     if (sessionStorage.getItem('rowdata') != null) {
       this.rowData = this.dataService.rowdata = JSON.parse(sessionStorage.getItem('rowdata'));
@@ -96,6 +106,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         this.keybg.push('#460073')
       })
       this.rowData.forEach(a => { this.highlight.push(false) })
+      this.rowData.forEach(a => { this.rightcanvasarray.push(true) })
     }
     this.canvas = new fabric.Canvas("maincanvas");
     this.canvas.setDimensions({ width: 850, height: 235 });
@@ -111,6 +122,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     this.loadUndoRedo();
     this.loadSelector();
     this.validationdata = JSON.parse(sessionStorage["validationdata"]);
+    this.validationdata.forEach(a => { this.validationcanvasarray.push(true) })
 
     if(this.activatedRoute.snapshot.queryParams['experiment'] =='true'){
       this.experimentVisible=true;
@@ -281,6 +293,36 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             }));
           }
         }
+        else if (obj.typename == 'Circle') {
+          for (let i = 0; i < this.rowData.length; i++) {
+            let value = i;
+            this.canvas.add(new fabric.Circle({
+              left: obj.left,
+              top: obj.top,
+              originX: 'left',
+              originY: 'top',
+              radius: eval(obj.radiusColumn),
+              angle: 0,
+              fill: 'transparent',
+              transparentCorners: false,
+              typename: 'duplicate'
+            }));
+          }
+        }
+        else if (obj.typename == 'Line') {
+          for (let i = 0; i < this.rowData.length; i++) {
+            let value = i;
+            this.canvas.add(new fabric.Rect({
+              left: obj.left,
+              top: obj.top,
+              height: eval(obj.heightColumn),
+              width:0,
+              angle: 90,
+              fill: 'transparent',
+              typename: 'duplicate'
+            }));
+          }
+        }
       });
     }
     else {
@@ -301,79 +343,139 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   loading: boolean;
 
   apply() {
+    let selectionrect = this.canvas.getObjects().find(a => a.typename == 'selectionrect')
+    if (selectionrect == null) {
+      alert('You have not made the selection. Please select.');
+      return;
+    }
     this.applyChanges(this.rowData, 'canvas')
     this.applyChanges(this.validationdata, 'valcanvas')
-
   }
+
   applyChanges(data,canvas) {
-    this.loading = true
-    let selectionrect = this.canvas.getObjects().find(a => a.typename == 'selectionrect')
+      let selectionrect = this.canvas.getObjects().find(a => a.typename == 'selectionrect')
+      this.loading = true
     console.log(selectionrect.left)
-    for (let i = 0; i < data.length; i++) {
-      let rightcanvas = new fabric.Canvas(canvas + i);
-      rightcanvas.setDimensions({ width: selectionrect.width, height: selectionrect.height });
+      this.rightcanvasarray = null;
+      this.validationcanvasarray = null;
 
-      let canvasObjects = this.canvas.getObjects();
-      for (let j = 0; j < canvasObjects.length; j++) {
-        let obj;
-        if (canvasObjects[j].typename == 'Rectangle' || canvasObjects[j].typename == 'Square') {
-          let height, width;
-          if (canvasObjects[j].heightColumn == null) {
-            height = canvasObjects[j].height * canvasObjects[j].scaleY
-          }
-          else {
-            let value = i
-            if (canvas == 'valcanvas') {
-              height = eval(canvasObjects[j].heightColumn.replace('rowData', 'validationdata'))
-            } else {
-              height = eval(canvasObjects[j].heightColumn)
-            }
-          }
-          if (canvasObjects[j].widthColumn == null) {
-            width = canvasObjects[j].width * canvasObjects[j].scaleX
-          }
-          else {
-            let value = i
-            if (canvas == 'valcanvas') {
-              width = eval(canvasObjects[j].widthColumn.replace('rowData','validationdata'))
-            } else {
-              width = eval(canvasObjects[j].widthColumn)
-            }
-          }
-          obj = new fabric.Rect({
-            left: canvasObjects[j].left - selectionrect.left, top: canvasObjects[j].top - selectionrect.top,
-            originX: 'left', originY: 'top', width: width, height: height, fill: '#460073'
-          })
-          rightcanvas.add(obj);
-        }
-        if (canvasObjects[j].mappername != null) {
-          let outputport = this.bottomcanvas.getObjects().find(x => x.belongsto == canvasObjects[j].mappername && x.typename == 'outputport')
-          let leftitems = outputport.leftitems.map(a => parseInt(a.value));
-          let rightitems = outputport.rightitems.map(a => a.value);
-          let colVal = d3.scaleLinear().domain([d3.min(leftitems), d3.max(leftitems)]).range(rightitems)
-          let evaluatable = outputport.column;
-          for (let i = 0; i < this.keys.length; i++) {
-            evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[i]["' + this.keys[i] + '"])');
-          }
-          evaluatable = '(' + evaluatable + ')'
-
-          let color = colVal(parseInt(eval(evaluatable)))
-          color = '#' + color.match(/\d+/g).map(function (x) {
-            x = parseInt(x).toString(16);
-            return (x.length == 1) ? "0" + x : x;
-          }).join("");
-          obj.fill = color;
-          obj.stroke = color;
-          rightcanvas.renderAll();
-        }
-      }
-      this.rightcanvases.push(rightcanvas)
-
-      //rightcanvas.add(rect);
-    }
     setTimeout(() => {
-      this.loading = false
-    }, 1000);
+      this.rightcanvasarray = [];
+      this.rowData.forEach(a => { this.rightcanvasarray.push(true) })
+      this.validationcanvasarray = [];
+      this.validationdata.forEach(a => { this.validationcanvasarray.push(true) })
+    }, 100);
+    setTimeout(() => {
+      
+      for (let i = 0; i < data.length; i++) {
+        let rightcanvas = new fabric.Canvas(canvas + i);
+        rightcanvas.setWidth(selectionrect.width * selectionrect.scaleX);
+        rightcanvas.setHeight(selectionrect.height * selectionrect.scaleY);
+        rightcanvas.renderAll();
+
+        let canvasObjects = this.canvas.getObjects();
+        for (let j = 0; j < canvasObjects.length; j++) {
+          let obj;
+          if (canvasObjects[j].typename == 'Rectangle' || canvasObjects[j].typename == 'Square') {
+            let height, width;
+            if (canvasObjects[j].heightColumn == null) {
+              height = canvasObjects[j].height * canvasObjects[j].scaleY
+            }
+            else {
+              let value = i
+              if (canvas == 'valcanvas') {
+                height = eval(canvasObjects[j].heightColumn.replace('rowData', 'validationdata'))
+              } else {
+                height = eval(canvasObjects[j].heightColumn)
+              }
+            }
+            if (canvasObjects[j].widthColumn == null) {
+              width = canvasObjects[j].width * canvasObjects[j].scaleX
+            }
+            else {
+              let value = i
+              if (canvas == 'valcanvas') {
+                width = eval(canvasObjects[j].widthColumn.replace('rowData', 'validationdata'))
+              } else {
+                width = eval(canvasObjects[j].widthColumn)
+              }
+            }
+            obj = new fabric.Rect({
+              left: canvasObjects[j].left - selectionrect.left, top: canvasObjects[j].top - selectionrect.top,
+              originX: 'left', originY: 'top', width: width, height: height, fill: '#460073'
+            })
+            rightcanvas.add(obj);
+          }
+          if (canvasObjects[j].typename == 'Line') {
+            let height;
+            if (canvasObjects[j].heightColumn == null) {
+              height = canvasObjects[j].height * canvasObjects[j].scaleY
+            }
+            else {
+              let value = i
+              if (canvas == 'valcanvas') {
+                height = eval(canvasObjects[j].heightColumn.replace('rowData', 'validationdata'))
+              } else {
+                height = eval(canvasObjects[j].heightColumn)
+              }
+            }
+
+            obj = new fabric.Rect({
+              left: canvasObjects[j].left - selectionrect.left, top: canvasObjects[j].top - selectionrect.top,
+              originX: 'left', originY: 'top', width: 0, angle: 90, height: height, fill: '#460073'
+            })
+            rightcanvas.add(obj);
+          }
+          else if (canvasObjects[j].typename == 'Circle') {
+            let radius;
+            if (canvasObjects[j].radiusColumn == null) {
+              radius = canvasObjects[j].radius * canvasObjects[j].scaleX
+            }
+            else {
+              let value = i
+              if (canvas == 'valcanvas') {
+                radius = eval(canvasObjects[j].radiusColumn.replace('rowData', 'validationdata'))
+              } else {
+                radius = eval(canvasObjects[j].radiusColumn)
+              }
+            }
+            obj = new fabric.Circle({
+              left: canvasObjects[j].left - selectionrect.left, top: canvasObjects[j].top - canvasObjects[j].radius,
+              originX: 'left', originY: 'top', radius: radius, fill: '#460073'
+            })
+            rightcanvas.add(obj);
+            rightcanvas.renderAll();
+          }
+          if (canvasObjects[j].mappername != null) {
+            let outputport = this.bottomcanvas.getObjects().find(x => x.belongsto == canvasObjects[j].mappername && x.typename == 'outputport')
+            let leftitems = outputport.leftitems.map(a => parseInt(a.value));
+            let rightitems = outputport.rightitems.map(a => a.value);
+            let colVal = d3.scaleLinear().domain([d3.min(leftitems), d3.max(leftitems)]).range(rightitems)
+            let evaluatable = outputport.column;
+            for (let i = 0; i < this.keys.length; i++) {
+              evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[i]["' + this.keys[i] + '"])');
+            }
+            evaluatable = '(' + evaluatable + ')'
+
+            let color = colVal(parseInt(eval(evaluatable)))
+            color = '#' + color.match(/\d+/g).map(function (x) {
+              x = parseInt(x).toString(16);
+              return (x.length == 1) ? "0" + x : x;
+            }).join("");
+            obj.fill = color;
+            obj.stroke = color;
+            rightcanvas.renderAll();
+          }
+        }
+        this.rightcanvases.push(rightcanvas)
+
+        //rightcanvas.add(rect);
+      }
+    },2000);
+      
+      setTimeout(() => {
+        this.loading = false
+      }, 1000);
   }
 
 
@@ -386,14 +488,27 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
   changeLengthOperand(value) {
     this.selectedObject.height = eval(this.length + this.lengthOperator + value);
-    this.selectedObject.heightColumn = this.selectedObject.heightColumn.replace(this.lengthOperand,value)
-    this.lengthOperand = value;
+    if (this.selectedObject.heightColumn != null) {
+      this.selectedObject.heightColumn = this.selectedObject.heightColumn.replace(this.lengthOperand, value)
+    }
+   this.lengthOperand = value;
+    this.canvas.renderAll();
+  }
+
+  changeLengthOperator(value) {
+    this.selectedObject.height = eval(this.length + value + this.lengthOperand);
+    if (this.selectedObject.heightColumn != null) {
+      this.selectedObject.heightColumn = this.selectedObject.heightColumn.replace(this.lengthOperator, value)
+    }
+    this.lengthOperator = value;
     this.canvas.renderAll();
   }
 
   changeWidthOperand(value) {
     this.selectedObject.width = eval(this.width + this.widthOperator + value);
-    this.selectedObject.widthColumn = this.selectedObject.widthColumn.replace(this.widthOperand, value)
+    if (this.selectedObject.widthColumn != null) {
+      this.selectedObject.widthColumn = this.selectedObject.widthColumn.replace(this.widthOperand, value)
+    }
     this.widthOperand = value;
     this.canvas.renderAll();
   }
@@ -437,7 +552,9 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
   changeside(value) {
     this.selectedObject.width = eval(parseFloat(value) + this.sideOperator + this.sideOperand)
-    this.selectedObject.height = parseFloat(value);
+    this.selectedObject.height = eval(parseFloat(value) + this.sideOperator + this.sideOperand)
+    this.selectedObject.widthColumn = null;
+    this.selectedObject.heightColumn = null;
     this.sideTitle = ''
     this.area = this.selectedObject.height * this.selectedObject.width
     this.canvas.renderAll();
@@ -445,9 +562,26 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
 
   changeradius(value) {
-    this.selectedObject.radius = eval(parseFloat(value) + this.radiusOperator + this.radiusOperand)
+    this.selectedObject.set('radius', eval(parseFloat(value) + this.radiusOperator + this.radiusOperand));
+    this.selectedObject.radiusColumn = null;
     this.area = 3.14 * this.selectedObject.radius * this.selectedObject.radius
     this.radiusTitle = ''
+    this.canvas.renderAll();
+  }
+
+  changeradiusx(value) {
+    this.selectedObject.set('rx', eval(parseFloat(value) + this.radiusxOperator + this.radiusxOperand));
+    this.selectedObject.radiusxColumn = null;
+    this.area = 3.14 * this.selectedObject.rx * this.selectedObject.ry
+    this.radiusxTitle = ''
+    this.canvas.renderAll();
+  }
+
+  changeradiusy(value) {
+    this.selectedObject.set('ry', eval(parseFloat(value) + this.radiusyOperator + this.radiusyOperand));
+    this.selectedObject.radiusyColumn = null;
+    this.area = 3.14 * this.selectedObject.rx * this.selectedObject.ry
+    this.radiusyTitle = ''
     this.canvas.renderAll();
   }
 
@@ -459,6 +593,9 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       }
       if (obj.widthColumn != null) {
         obj.width = eval(obj.widthColumn);
+      }
+      if (obj.radiusColumn != null) {
+        obj.radius = eval(obj.radiusColumn);
       }
 
       if (obj['bottomcanvasid'] != null) {
@@ -485,10 +622,14 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     })
     let obj = this.canvas.getActiveObject();
     if (obj.heightColumn != null) {
-      this.length = eval(obj.heightColumn.split('*')[0].split('/')[0])
+      this.length = eval(obj.heightColumn.split(/\*\d/)[0].split(/\/\d/)[0])
     }
     if (obj.widthColumn != null) {
-      this.width = eval(obj.widthColumn.split('*')[0].split('/')[0])
+      this.width = eval(obj.widthColumn.split(/\*\d/)[0].split(/\/\d/)[0])
+      this.side = eval(obj.widthColumn.split(/\*\d/)[0].split(/\/\d/)[0])
+    }
+    if (obj.radiusColumn != null) {
+      this.radius = eval(obj.radiusColumn.split(/\*\d/)[0].split(/\/\d/)[0])
     }
     //alert(JSON.stringify(this.rowData[value]))
   }
@@ -555,29 +696,31 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         this.selectedObject = e.target;
 
         this.graph = this.selectedObject.graphname == null ? this.canvas.getObjects().find(x => x.ID == 'Graph 1') : this.canvas.getObjects().find(x => x.ID == this.selectedObject.graphname);
-        if (this.rotationOperator == '/') {
-          this.rotation = (e.target.angle) * this.rotationOperand;
+        //if (this.rotationOperator == '/') {
+          this.rotation = (e.target.angle) ;
+        //}
+        //else if (this.rotationOperator == '*') {
+        //  this.rotation = e.target.angle / this.rotationOperand
+        //}
+        this.selectedObject.graphname = this.graph.ID;
+
+        if (this.selectedObject.fill.indexOf('#') > -1) {
+          this.color = this.selectedObject.fill
         }
-        else if (this.rotationOperator == '*') {
-          this.rotation = e.target.angle / this.rotationOperand
+        else {
+          this.color = '#' + this.selectedObject.fill.match(/\d+/g).map(function (x) {
+            x = parseInt(x).toString(16);
+            return (x.length == 1) ? "0" + x : x;
+          }).join("");
         }
-        if (this.selectedObject.typename == 'Rectangle') {
-          this.selectedObject.graphname = this.graph.ID;
+        if (this.selectedObject.typename == 'Rectangle' || this.selectedObject.typename == 'Line') {
           this.xposition = this.selectedObject.left - this.graph.left;
           this.yposition = this.graph.top + this.graph.height - this.selectedObject.top - this.selectedObject.height;
 
-          if (this.selectedObject.fill.indexOf('#') > -1) {
-            this.color = this.selectedObject.fill
-          }
-          else {
-            this.color = '#' + this.selectedObject.fill.match(/\d+/g).map(function (x) {
-              x = parseInt(x).toString(16);
-              return (x.length == 1) ? "0" + x : x;
-            }).join("");
-          }
+          
           let value = this.rowIndex;
           if (this.selectedObject.heightColumn != null) {
-            this.length = eval(this.selectedObject.heightColumn.split('*')[0].split('/')[0])
+            this.length = eval(this.selectedObject.heightColumn.split(/\*\d/)[0].split(/\/\d/)[0])
             this.lengthTitle = this.selectedObject.mappedheight;
           }
           else {
@@ -590,7 +733,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             this.lengthTitle=''
           }
           if (this.selectedObject.widthColumn != null) {
-            this.width = eval(this.selectedObject.widthColumn.split('*')[0].split('/')[0])
+            this.width = eval(this.selectedObject.widthColumn.split(/\*\d/)[0].split(/\/\d/)[0])
             this.widthTitle = this.selectedObject.mappedwidth;
           }
           else {
@@ -606,50 +749,99 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           this.areaOperand = this.widthOperand * this.lengthOperand;
           this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': true, 'width': true, 'side': false, 'radius': false, 'area': true, 'rotation': true }
         }
-        else if (this.selectedObject.typename == 'Graph') {
+        if (this.selectedObject.typename == 'Line') {
+
+          this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': true, 'width': false, 'side': false, 'radius': false, 'area': false, 'rotation': true }
+        }
+        if (this.selectedObject.typename == 'Graph') {
           this.xposition = this.selectedObject.left;
           this.yposition = this.selectedObject.top;
           this.visibility = { 'xposition': true, 'yposition': true, 'color': false, 'length': false, 'width': false, 'side': false, 'radius': false, 'area': false, 'rotation': true }
         }
-        else if (this.selectedObject.typename == 'Square') {
-          this.xposition = this.selectedObject.left;
-          this.yposition = this.selectedObject.top;
-          this.color = this.selectedObject.fill;
-          let obj = this.canvas.getActiveObject();
-          if (obj.heightColumn != null) {
-            this.side = eval(obj.heightColumn.split('*')[0].split('/')[0])
+        if (this.selectedObject.typename == 'Square') {
+          this.xposition = this.selectedObject.left - this.graph.left;
+          this.yposition = this.graph.top + this.graph.height - this.selectedObject.top - this.selectedObject.height;
+
+          let value = this.rowIndex;
+          if (this.selectedObject.widthColumn != null) {
+            this.side = eval(this.selectedObject.widthColumn.split(/\*\d/)[0].split(/\/\d/)[0])
+            this.sideTitle = this.selectedObject.mappedwidth;
           }
           else {
-            if (this.sideOperator == '*') {
-              this.side = this.selectedObject.width / this.sideOperand;
+            if (this.widthOperator == '*') {
+              this.side = this.selectedObject.width / this.widthOperand;
             }
-            else if (this.sideOperator == '/') {
-              this.side = this.selectedObject.width * this.sideOperand;
+            else if (this.widthOperator == '/') {
+              this.side = this.selectedObject.width * this.widthOperand;
             }
+            this.sideTitle = ''
           }
-          this.area = this.selectedObject.width * this.selectedObject.width;
+          this.area = this.side * this.side;
+          this.areaOperand = this.sideOperand * this.sideOperand
           this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': false, 'width': false, 'side': true, 'radius': false, 'area': true, 'rotation': true }
         }
-        else if (this.selectedObject.typename == 'Circle') {
-          this.xposition = this.selectedObject.left;
-          this.yposition = this.selectedObject.top;
-          this.color = this.selectedObject.fill;
+        if (this.selectedObject.typename == 'Circle') {
+          this.xposition = this.selectedObject.left - this.graph.left;
+          this.yposition = this.graph.top + this.graph.height - this.selectedObject.top - this.selectedObject.height;
+
           let obj = this.canvas.getActiveObject();
-          if (obj.heightColumn != null) {
-            this.radius = eval(obj.radiusColumn.split('*')[0].split('/')[0])
+          let value = this.rowIndex;
+          if (obj.radiusColumn != null) {
+            this.radius = eval(this.selectedObject.radiusColumn.split(/\*\d/)[0].split(/\/\d/)[0])
+            this.radiusTitle = this.selectedObject.mappedradius;
           }
           else {
             if (this.radiusOperator == '*') {
               this.radius = this.selectedObject.radius / this.radiusOperand;
             }
-            else if (this.sideOperator == '/') {
+            else if (this.radiusOperator == '/') {
               this.radius = this.selectedObject.radius * this.radiusOperand;
             }
+            this.radiusTitle = '';
           }
-          //this.radius = this.selectedObject.radius;
-          this.area = 3.14 * this.selectedObject.radius * this.selectedObject.radius;
+          this.area = 3.14 * this.radius * this.radius;
+          this.areaOperand = this.radiusOperand * this.radiusOperand
+
           this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': false, 'width': false, 'side': false, 'radius': true, 'area': true, 'rotation': true }
         }
+        if (this.selectedObject.typename == 'Ellipse') {
+          this.xposition = this.selectedObject.left - this.graph.left;
+          this.yposition = this.graph.top + this.graph.height - this.selectedObject.top - this.selectedObject.height;
+
+          let obj = this.canvas.getActiveObject();
+          let value = this.rowIndex;
+          if (obj.radiusxColumn != null) {
+            this.radiusx = eval(this.selectedObject.radiusxColumn.split(/\*\d/)[0].split(/\/\d/)[0])
+            this.radiusxTitle = this.selectedObject.mappedradiusx;
+          }
+          else {
+            if (this.radiusxOperator == '*') {
+              this.radiusx = this.selectedObject.rx / this.radiusxOperand;
+            }
+            else if (this.radiusxOperator == '/') {
+              this.radiusx = this.selectedObject.rx * this.radiusxOperand;
+            }
+            this.radiusxTitle = '';
+          }
+          if (obj.radiusyColumn != null) {
+            this.radiusy = eval(this.selectedObject.radiusyColumn.split(/\*\d/)[0].split(/\/\d/)[0])
+            this.radiusyTitle = this.selectedObject.mappedradiusy;
+          }
+          else {
+            if (this.radiusyOperator == '*') {
+              this.radiusy = this.selectedObject.ry / this.radiusyOperand;
+            }
+            else if (this.radiusyOperator == '/') {
+              this.radiusy = this.selectedObject.ry * this.radiusyOperand;
+            }
+            this.radiusyTitle = '';
+          }
+          this.area = 3.14 * this.radiusx * this.radiusy;
+          this.areaOperand = this.radiusxOperand * this.radiusyOperand
+
+          this.visibility = { 'xposition': true, 'yposition': true, 'color': true, 'length': false, 'width': false, 'side': false, 'radiusx': true, 'radiusy': true, 'area': true, 'rotation': true }
+        }
+
         //setTimeout(() => { this.draganddropFunction(); }, 1000)
 
       },
@@ -908,7 +1100,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           })
         }, 1000)
       }
-      else if (ismidmapperselected && this.selectedObject != null) {
+      else if (ismidmapperselected && this.selectedObject != null && target.id=='colorPanel') {
         this.selectedObject.mappername = $(source.srcElement).siblings()[0].value;
         this.selectedObject.bottomcanvasid = $(source.srcElement).siblings()[1].value;
 
@@ -922,9 +1114,9 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         let evaluatable = this.bottomcanvas.getObjects().find(x => x.typename == 'outputport' && x.belongsto == $(source.srcElement).siblings()[0].value).fieldName.replace("\n", "");
         if (target.id == 'length') {
           this.lengthTitle = evaluatable
-          let value;
+          let value = this.rowIndex;
+          
           for (let i = 0; i < this.keys.length; i++) {
-            value = this.rowIndex;
             evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[value]["' + this.keys[i] + '"])');
           }
           evaluatable = '(' + evaluatable + ')'
@@ -935,17 +1127,51 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           this.selectedObject.height = eval(evaluatable + this.lengthOperator + this.lengthOperand)
           this.canvas.renderAll()
         }
-        else if (document.elementFromPoint(positionX, positionY).id == 'width') {
+        else if (target.id == 'width') {
           let evaluatable = this.bottomcanvas.getObjects().find(x => x.typename == 'outputport' && x.belongsto == $(source.srcElement).siblings()[0].value).fieldName.replace("\n", "");
           this.widthTitle = evaluatable
+          let value = this.rowIndex;
+
           for (let i = 0; i < this.keys.length; i++) {
-            evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[0]["' + this.keys[i] + '"])');
+            evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[value]["' + this.keys[i] + '"])');
           }
           evaluatable = '(' + evaluatable + ')'
           this.width = eval(evaluatable)
           target.value = this.width
           this.selectedObject.widthColumn = evaluatable + this.widthOperator + this.widthOperand
           this.selectedObject.width = eval(evaluatable + this.widthOperator + this.widthOperand)
+          this.canvas.renderAll()
+        }
+        else if (target.id == 'side') {
+          let evaluatable = this.bottomcanvas.getObjects().find(x => x.typename == 'outputport' && x.belongsto == $(source.srcElement).siblings()[0].value).fieldName.replace("\n", "");
+          this.sideTitle = evaluatable
+          let value = this.rowIndex;
+
+          for (let i = 0; i < this.keys.length; i++) {
+            evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[value]["' + this.keys[i] + '"])');
+          }
+          evaluatable = '(' + evaluatable + ')'
+          this.side = eval(evaluatable)
+          target.value = this.side
+          this.selectedObject.widthColumn = evaluatable + this.widthOperator + this.widthOperand
+          this.selectedObject.width = eval(evaluatable + this.widthOperator + this.widthOperand)
+          this.selectedObject.heightColumn = evaluatable + this.widthOperator + this.widthOperand
+          this.selectedObject.height = eval(evaluatable + this.widthOperator + this.widthOperand)
+          this.canvas.renderAll()
+        }
+        else if (target.id == 'radius') {
+          let evaluatable = this.bottomcanvas.getObjects().find(x => x.typename == 'outputport' && x.belongsto == $(source.srcElement).siblings()[0].value).fieldName.replace("\n", "");
+          this.sideTitle = evaluatable
+          let value = this.rowIndex;
+
+          for (let i = 0; i < this.keys.length; i++) {
+            evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[value]["' + this.keys[i] + '"])');
+          }
+          evaluatable = '(' + evaluatable + ')'
+          this.radius = eval(evaluatable)
+          target.value = this.radius
+          this.selectedObject.radiusColumn = evaluatable + this.radiusOperator + this.radiusOperand
+          this.selectedObject.radius = eval(evaluatable + this.radiusOperator + this.radiusOperand)
           this.canvas.renderAll()
         }
       }
@@ -959,7 +1185,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         if (document.getElementById('keytab').scrollWidth > 920) {
           this.midScroll = true
         }
-      });
+      },500);
     })
 
     this.bottomcanvas.on("mouse:up", (event) => {
@@ -1117,7 +1343,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             selectable: false,
             typename: 'text',
             value: 'Operator ',
-            fieldName: bottomline.column + operator.text + topline.column,
+            fieldName: topline.column + operator.text + bottomline.column ,
             belongsto: event.target.belongsto,
           })
           let outputport = this.bottomcanvas.getObjects().filter(a => a.typename == 'outputport' && a.value != null && a.value.indexOf('Operator') > -1)
@@ -1131,7 +1357,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             selectable: false, editable: false,
             typename: 'outputport',
             belongsto: event.target.belongsto,
-            fieldName: bottomline.column + operator.text + topline.column,
+            fieldName: topline.column + operator.text + bottomline.column ,
             value: 'Operator ' + (outputport.length + 1),
           })
 
@@ -1232,6 +1458,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     });
 
     $("#divlength").droppable({
+      tolerance: "pointer",
       drop: (ev, ui) => {
         console.log(ui.draggable[0])
 
@@ -1243,7 +1470,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         evaluatable = '(' + evaluatable + ')'
 
         this.length = eval(evaluatable)
-        this.selectedObject.height = eval(evaluatable + this.lengthOperator + this.lengthOperand);
+          this.selectedObject.height = eval(evaluatable + this.lengthOperator + this.lengthOperand);
         this.selectedObject.heightColumn = evaluatable + this.lengthOperator + this.lengthOperand;
         this.selectedObject.mappedheight = ui.draggable[0].innerText;
         this.lengthTitle = ui.draggable[0].innerText;
@@ -1305,6 +1532,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       }
     });
     $("#divside").droppable({
+      tolerance: "pointer",
       drop: (ev, ui) => {
         let evaluatable = ui.draggable[0].innerText;
         let value = this.rowIndex;
@@ -1315,7 +1543,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         this.side = eval(evaluatable)
         this.selectedObject.width = eval(evaluatable + this.widthOperator + this.widthOperand);
         this.selectedObject.widthColumn = evaluatable + this.widthOperator + this.widthOperand;
-        this.selectedObject.height = this.selectedObject.width;
+        this.selectedObject.height = eval(evaluatable + this.widthOperator + this.widthOperand);
+        this.selectedObject.heightColumn = evaluatable + this.widthOperator + this.widthOperand;
         this.selectedObject.mappedwidth = ui.draggable[0].innerText;
         this.sideTitle = ui.draggable[0].innerText;
         this.area = this.side * this.side;
@@ -1331,7 +1560,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         }
         evaluatable = '(' + evaluatable + ')'
         this.radius = eval(evaluatable)
-        this.selectedObject.radius = eval(evaluatable + this.radiusOperator + this.radiusOperand);
+        this.selectedObject.set('radius', eval(evaluatable + this.radiusOperator + this.radiusOperand));
         this.selectedObject.radiusColumn = evaluatable + this.radiusOperator + this.radiusOperand;
         this.selectedObject.mappedradius = ui.draggable[0].innerText;
         this.radiusTitle = ui.draggable[0].innerText;
@@ -1339,6 +1568,42 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         this.canvas.renderAll()
       }
     });
+    $("#divradiusx").droppable({
+      drop: (ev, ui) => {
+        let evaluatable = ui.draggable[0].innerText;
+        let value = this.rowIndex;
+        for (let i = 0; i < this.keys.length; i++) {
+          evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[value]["' + this.keys[i] + '"])');
+        }
+        evaluatable = '(' + evaluatable + ')'
+        this.radiusx = eval(evaluatable)
+        this.selectedObject.set('rx', eval(evaluatable + this.radiusxOperator + this.radiusxOperand));
+        this.selectedObject.radiusxColumn = evaluatable + this.radiusxOperator + this.radiusxOperand;
+        this.selectedObject.mappedradiusx = ui.draggable[0].innerText;
+        this.radiusxTitle = ui.draggable[0].innerText;
+        this.area = 3.14 * this.radiusx * this.radiusx;
+        this.canvas.renderAll()
+      }
+    });
+    $("#divradiusy").droppable({
+      drop: (ev, ui) => {
+        let evaluatable = ui.draggable[0].innerText;
+        let value = this.rowIndex;
+        for (let i = 0; i < this.keys.length; i++) {
+          evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[value]["' + this.keys[i] + '"])');
+        }
+        evaluatable = '(' + evaluatable + ')'
+        this.radiusy = eval(evaluatable)
+        this.selectedObject.set('ry', eval(evaluatable + this.radiusyOperator + this.radiusyOperand));
+        this.selectedObject.radiusyColumn = evaluatable + this.radiusyOperator + this.radiusyOperand;
+        this.selectedObject.mappedradiusy = ui.draggable[0].innerText;
+        this.radiusyTitle = ui.draggable[0].innerText;
+        this.area = 3.14 * this.radiusy * this.radiusy;
+        this.canvas.renderAll()
+      }
+    });
+
+
     $("#divarea").droppable({
       drop: (ev, ui) => {
         console.log(ui.draggable[0])
@@ -1372,7 +1637,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       cursor: 'none',
       scroll: false,
       helper: (event) => {
-        return $("<div style='z-index: 100; margin-top: -1px; margin-left: 38px;'><li><i class='mark-rectangle'></i></li></div>");
+        return $("<div style='z-index: 100; margin-top: -1px; margin-left: 38px;'><li><i class='mark-circle'></i></li></div>");
       }
     });
     $("#mapperWidget").draggable({
@@ -1388,7 +1653,24 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       cursor: 'none',
       scroll: false,
       helper: (event) => {
-        return $("<div style='z-index: 100; margin-top: -1px; margin-left: 38px;'><li><i class='mark-rectangle'></i></li></div>");
+        return $("<div style='z-index: 100; margin-top: -1px; margin-left: 38px;'><li><i class='mark-square'></i></li></div>");
+      }
+    });
+    $("#ellipsePrototype").draggable({
+      cursorAt: { top: 18.5, left: 60 },
+      cursor: 'none',
+      scroll: false,
+      helper: (event) => {
+        return $("<div style='z-index: 100; margin-top: -1px; margin-left: 38px;'><li><i class='mark-ellipse'></i></li></div>");
+      }
+    });
+
+    $("#pathMarkPrototype").draggable({
+      cursorAt: { top: 18.5, left: 60 },
+      cursor: 'none',
+      scroll: false,
+      helper: (event) => {
+        return $("<div style='z-index: 100; margin-top: -1px; margin-left: 38px;'><li><i class='mark-pathMark'></i></li></div>");
       }
     });
     $("#addition-operator").draggable({
@@ -1397,6 +1679,30 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       scroll: false,
       helper: (event) => {
         return $("<div style='z-index: 100; margin-top: -1px; margin-left: 38px;'><li><i class='operator-additionIcon'></i></li></div>");
+      }
+    });
+    $("#subtraction-operator").draggable({
+      cursorAt: { top: 18.5, left: 60 },
+      cursor: 'none',
+      scroll: false,
+      helper: (event) => {
+        return $("<div style='z-index: 100; margin-top: -1px; margin-left: 38px;'><li><i class='operator-subtractionIcon'></i></li></div>");
+      }
+    });
+    $("#multiplication-operator").draggable({
+      cursorAt: { top: 18.5, left: 60 },
+      cursor: 'none',
+      scroll: false,
+      helper: (event) => {
+        return $("<div style='z-index: 100; margin-top: -1px; margin-left: 38px;'><li><i class='operator-multiplicationIcon'></i></li></div>");
+      }
+    });
+    $("#division-operator").draggable({
+      cursorAt: { top: 18.5, left: 60 },
+      cursor: 'none',
+      scroll: false,
+      helper: (event) => {
+        return $("<div style='z-index: 100; margin-top: -1px; margin-left: 38px;'><li><i class='operator-divisionIcon'></i></li></div>");
       }
     });
     $("#bottomcanvas").droppable({
@@ -1434,7 +1740,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
               }
               else if (ui.draggable[0].id == 'isStringData') {
                 letter = new fabric.Path('m 112.375,55.0625 0,20.09375 8.6875,0 c 0,0 -0.0419,8.2293 -1.28125,11.625 -1.2391,3.3959 -2.6875,5.28125 -2.6875,5.28125 l 2.125,3.90625 c 0,0 6.7091,-5.4148 9.1875,-11.1875 2.4781,-5.773 2.89225,-13.3194 2.90625,-17.8125 l 0.0312,-11.90625 z m 24.96875,0 0,20.09375 8.6875,0 c 0,0 -0.0107,8.2293 -1.25,11.625 -1.2391,3.3959 -2.71875,5.28125 -2.71875,5.28125 l 2.15625,3.90625 c 0,0 6.7091,-5.4148 9.1875,-11.1875 2.4781,-5.773 2.89225,-13.3194 2.90625,-17.8125 l 0.0312,-11.90625 z', {
-                  fontFamily: 'arial', fill: '#460073', fontSize: 25, typename: ui.draggable[0].id, value: null, selectable: false, belongsto: mapper.belongsto
+                  fontFamily: 'arial', fill: '#460073', width: 10, height:10, typename: ui.draggable[0].id, value: null, selectable: false, belongsto: mapper.belongsto
                 })
               }
               if (leftitem.left - (ui.offset.left - $('#leftpanel').width()) > 0 && leftitem.left - (ui.offset.left - $('#leftpanel').width()) < leftitem.width + 5) {
@@ -1510,7 +1816,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             this.bottomcanvas.add(outputport)
           }
         }
-        else if (ui.draggable[0].id == 'addition-operator') {
+        else if (ui.draggable[0].id == 'addition-operator' || ui.draggable[0].id == 'subtraction-operator' || ui.draggable[0].id == 'multiplication-operator' || ui.draggable[0].id == 'division-operator') {
 
           let belongto = 'operator ' + this.bottomcanvas.getObjects().filter(x => x.typename == 'operator').length;
           let topline = new fabric.Path('M360.342,216.266L219.373,113.882c-9.783-7.106-22.723-8.121-33.498-2.63c-10.771,5.49-17.556,16.559-17.556,28.65V344.67    c0,12.092,6.784,23.158,17.556,28.646c4.61,2.348,9.611,3.506,14.6,3.506c6.666,0,13.301-2.07,18.898-6.138l140.969-102.383    c8.33-6.047,13.256-15.719,13.256-26.018C373.598,231.988,368.672,222.312,360.342,216.266z M242.285,0C108.688,0,0.004,108.689,0.004,242.283c0,133.592,108.686,242.283,242.281,242.283    c133.594,0,242.278-108.691,242.278-242.283C484.562,108.689,375.881,0,242.285,0z M242.285,425.027    c-100.764,0-182.744-81.979-182.744-182.744c0-100.766,81.98-182.742,182.744-182.742s182.745,81.976,182.745,182.742    C425.029,343.049,343.049,425.027,242.285,425.027z', { scaleX: .03, scaleY: .03, left: ui.offset.left - $('#leftpanel').width() + 7, top: ui.offset.top - this.bottomcanvas._offset.top - 2, typename: 'topline', belongsto: belongto });
@@ -1518,9 +1824,84 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           let outline = new fabric.Path('M360.342,216.266L219.373,113.882c-9.783-7.106-22.723-8.121-33.498-2.63c-10.771,5.49-17.556,16.559-17.556,28.65V344.67    c0,12.092,6.784,23.158,17.556,28.646c4.61,2.348,9.611,3.506,14.6,3.506c6.666,0,13.301-2.07,18.898-6.138l140.969-102.383    c8.33-6.047,13.256-15.719,13.256-26.018C373.598,231.988,368.672,222.312,360.342,216.266z M242.285,0C108.688,0,0.004,108.689,0.004,242.283c0,133.592,108.686,242.283,242.281,242.283    c133.594,0,242.278-108.691,242.278-242.283C484.562,108.689,375.881,0,242.285,0z M242.285,425.027    c-100.764,0-182.744-81.979-182.744-182.744c0-100.766,81.98-182.742,182.744-182.742s182.745,81.976,182.745,182.742    C425.029,343.049,343.049,425.027,242.285,425.027z', { scaleX: .03, scaleY: .03, left: ui.offset.left - $('#leftpanel').width() + 53.5, top: ui.offset.top - this.bottomcanvas._offset.top + 8, typename: 'outline', belongsto: belongto });
 
 
-          let plusoperator = new fabric.IText('+', {
-            left: bottomline.left + 15.5,
-            top: ui.offset.top - this.bottomcanvas._offset.top - 10.5,
+          let operator;
+          if (ui.draggable[0].id == 'addition-operator') {
+            operator = new fabric.IText('+', {
+              left: bottomline.left + 15.5,
+              top: ui.offset.top - this.bottomcanvas._offset.top - 10.5,
+              fontFamily: 'arial',
+              fill: '#3c1361',
+              fontSize: 50,
+              typename: 'operator',
+              belongsto: belongto
+            });
+          }
+          else if (ui.draggable[0].id == 'subtraction-operator') {
+            operator = new fabric.IText('-', {
+              left: bottomline.left + 20,
+              top: ui.offset.top - this.bottomcanvas._offset.top - 15,
+              fontFamily: 'arial',
+              fill: '#3c1361',
+              fontSize: 50,
+              typename: 'operator',
+              belongsto: belongto
+            });
+          }
+          else if (ui.draggable[0].id== 'multiplication-operator') {
+            operator = new fabric.IText('*', {
+              left: bottomline.left + 20,
+              top: ui.offset.top - this.bottomcanvas._offset.top ,
+              fontFamily: 'arial',
+              fill: '#3c1361',
+              fontSize: 50,
+              typename: 'operator',
+              belongsto: belongto
+            });
+          } else if (ui.draggable[0].id== 'division-operator') {
+            operator = new fabric.IText('/', {
+              left: bottomline.left + 25,
+              top: ui.offset.top - this.bottomcanvas._offset.top,
+              fontFamily: 'arial',
+              fill: '#3c1361',
+              fontSize: 30,
+              typename: 'operator',
+              belongsto: belongto
+            });
+          }
+          let rect = new fabric.Rect({
+            left: ui.offset.left - $('#leftpanel').width() + 22,
+            top: ui.offset.top - this.bottomcanvas._offset.top,
+            originX: 'left',
+            originY: 'top',
+            width: 30,
+            height: 30,
+            fill: 'transparent',
+            border: 'black',
+            strokeWidth: .9,
+            stroke: "black",
+            belongsto: belongto
+          });
+
+
+          this.bottomcanvas.add(operator)
+          this.bottomcanvas.add(rect);
+          this.bottomcanvas.add(topline);
+          this.bottomcanvas.add(bottomline);
+          this.bottomcanvas.add(outline);
+          // this.bottomcanvas.add(outputline);
+
+        }
+        else if (ui.draggable[0].id == '') {
+
+          let belongto = 'operator ' + this.bottomcanvas.getObjects().filter(x => x.typename == 'operator').length;
+          let topline = new fabric.Path('M360.342,216.266L219.373,113.882c-9.783-7.106-22.723-8.121-33.498-2.63c-10.771,5.49-17.556,16.559-17.556,28.65V344.67    c0,12.092,6.784,23.158,17.556,28.646c4.61,2.348,9.611,3.506,14.6,3.506c6.666,0,13.301-2.07,18.898-6.138l140.969-102.383    c8.33-6.047,13.256-15.719,13.256-26.018C373.598,231.988,368.672,222.312,360.342,216.266z M242.285,0C108.688,0,0.004,108.689,0.004,242.283c0,133.592,108.686,242.283,242.281,242.283    c133.594,0,242.278-108.691,242.278-242.283C484.562,108.689,375.881,0,242.285,0z M242.285,425.027    c-100.764,0-182.744-81.979-182.744-182.744c0-100.766,81.98-182.742,182.744-182.742s182.745,81.976,182.745,182.742    C425.029,343.049,343.049,425.027,242.285,425.027z', { scaleX: .03, scaleY: .03, left: ui.offset.left - $('#leftpanel').width() + 7, top: ui.offset.top - this.bottomcanvas._offset.top - 2, typename: 'topline', belongsto: belongto });
+          let bottomline = new fabric.Path('M360.342,216.266L219.373,113.882c-9.783-7.106-22.723-8.121-33.498-2.63c-10.771,5.49-17.556,16.559-17.556,28.65V344.67    c0,12.092,6.784,23.158,17.556,28.646c4.61,2.348,9.611,3.506,14.6,3.506c6.666,0,13.301-2.07,18.898-6.138l140.969-102.383    c8.33-6.047,13.256-15.719,13.256-26.018C373.598,231.988,368.672,222.312,360.342,216.266z M242.285,0C108.688,0,0.004,108.689,0.004,242.283c0,133.592,108.686,242.283,242.281,242.283    c133.594,0,242.278-108.691,242.278-242.283C484.562,108.689,375.881,0,242.285,0z M242.285,425.027    c-100.764,0-182.744-81.979-182.744-182.744c0-100.766,81.98-182.742,182.744-182.742s182.745,81.976,182.745,182.742    C425.029,343.049,343.049,425.027,242.285,425.027z', { scaleX: .03, scaleY: .03, left: ui.offset.left - $('#leftpanel').width() + 7, top: ui.offset.top - this.bottomcanvas._offset.top + 19, typename: 'bottomline', belongsto: belongto });
+          let outline = new fabric.Path('M360.342,216.266L219.373,113.882c-9.783-7.106-22.723-8.121-33.498-2.63c-10.771,5.49-17.556,16.559-17.556,28.65V344.67    c0,12.092,6.784,23.158,17.556,28.646c4.61,2.348,9.611,3.506,14.6,3.506c6.666,0,13.301-2.07,18.898-6.138l140.969-102.383    c8.33-6.047,13.256-15.719,13.256-26.018C373.598,231.988,368.672,222.312,360.342,216.266z M242.285,0C108.688,0,0.004,108.689,0.004,242.283c0,133.592,108.686,242.283,242.281,242.283    c133.594,0,242.278-108.691,242.278-242.283C484.562,108.689,375.881,0,242.285,0z M242.285,425.027    c-100.764,0-182.744-81.979-182.744-182.744c0-100.766,81.98-182.742,182.744-182.742s182.745,81.976,182.745,182.742    C425.029,343.049,343.049,425.027,242.285,425.027z', { scaleX: .03, scaleY: .03, left: ui.offset.left - $('#leftpanel').width() + 53.5, top: ui.offset.top - this.bottomcanvas._offset.top + 8, typename: 'outline', belongsto: belongto });
+
+
+          let subOperator = new fabric.IText('-', {
+            left: bottomline.left + 20,
+            top: ui.offset.top - this.bottomcanvas._offset.top - 17,
             fontFamily: 'arial',
             fill: '#3c1361',
             fontSize: 50,
@@ -1542,7 +1923,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           });
 
 
-          this.bottomcanvas.add(plusoperator)
+          this.bottomcanvas.add(subOperator)
           this.bottomcanvas.add(rect);
           this.bottomcanvas.add(topline);
           this.bottomcanvas.add(bottomline);
@@ -1773,10 +2154,10 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       }
     });
     $("#maincanvas").droppable({
-      accept: "#rectanglePrototype,#circlePrototype,#squarePrototype,#mapperWidget",
+      accept: "#rectanglePrototype,#circlePrototype,#squarePrototype,#mapperWidget,#pathMarkPrototype,#ellipsePrototype",
       drop: (ev, ui) => {
         let shape;
-        if (ui.draggable[0].id == 'rectanglePrototype') {
+        if (ui.draggable[0].id == 'rectanglePrototype' || ui.draggable[0].id == 'pathMarkPrototype') {
           shape = new fabric.Rect({
             left: ui.offset.left - $('#leftpanel').width() + 50,
             top: ui.offset.top - 70,
@@ -1823,6 +2204,26 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           shape.typename = 'Circle'
           this.radius = shape.radius;
           shape.ID = 'circle ' + (this.canvas.getObjects().filter(x => x.typename == 'Circle').length + 1);
+        }
+        if (ui.draggable[0].id == 'ellipsePrototype') {
+          shape = new fabric.Ellipse({
+            left: ui.offset.left - $('#leftpanel').width() + 50,
+            top: ui.offset.top - 70,
+            fill: '#460073',
+            rx: 20,
+            ry: 10,
+            angle: 0,
+          });
+          shape.typename = 'Ellipse'
+          this.radiusx = shape.rx;
+          this.radiusy=shape.ry
+          shape.ID = 'ellipse ' + (this.canvas.getObjects().filter(x => x.typename == 'Ellipse').length + 1);
+        }
+        if (ui.draggable[0].id == 'pathMarkPrototype') {
+          shape.width = 0;
+          shape.typename = 'Line'
+          shape.angle = 90;
+          shape.ID = 'line ' + (this.canvas.getObjects().filter(x => x.typename == 'Line').length + 1);
         }
         this.canvas.add(shape);
         this.canvas.setActiveObject(shape);
