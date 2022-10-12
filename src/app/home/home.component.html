@@ -76,8 +76,8 @@
   <table *ngIf="rowData!=null">
     <tr>
       <ng-container *ngFor="let column of columns">
-        <th *ngIf="column.headerName.indexOf('type')==-1" [style.background-color]="transform && column.invalid==true?'lightyellow':'#e6dcff'">
-          <span class="pointer" *ngIf="column.headerName.indexOf('type')==-1" (click)="sort(column)">{{column.headerName}}</span>
+        <th  [style.background-color]="transform && column.invalid==true?'lightyellow':'#e6dcff'">
+          <span class="pointer" (click)="sort(column)">{{column.headerName}}</span>
           <div>
             <select [(ngModel)]="column.finaltype"><option *ngFor="let dt of datatypes">{{dt}}</option></select>
             <i class="fa fa-arrow-down" style="float: right;" [style.display]="column.sort=='asc'?'block':'none'"></i>
@@ -91,9 +91,9 @@
         <tr *ngIf="visible[i]==true">
 
           <ng-container *ngFor="let column of columns">
-            <td *ngIf="column.headerName.indexOf('type')==-1" [style.background-color]="transform && (row[column.headerName+'valid']=='' || row[column.headerName+'type']!=column.finaltype)?'lightyellow':'white'" (click)='transform==true && row[column.headerName+"textVisible"]=true;makeTextBoxFocus(cell)'>
-              <span *ngIf="(row[column.headerName+'textVisible']==null || row[column.headerName+'textVisible']==false) ">{{row[column.headerName]}}</span>
-              <input #cell [style.display]="row[column.headerName+'textVisible']?'block':'none'" (focusout)="row[column.headerName+'textVisible']=false" type="text" [(ngModel)]="row[column.headerName]" />
+            <td *ngIf="column.headerName.indexOf('type')==-1" [style.background-color]="transform && (row[column.headerName]=='' || rowDataType[i][column.headerName]!=column.finaltype)?'lightyellow':'white'" (click)='transform==true && rowDataType[column.headerName+"textVisible"]=true;makeTextBoxFocus(cell)'>
+              <span *ngIf="(rowDataType[column.headerName+'textVisible']==null || rowDataType[column.headerName+'textVisible']==false) ">{{row[column.headerName]}}</span>
+              <input #cell [style.display]="rowDataType[column.headerName+'textVisible']?'block':'none'" (focusout)="rowDataType[column.headerName+'textVisible']=false" type="text" [(ngModel)]="row[column.headerName]" />
             </td>
 
           </ng-container>

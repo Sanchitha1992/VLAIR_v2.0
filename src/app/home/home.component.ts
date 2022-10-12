@@ -19,6 +19,7 @@ export class HomeComponent implements OnInit {
   csvstring: any;
   transform: boolean = false;
   nrows: string;
+    rowDataType: any;
 
   constructor(private router: Router) { }
 
@@ -160,27 +161,29 @@ export class HomeComponent implements OnInit {
   validation() {
     let numberpattern = /^\d+$/;
     let floatpattern = /^\d+\.\d+?$/;
-    this.rowData.forEach(row => {
+    this.rowDataType = JSON.parse(JSON.stringify(this.rowData))
+
+    this.rowDataType.forEach(row => {
       this.columns.forEach(column => {
         if (floatpattern.test(row[column.headerName])) {
           column['types']['float'] += 1;
-          row[column.headerName + 'type'] = 'float';
+          row[column.headerName] = 'float';
         }
         else if (numberpattern.test(row[column.headerName])) {
           column['types']['integer'] += 1;
-          row[column.headerName + 'type'] = 'integer';
+          row[column.headerName] = 'integer';
         }
         else if (!isNaN((Date.parse(row[column.headerName])))) {
           column['types']['date'] += 1;
-          row[column.headerName + 'type'] = 'date';
+          row[column.headerName] = 'date';
         }
         else if (typeof (row[column.headerName]) == "boolean") {
           column['types']['boolean'] += 1;
-          row[column.headerName + 'type'] = 'boolean';
+          row[column.headerName] = 'boolean';
         }
         else {
           column['types']['string'] += 1;
-          row[column.headerName + 'type'] = 'string';
+          row[column.headerName] = 'string';
         }
       });
     });
@@ -198,13 +201,10 @@ export class HomeComponent implements OnInit {
     this.columns.forEach(element => {
       element.invalid = null;
     });
-    this.rowData.forEach(row => {
+    this.rowDataType.forEach(row => {
       tempColumns = this.columns.filter(x => x.invalid == null);
       tempColumns.forEach((column) => {
-        if (row[column.headerName] == '') {
-          this.columns.find(x => x.headerName == column.headerName).invalid = true;
-        }
-        if (column.finaltype != row[column.headerName + 'type']) {
+        if (column.finaltype != row[column.headerName]) {
           this.columns.find(x => x.headerName == column.headerName).invalid = true;
         }
       });
@@ -214,14 +214,6 @@ export class HomeComponent implements OnInit {
   validationdata: any[];
   applyChanges() {
     
-    
-    this.rowData.forEach(ele => {
-      Object.keys(ele).forEach(key => {
-        if (key.indexOf('type') > -1) {
-          delete ele[key];
-        }
-      })
-    })
     this.validationdata.forEach(ele => {
       Object.keys(ele).forEach(key => {
         if (key.indexOf('type') > -1) {
@@ -273,7 +265,7 @@ export class HomeComponent implements OnInit {
       this.rowData.forEach((ele, index) => { if (this.rowData.length - index <= 10) { this.visible[index] = true; } });
     }
     else if (nrows == 'r10') {
-      while (this.rowData.filter(x => x.visible == true).length < 10) {
+      while (this.visible.filter(x => x == true).length < 10) {
         let randomnumber = Math.floor(Math.random() * this.rowData.length);
         this.visible[randomnumber] = true;
         randomnumber = Math.floor(Math.random() * this.rowData.length);
@@ -295,8 +287,10 @@ export class HomeComponent implements OnInit {
     this.validationdata = []
     this.validationdata = this.rowData.filter(x => x.validation == true);
     for (let i = 0; i < this.rowData.length; i++) {
-      if (this.rowData[i]['validation'] == true)
+      if (this.rowData[i]['validation'] == true) {
         this.rowData.splice(i, 1);
+        this.rowDataType.splice(i, 1);
+      }
     }
     this.rowData.forEach(ele => {
       delete ele['validation']
