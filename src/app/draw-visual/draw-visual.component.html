@@ -75,13 +75,6 @@
               </ul>
               <div style="text-align:center;">
                 Shapes
-                <!--<i class="fa fa-chevron-down fa-1x" style="cursor:pointer" (click)="markToolboxVisible=!markToolboxVisible"></i>-->
-              </div>
-
-              <div style="position:absolute" [style.display]="markToolboxVisible==true?'block':'none'">
-                <ul class="menu nonSelection">
-                  
-                </ul>
               </div>
             </div>
             <div class="inlinediv" style="padding-top: 16px;padding-left:5px;padding-right:5px">
@@ -125,13 +118,13 @@
                 <div style="font-weight:bold;text-align:left">&nbsp;Position:</div>
                 <div id="divxposition" style="margin-left: 10px;height:30px">
                   <span>X:</span>
-                  <input id="xposition" [style.background-color]="xPositionTitle!=''?'#3c1361':'white'" [style.color]="xPositionTitle!=''?'white':'black'"
-                         [title]="xPositionTitle" type="text" class="rightPanelTextbox" [ngModel]="xposition" (ngModelChange)="changex($event)">
-                  &nbsp;<select [(ngModel)]="xPositionOperator" (ngModelChange)="changexOperator($event)">
+                  <input id="xposition" [style.background-color]="selectedObject?.mappedxposition!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedxposition!=''?'white':'black'"
+                         [title]="selectedObject?.mappedxposition" type="text" class="rightPanelTextbox" [ngModel]="xposition" (ngModelChange)="changex($event)">
+                  &nbsp;<select [ngModel]="xPositionOperator" (ngModelChange)="changexOperator($event)">
                     <option>*</option>
                     <option>/</option>
                   </select>
-                  &nbsp;<select [(ngModel)]="xPositionOperand" (ngModelChange)="changexOperand($event)">
+                  &nbsp;<select [ngModel]="xPositionOperand" (ngModelChange)="changexOperand($event)">
                     <option>1</option>
                     <option>10</option>
                     <option>100</option>
@@ -140,13 +133,13 @@
                 </div>
                 <div id="divyposition" style="margin-left: 10px; height: 30px">
                   <span>Y:</span>
-                  <input id="yposition" [style.background-color]="yPositionTitle!=''?'#3c1361':'white'" [style.color]="yPositionTitle!=''?'white':'black'"
-                         [title]="yPositionTitle" type="text" class="rightPanelTextbox" [ngModel]="yposition" (ngModelChange)="changey($event)" />
-                  &nbsp;<select [(ngModel)]="yPositionOperator" (ngModelChange)="changeyOperator($event)">
+                  <input id="yposition" [style.background-color]="selectedObject?.mappedyposition!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedyposition!=''?'white':'black'"
+                         [title]="selectedObject?.mappedyposition" type="text" class="rightPanelTextbox" [ngModel]="yposition" (ngModelChange)="changey($event)" />
+                  &nbsp;<select [ngModel]="yPositionOperator" (ngModelChange)="changeyOperator($event)">
                     <option>*</option>
                     <option>/</option>
                   </select>
-                  &nbsp;<select [(ngModel)]="yPositionOperand" (ngModelChange)="changeyOperand($event)">
+                  &nbsp;<select [ngModel]="yPositionOperand" (ngModelChange)="changeyOperand($event)">
                     <option>1</option>
                     <option>10</option>
                     <option>100</option>
@@ -192,18 +185,8 @@
               </div>
               <div style="display:flex;height:30px" id="rotationPaneldiv">
                 <div style="flex:50%;margin-left:10px">
-                  <input id="rotationPanel" [style.background-color]="rotationTitle!=''?'#3c1361':'white'" [style.color]="rotationTitle!=''?'white':'#3c1361'"
+                  <input id="rotationPanel" [style.background-color]="selectedObject?.mappedrotate!=''?'#3c1361':'white'" [title]="selectedObject?.mappedrotate" [style.color]="selectedObject?.mappedrotate!=''?'white':'#3c1361'"
                          class="rightPanelTextbox" type="text" (ngModelChange)="changeRotation($event)" [ngModel]="rotation" />
-                  <!--&nbsp;<select [(ngModel)]="rotationOperator">
-          <option>*</option>
-          <option>/</option>
-        </select>
-        &nbsp;<select [(ngModel)]="rotationOperand">
-          <option>1</option>
-          <option>10</option>
-          <option>100</option>
-          <option>1000</option>
-        </select>-->
                 </div>
               </div>
 
@@ -215,13 +198,13 @@
               </div>
               <div>
                 <div id="divlength" style="margin-left:10px;margin-top:5px;height:30px">
-                  <input id="length" [style.background-color]="lengthTitle!=''?'#3c1361':'white'" [style.color]="lengthTitle!=''?'white':'black'"
-                         [title]="lengthTitle" type="text" class="rightPanelTextbox" [ngModel]="length" (ngModelChange)="changelength($event)" />
-                  &nbsp;<select [(ngModel)]="lengthOperator" (ngModelChange)="changeLengthOperator($event)">
+                  <input id="length" [style.background-color]="selectedObject?.mappedheight!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedheight!=''?'white':'black'"
+                         [title]="selectedObject?.mappedheight" type="text" class="rightPanelTextbox" [ngModel]="length" (ngModelChange)="changelength($event)" />
+                  &nbsp;<select [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Rectangle' && this.selectedObject.areaColumn!=null" [ngModel]="lengthOperator" (ngModelChange)="changeLengthOperator($event)">
                     <option>*</option>
                     <option>/</option>
                   </select>
-                  &nbsp;<select [ngModel]="lengthOperand" (ngModelChange)="changeLengthOperand($event)">
+                  &nbsp;<select [ngModel]="lengthOperand" (ngModelChange)="changeLengthOperand($event)" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Rectangle' && this.selectedObject.areaColumn!=null">
                     <option>1</option>
                     <option>10</option>
                     <option>20</option>
@@ -238,13 +221,13 @@
               </div>
               <div>
                 <div id="divwidth" style="margin-left: 10px; margin-top: 5px; height: 30px">
-                  <input id="width" [style.background-color]="widthTitle!=''?'#3c1361':'white'" [style.color]="widthTitle!=''?'white':'black'"
-                         [title]="widthTitle" type="text" class="rightPanelTextbox" [ngModel]="width" (ngModelChange)="changewidth($event)" />
-                  &nbsp;<select [(ngModel)]="widthOperator" (ngModelChange)="changeWidthOperator($event)">
+                  <input id="width" [style.background-color]="selectedObject?.mappedwidth!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedwidth!=''?'white':'black'"
+                         [title]="selectedObject?.mappedwidth" type="text" class="rightPanelTextbox" [ngModel]="width" (ngModelChange)="changewidth($event)" />
+                  &nbsp;<select [ngModel]="widthOperator" (ngModelChange)="changeWidthOperator($event)" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Rectangle' && this.selectedObject.areaColumn!=null">
                     <option>*</option>
                     <option>/</option>
                   </select>
-                  &nbsp;<select [ngModel]="widthOperand" (ngModelChange)="changeWidthOperand($event)">
+                  &nbsp;<select [ngModel]="widthOperand" (ngModelChange)="changeWidthOperand($event)" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Rectangle' && this.selectedObject.areaColumn!=null">
                     <option>1</option>
                     <option>10</option>
                     <option>20</option>
@@ -261,12 +244,12 @@
               </div>
               <div>
                 <div id="divside" style="margin-left: 10px; margin-top: 5px; height: 30px">
-                  <input id="side" [style.background-color]="sideTitle!=''?'#3c1361':'white'" [style.color]="sideTitle!=''?'white':'black'"
-                         type="text" class="rightPanelTextbox" [ngModel]="side" (ngModelChange)="changeside($event)" [title]="sideTitle"> &nbsp;<select [(ngModel)]="sideOperator" (ngModelChange)="changeSideOperator($event)">
+                  <input id="side" [style.background-color]="selectedObject?.mappedside!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedside!=''?'white':'black'"
+                         type="text" class="rightPanelTextbox" [ngModel]="side" (ngModelChange)="changeside($event)" [title]="selectedObject?.mappedside"> &nbsp;<select [ngModel]="sideOperator" (ngModelChange)="changeSideOperator($event)" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Square' && this.selectedObject.areaColumn!=null">
                     <option>*</option>
                     <option>/</option>
                   </select>
-                  &nbsp;<select [(ngModel)]="sideOperand" (ngModelChange)="changeSideOperand($event)">
+                  &nbsp;<select [ngModel]="sideOperand" (ngModelChange)="changeSideOperand($event)" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Square' && this.selectedObject.areaColumn!=null">
                     <option>1</option>
                     <option>10</option>
                     <option>100</option>
@@ -282,13 +265,13 @@
               </div>
               <div>
                 <div id="divradius" style="margin-left: 10px; margin-top: 5px; height: 30px">
-                  <input [style.background-color]="radiusTitle!=''?'#3c1361':'white'" [style.color]="radiusTitle!=''?'white':'black'"
-                         id="radius" type="text" class="rightPanelTextbox" [title]="radiusTitle" [ngModel]="radius" (ngModelChange)="changeradius($event)" />
-                  &nbsp;<select [(ngModel)]="radiusOperator" (ngModelChange)="changeRadiusOperator($event)">
+                  <input [style.background-color]="selectedObject?.mappedradius!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedradius!=''?'white':'black'"
+                         id="radius" type="text" class="rightPanelTextbox" [title]="selectedObject?.mappedradius" [ngModel]="radius" (ngModelChange)="changeradius($event)" />
+                  &nbsp;<select [ngModel]="radiusOperator" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Circle' && this.selectedObject.areaColumn!=null"  (ngModelChange)="changeRadiusOperator($event)">
                     <option>*</option>
                     <option>/</option>
                   </select>
-                  &nbsp;<select [(ngModel)]="radiusOperand" (ngModelChange)="changeRadiusOperand($event)">
+                  &nbsp;<select [ngModel]="radiusOperand" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Circle' && this.selectedObject.areaColumn!=null"  (ngModelChange)="changeRadiusOperand($event)">
                     <option>1</option>
                     <option>10</option>
                     <option>100</option>
@@ -304,13 +287,13 @@
               </div>
               <div>
                 <div id="divradiusx" style="margin-left: 10px; margin-top: 5px; height: 30px">
-                  <input [style.background-color]="radiusxTitle!=''?'#3c1361':'white'" [style.color]="radiusxTitle!=''?'white':'black'"
-                         id="radiusx" type="text" class="rightPanelTextbox" [title]="radiusxTitle" [ngModel]="radiusx" (ngModelChange)="changeradiusx($event)" />
-                  &nbsp;<select [(ngModel)]="radiusxOperator">
+                  <input [style.background-color]="selectedObject?.mappedradiusx!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedradiusx!=''?'white':'black'"
+                         id="radiusx" type="text" class="rightPanelTextbox" [title]="selectedObject?.mappedradiusx" [ngModel]="radiusx" (ngModelChange)="changeradiusx($event)" />
+                  &nbsp;<select [ngModel]="radiusxOperator" (ngModelChange)="changeRadiusxOperator($event)" [disabled]="selectedObject?.areaColumn!=null">
                     <option>*</option>
                     <option>/</option>
                   </select>
-                  &nbsp;<select [(ngModel)]="radiusxOperand">
+                  &nbsp;<select [ngModel]="radiusxOperand" (ngModelChange)="changeRadiusxOperand($event)" [disabled]="selectedObject?.areaColumn!=null">
                     <option>1</option>
                     <option>10</option>
                     <option>100</option>
@@ -326,13 +309,13 @@
               </div>
               <div>
                 <div id="divradiusy" style="margin-left: 10px; margin-top: 5px; height: 30px">
-                  <input [style.background-color]="radiusyTitle!=''?'#3c1361':'white'" [style.color]="radiusyTitle!=''?'white':'black'"
-                         id="radiusy" type="text" class="rightPanelTextbox" [title]="radiusyTitle" [ngModel]="radiusy" (ngModelChange)="changeradiusy($event)" />
-                  &nbsp;<select [(ngModel)]="radiusyOperator">
+                  <input [style.background-color]="selectedObject?.mappedradiusy!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedradiusy!=''?'white':'black'"
+                         id="radiusy" type="text" class="rightPanelTextbox" [title]="selectedObject?.mappedradiusy" [ngModel]="radiusy" (ngModelChange)="changeradiusy($event)" />
+                  &nbsp;<select [ngModel]="radiusyOperator" (ngModelChange)="changeRadiusyOperator($event)" [disabled]="selectedObject?.areaColumn!=null">
                     <option>*</option>
                     <option>/</option>
                   </select>
-                  &nbsp;<select [(ngModel)]="radiusyOperand">
+                  &nbsp;<select [ngModel]="radiusyOperand"  [disabled]="selectedObject?.areaColumn!=null" (ngModelChange)="changeRadiusyOperand($event)">
                     <option>1</option>
                     <option>10</option>
                     <option>100</option>
@@ -346,18 +329,23 @@
               <div style="font-weight:bold;text-align:left">&nbsp;Area:</div>
               <div>
                 <div style="margin-left: 10px; margin-top: 5px; height: 30px">
-                  <input type="text" [style.background-color]="areaTitle!=''?'#3c1361':'white'" [style.color]="areaTitle!=''?'white':'black'"
-                         class="rightPanelTextbox" [ngModel]="area" [title]="areaTitle" (ngModelChange)="changeArea($event)" />
-                  &nbsp;<select [(ngModel)]="areaOperator">
-                    <option>*</option>
-                    <option>/</option>
-                  </select>
-                  &nbsp;<select [(ngModel)]="areaOperand">
-                    <option>1</option>
-                    <option>10</option>
-                    <option>100</option>
-                    <option>1000</option>
-                  </select>
+                  <input id="area" type="text" [style.background-color]="selectedObject?.mappedarea!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedarea!=''?'white':'black'"
+                         class="rightPanelTextbox" [(ngModel)]="area" [title]="selectedObject?.mappedarea" />
+                  <br />
+                  <div *ngIf="selectedObject!=null && selectedObject.typename=='Rectangle' && selectedObject.areaColumn!=null">
+                    <span>Length ratio: </span><input style="width:30px" [ngModel]="lratio" (blur)="lratioChange($event)" />
+                    <br />
+                    <div style="margin-top:5px">
+                      <span>Width ratio: </span><input style="width:30px" [ngModel]="wratio" (blur)="wratioChange($event)" />
+                    </div>
+                  </div>
+                  <div *ngIf="selectedObject!=null && selectedObject.typename=='Ellipse' && selectedObject.areaColumn!=null">
+                    <span>Radius x ratio: </span><input style="width:30px" [ngModel]="rxRatio" (blur)="rxRatioChange($event)" />
+                    <br />
+                    <div style="margin-top:5px">
+                      <span>Radius y ratio: </span><input style="width:30px" [ngModel]="ryRatio" (blur)="ryRatioChange($event)" />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -366,9 +354,9 @@
       </div>
       <div style="display: flex; border: 1px solid black; border-left-width: 0px; border-right-width: 0px">
         <div>
-          <div style="display:inline-block" *ngIf="midScroll" (click)="scrollLeft()">
+          <!--<div style="display:inline-block" *ngIf="midScroll" (click)="scrollLeft()">
             <img src="assets/images/larrow.png" width="23" height="23" style="margin:10px" />
-          </div>
+          </div>-->
           <div style="display:inline-block;width:920px;overflow-x:auto;white-space:nowrap" #keytab id="keytab">
             <ng-container *ngFor="let key of keys;let i=index">
               <div [style.backgroundColor]="keybg[i]" *ngIf="key!=selectedLabel" class="keys" [id]="'id'+keyid[i]">
@@ -376,9 +364,9 @@
               </div>
             </ng-container>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </div>
-          <div style="display:inline-block" *ngIf="midScroll" (click)="scrollRight()">
+          <!--<div style="display:inline-block" *ngIf="midScroll" (click)="scrollRight()">
             <img src="assets/images/rarrow.png" width="23" height="23" style="margin: 10px " />
-          </div>
+          </div>-->
         </div>
       </div>
       <div style="display:flex">
