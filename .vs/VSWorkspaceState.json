@@ -3,10 +3,13 @@
     "",
     "\\src",
     "\\src\\app",
-    "\\src\\app\\compare",
     "\\src\\app\\draw-visual",
-    "\\src\\app\\experiment",
-    "\\src\\app\\validation"
+    "\\src\\app\\login",
+    "\\src\\app\\services",
+    "\\src\\app\\services\\dataservice",
+    "\\src\\app\\validation",
+    "\\src\\assets",
+    "\\src\\environments"
   ],
   "SelectedNode": "\\src\\app\\draw-visual\\draw-visual.component.html",
   "PreviewInSolutionExplorer": false

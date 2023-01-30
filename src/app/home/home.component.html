@@ -1,13 +1,14 @@
 <div class="container" style="padding-top:50px">
   <div class="col form-group">
-    <input type="file" class="btn btn-primary btn-file" #file  placeholder="Upload file" accept=".csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+    <input type="file" class="btn btn-primary btn-file" #file  placeholder="Upload file" accept=".csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" *ngIf="transform==false" (change)="addfile(file)">
     <div style="margin-top:10px">
       <div style="font-size:12px" class="divcontainer">
         <div class="row">
-          <div class="col-sm-2">
+          <div *ngIf="transform==false" class="col-sm-2">
 
-            <label>Validation: </label><input  type="text"  style="margin-left:5px;height:20px;width:30px"  [(ngModel)]="validationPercent" (change)="addfile(file)"  /> %
-          </div><div class="col-sm-3">
+            <label >Validation: </label><input type="text"  style="margin-left:5px;height:20px;width:30px"  [(ngModel)]="validationPercent" (change)="addfile(file)"  /> <label>%</label>
+          </div>
+          <div class="col-sm-3">
             <label>Available rows:</label>
             <select class="ml-2" [(ngModel)]="nrows" (change)="selectrows(nrows)">
               <option value="f10">First 10 rows</option>
@@ -16,7 +17,7 @@
               <option value="clear">All</option>
             </select>
           </div>
-                <div class="col-sm-3"  *ngIf="rowData!=null">
+                <div class="col-sm-3"  *ngIf="rowData!=null && transform==false">
                   <label>Select Label:</label>
                   <select [(ngModel)]="selectedlabel" class="ml-2">
                     <ng-container *ngFor="let item of rowData[0]|keyvalue">
@@ -79,7 +80,7 @@
         <th  [style.background-color]="transform && column.invalid==true?'lightyellow':'#e6dcff'">
           <span class="pointer" (click)="sort(column)">{{column.headerName}}</span>
           <div>
-            <select [(ngModel)]="column.finaltype"><option *ngFor="let dt of datatypes">{{dt}}</option></select>
+            <select disabled [(ngModel)]="column.finaltype"><option *ngFor="let dt of datatypes">{{dt}}</option></select>
             <i class="fa fa-arrow-down" style="float: right;" [style.display]="column.sort=='asc'?'block':'none'"></i>
             <i class="fa fa-arrow-up" style="float: right;" [style.display]="column.sort=='desc'?'block':'none'"></i>
           </div>
@@ -111,7 +112,7 @@
   </table>
   <div *ngIf="rowData!=null">
     <button *ngIf="transform==false" style="margin-right: 10px;" type="button" class="btn btn-default btn-sm" (click)="transform=true"> Transform Data</button>
-    <button style="margin-right: 10px;" type="button" class="btn btn-default btn-sm" *ngIf="selectedlabel!=null" (click)="applyChanges()">Visualize</button>
+    <button style="margin-right: 10px;" type="button" class="btn btn-default btn-sm" *ngIf="selectedlabel!=null && transform==false" (click)="applyChanges()">Visualize</button>
 
     <button style="margin-right: 10px;" *ngIf="transform==true" type="button" class="btn btn-default btn-sm" (click)="transform=false">Cancel</button>
     <button type="button" class="btn btn-default btn-sm" *ngIf="transform==true" (click)="validation()">Re-evaluate</button>

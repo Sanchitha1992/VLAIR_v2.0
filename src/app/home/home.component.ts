@@ -26,7 +26,6 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.rowData = JSON.parse(sessionStorage.getItem('rowdata'));
     this.validationdata = JSON.parse(sessionStorage.getItem('validationdata'));
-    this.selectedlabel = sessionStorage.getItem("selectedlabel") ;
     //this.dataService.rowdata = JSON.parse(JSON.stringify(this.rowData))
     if (this.rowData != null) {
       this.loaddata();
@@ -251,7 +250,7 @@ export class HomeComponent implements OnInit {
       element.sort = null;
     });
   }
-  validationPercent: any="";
+  validationPercent: any=10;
   backuprowdata: any;
   visible: boolean[];
   selectrows(nrows) {

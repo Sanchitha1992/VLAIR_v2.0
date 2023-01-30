@@ -22,15 +22,15 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   midScroll: boolean;
 
   lengthOperator: any = '*';
-  lengthOperand: any = 10;
+  lengthOperand: number = 10;
   widthOperator: any = '*';
-  widthOperand: any = 10;
+  widthOperand: number = 10;
   lratio: any = 2;
   wratio: any = 1;
 
   side: any;
   sideOperator: any = '*';
-  sideOperand: any = 10;
+  sideOperand: number = 10;
 
   radiusx: any;
   radiusy: any;
@@ -38,9 +38,9 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   radiusOperand: number = 10;
 
   radiusxOperator: string = '*';
-  radiusxOperand: any = '10';
+  radiusxOperand: number = 10;
   radiusyOperator: string = '*';
-  radiusyOperand: any = '10';
+  radiusyOperand: number = 10;
   rxRatio: any = 2;
   ryRatio: any = 1;
 
@@ -51,9 +51,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   yPositionOperator: string = '*';
   yPositionOperand: number = 1;
 
-  bottomcanvasesStringfied: any = [];
   colorTitle: any;
-
 
   public selection: boolean;
   validationdata: any;
@@ -97,7 +95,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       this.rowData.forEach(a => { this.rightcanvasarray.push(true) })
     }
     this.canvas = new fabric.Canvas("maincanvas");
-    this.canvas.setDimensions({ width: 850, height: 235 });
+    this.canvas.setDimensions({ width: 800, height: 235 });
     this.canvas.typename = 'canvas'
 
     this.bottomcanvas = new fabric.Canvas("bottomcanvas");
@@ -118,6 +116,11 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     if (this.activatedRoute.snapshot.queryParams['etab'] != null) {
       this.title.setTitle("Experiment " + this.activatedRoute.snapshot.queryParams['etab']);
     }
+  }
+
+  highlightOnHoverIndex: number;
+  mouseHover(i) {
+    this.highlightOnHoverIndex = i;
   }
 
   goback() {
@@ -170,11 +173,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         this.canvas.add(rect);
 
         this.canvas.renderAll();
-        this.canvas.sendToBack(rect)
         this.canvas.deactivateAll().renderAll();
-
-        //(document.getElementById('selectionWidth') as any).value = rect.width;
-        //(#document.getElementById('selectionHeight') as any).value = rect.height;
       }
     });
 
@@ -183,6 +182,14 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         isDown = false;
         this.selection = false;
         rect.selectable = true;
+        rect.editable = true;
+        this.canvas.sendToBack(rect)
+
+        for (let i = 0; i < this.canvas.getObjects().length; i++) {
+          if (this.canvas.getObjects()[i].typename == 'Graph') {
+            this.canvas.sendToBack(this.canvas.getObjects()[i])
+          }
+        }
         this.canvas.deactivateAll().renderAll();
       }
     });
@@ -216,7 +223,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     setTimeout(() => { this.draganddropFunction(); }, 1000)
   }
 
-  undo() {
+  delete() {
     //this.redo_stack.push(this.undo_stack.pop());
     //let previous_state = this.undo_stack[this.undo_stack.length - 1];
     //if (previous_state == null) {
@@ -242,15 +249,18 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         this.canvas.getObjects()[i].radiusColumn = null;
         this.canvas.getObjects()[i].radiusxColumn = null;
         this.canvas.getObjects()[i].radiusyColumn = null;
-        this.visibility = { 'position': false, 'color': false, 'length': false, 'width': false, 'side': false, 'radius': false, 'area': false, 'rotation': false, 'graph': false }
+        this.canvas.getObjects()[i].mappername = null;
+        this.canvas.getObjects()[i].fill = '#460073';
       }
     }
+    this.visibility = { 'position': false, 'color': false, 'length': false, 'width': false, 'side': false, 'radius': false, 'area': false, 'rotation': false, 'graph': false };
     for (let i = canvas.getObjects().length - 1; i >= 0; i--) {
       if (canvas.getObjects()[i].typename != 'Graph') {
         canvas.remove(canvas.getObjects()[i]);
       }
     }
     canvas.renderAll()
+    this.canvas.renderAll();
     //canvas.getObjects().forEach((obj) => {
     // canvas.remove(obj);
     //canvas.renderAll();
@@ -262,7 +272,17 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   onCanvasMode(val) {
     if (val == 'Collective') {
       this.canvas.getObjects().forEach((obj) => {
-        let graph = this.selectedObject.graphname == null ? this.canvas.getObjects().find(x => x.ID == 'Graph 1') : this.canvas.getObjects().find(x => x.ID == obj.graphname);
+        let graph = obj.graphname == null ? this.canvas.getObjects().find(x => x.ID == 'Graph 1') : this.canvas.getObjects().find(x => x.ID == obj.graphname);
+
+        let graphleft = graph.left;
+        if (graph.xpositionColumn != null) {
+          graphleft += eval(graph.xpositionColumn)
+        }
+
+        let graphtop = graph.top;
+        if (graph.ypositionColumn != null) {
+          graphtop += eval(graph.ypositionColumn)
+        }
 
         if (obj.typename == 'Rectangle') {
           for (let i = 0; i < this.rowData.length; i++) {
@@ -272,16 +292,17 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
               originY: 'top',
               width: obj.areaColumn != null ? ((Math.sqrt(eval(obj.areaColumn) / (obj.lratio * obj.wratio))) * obj.wratio) : obj.widthColumn != null ? eval(obj.widthColumn) : obj.width,
               height: obj.areaColumn != null ? ((Math.sqrt(eval(obj.areaColumn) / (obj.lratio * obj.wratio))) * obj.lratio) : obj.heightColumn != null ? eval(obj.heightColumn) : obj.height,
-              fill: '#460073',
-              stroke: '#460073',
+              fill: obj.fill,
+              stroke: obj.fill,
               opacity: .4,
               transparentCorners: false,
               typename: 'duplicate',
-              angle: obj.rotateColumn != null ? eval(obj.rotateColumn) : obj.angle,
+              angle: obj.rotateColumn != null ? eval(obj.rotateColumn) : obj.angle,selectable:true
             });
             this.canvas.add(rect);
-            rect.set('left', obj.xpositionColumn != null ? (graph.left + eval(obj.xpositionColumn)) : obj.left)
-            rect.set('top', obj.ypositionColumn != null ? (graph.top + (graph.height * graph.scaleY) - eval(obj.ypositionColumn) - rect.height) : obj.top);
+
+            rect.set('left', obj.xpositionColumn != null ? (graphleft + eval(obj.xpositionColumn)) : obj.left)
+            rect.set('top', obj.ypositionColumn != null ? (graphtop + (graph.height * graph.scaleY) - eval(obj.ypositionColumn) - rect.height) : obj.top);
           }
         }
         else if (obj.typename == 'Square') {
@@ -290,16 +311,18 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             let square = new fabric.Rect({
               width: obj.areaColumn != null ? Math.sqrt(eval(obj.areaColumn)) : obj.sideColumn != null ? eval(obj.sideColumn) : obj.width,
               height: obj.areaColumn != null ? Math.sqrt(eval(obj.areaColumn)) : obj.sideColumn != null ? eval(obj.sideColumn) : obj.height,
-              fill: '#460073',
-              stroke: '#460073',
+              fill: obj.fill,
+              stroke: obj.fill,
               opacity: .4,
               transparentCorners: false,
               typename: 'duplicate',
               angle: obj.rotateColumn != null ? eval(obj.rotateColumn) : obj.angle
             });
             this.canvas.add(square);
-            square.set('left', obj.xpositionColumn != null ? (graph.left + eval(obj.xpositionColumn)) : obj.left)
-            square.set('top', obj.ypositionColumn != null ? (graph.top + (graph.height * graph.scaleY) - eval(obj.ypositionColumn) - square.height) : obj.top)
+
+            
+            square.set('left', obj.xpositionColumn != null ? (graphleft + eval(obj.xpositionColumn)) : obj.left)
+            square.set('top', obj.ypositionColumn != null ? (graphtop + (graph.height * graph.scaleY) - eval(obj.ypositionColumn) - square.height) : obj.top)
           }
         }
         else if (obj.typename == 'Circle') {
@@ -310,15 +333,15 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
               originY: 'top',
               radius: obj.areaColumn != null ? Math.sqrt(eval(obj.areaColumn) / 3.14) : obj.radiusColumn != null ? eval(obj.radiusColumn) : obj.radius,
               angle: 0,
-              fill: '#460073',
-              stroke: '#460073',
+              fill: obj.fill,
+              stroke: obj.fill,
               opacity: .4,
               transparentCorners: false,
               typename: 'duplicate'
             });
             this.canvas.add(circle);
-            circle.set('left', obj.xpositionColumn != null ? (graph.left + eval(obj.xpositionColumn)) : obj.left)
-            circle.set('top', obj.ypositionColumn != null ? (graph.top + (graph.height * graph.scaleY) - eval(obj.ypositionColumn) - circle.radius) : obj.top)
+            circle.set('left', obj.xpositionColumn != null ? (graphleft + eval(obj.xpositionColumn)) : obj.left)
+            circle.set('top', obj.ypositionColumn != null ? (graphtop + (graph.height * graph.scaleY) - eval(obj.ypositionColumn) - circle.radius) : obj.top)
           }
         }
         else if (obj.typename == 'Line') {
@@ -327,17 +350,17 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             let line = new fabric.Rect({
               left: obj.xpositionColumn != null ? eval(obj.xpositionColumn) : obj.left,
               top: obj.ypositionColumn != null ? eval(obj.ypositionColumn) : obj.top,
-              height: eval(obj.heightColumn),
-              width: 0,
-              fill: '#460073',
-              stroke: '#460073',
+              height: 0,
+              width: eval(obj.heightColumn),
+              fill: obj.fill,
+              stroke: obj.fill,
               opacity: .4,
               typename: 'duplicate',
               angle: obj.rotateColumn != null ? eval(obj.rotateColumn) : obj.angle,
             })
             this.canvas.add(line);
-            line.set('left', obj.xpositionColumn != null ? (graph.left + eval(obj.xpositionColumn)) : obj.left)
-            line.set('top', obj.ypositionColumn != null ? (graph.top + (graph.height * graph.scaleY) - eval(obj.ypositionColumn) - line.height) : obj.top);
+            line.set('left', obj.xpositionColumn != null ? (graphleft + eval(obj.xpositionColumn)) : obj.left)
+            line.set('top', obj.ypositionColumn != null ? (graphtop + (graph.height * graph.scaleY) - eval(obj.ypositionColumn) - line.height) : obj.top);
           }
         }
         else if (obj.typename == 'Ellipse') {
@@ -346,15 +369,15 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             let ellipse = new fabric.Ellipse({
               rx: obj.areaColumn != null ? ((Math.sqrt(eval(obj.areaColumn) / (obj.rxRatio * obj.ryRatio * 3.14))) * obj.rxRatio) : obj.radiusxColumn != null ? eval(obj.radiusxColumn) : obj.rx,
               ry: obj.areaColumn != null ? ((Math.sqrt(eval(obj.areaColumn) / (obj.rxRatio * obj.ryRatio * 3.14))) * obj.ryRatio) : obj.radiusyColumn != null ? eval(obj.radiusyColumn) : obj.ry,
-              fill: '#460073',
-              stroke: '#460073',
+              fill: obj.fill,
+              stroke: obj.fill,
               opacity: .4,
               typename: 'duplicate',
               angle: obj.rotateColumn != null ? eval(obj.rotateColumn) : obj.angle,
             });
             this.canvas.add(ellipse);
-            ellipse.set('left', obj.xpositionColumn != null ? (graph.left + eval(obj.xpositionColumn)) : obj.left)
-            ellipse.set('top', obj.ypositionColumn != null ? (graph.top + (graph.height * graph.scaleY) - eval(obj.ypositionColumn) - ellipse.ry) : obj.top)
+            ellipse.set('left', obj.xpositionColumn != null ? (graphleft + eval(obj.xpositionColumn)) : obj.left)
+            ellipse.set('top', obj.ypositionColumn != null ? (graphtop + (graph.height * graph.scaleY) - eval(obj.ypositionColumn) - ellipse.ry) : obj.top)
           }
         }
       });
@@ -407,10 +430,13 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         rightcanvas.renderAll();
 
         let canvasObjects = this.canvas.getObjects();
-        let graph = this.selectedObject.graphname == null ? this.canvas.getObjects().find(x => x.ID == 'Graph 1') : this.canvas.getObjects().find(x => x.ID == canvasObjects.graphname);
+        
+        let maingraph = this.canvas.getObjects().find(x => x.ID == 'Graph 1');
 
         for (let j = 0; j < canvasObjects.length; j++) {
           let obj;
+          let graph = canvasObjects[j].graphname == null ? this.canvas.getObjects().find(x => x.ID == 'Graph 1') : this.canvas.getObjects().find(x => x.ID == canvasObjects[j].graphname);
+
           if (canvasObjects[j].typename == 'Rectangle') {
             let height, width;
             if (canvasObjects[j].areaColumn != null) {
@@ -458,7 +484,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             })
             rightcanvas.add(obj);
           }
-          if (canvasObjects[j].typename == 'Square') {
+          else if (canvasObjects[j].typename == 'Square') {
             let height, width;
             if (canvasObjects[j].areaColumn != null) {
               let value = i
@@ -486,7 +512,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             })
             rightcanvas.add(obj);
           }
-          if (canvasObjects[j].typename == 'Line') {
+          else if (canvasObjects[j].typename == 'Line') {
             let height;
             if (canvasObjects[j].heightColumn == null) {
               height = canvasObjects[j].height * canvasObjects[j].scaleY
@@ -502,7 +528,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
             obj = new fabric.Rect({
               left: canvasObjects[j].left - selectionrect.left, top: canvasObjects[j].top - selectionrect.top,
-              originX: 'left', originY: 'top', width: 0, height: height, fill: canvasObjects[j].fill, stroke: canvasObjects[j].stroke, angle: canvasObjects[j].angle
+              originX: 'left', originY: 'top', width: height, height: 0, fill: canvasObjects[j].fill, stroke: canvasObjects[j].stroke, angle: canvasObjects[j].angle
             })
             rightcanvas.add(obj);
           }
@@ -578,7 +604,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             rightcanvas.add(obj);
             rightcanvas.renderAll();
           }
-          if (canvasObjects[j].xpositionColumn != null) {
+
+          if (canvasObjects[j].xpositionColumn != null && canvasObjects[j].typename != 'Graph') {
             let evaluatable = canvasObjects[j].xpositionColumn;
             let value = i
             let xpos;
@@ -587,10 +614,18 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             } else {
               xpos = eval(canvasObjects[j].xpositionColumn)
             }
-            obj.set('left', xpos - (selectionrect.left - graph.left));
+            if (graph.xpositionColumn != null) {
+              if (canvas == 'valcanvas') {
+                xpos = xpos + eval(graph.xpositionColumn.replace('rowData', 'validationdata'))
+              } else {
+                xpos = xpos + eval(graph.xpositionColumn)
+              }
+            }
+            obj.set('left', xpos - (selectionrect.left - maingraph.left));
+
             rightcanvas.renderAll();
           }
-          if (canvasObjects[j].ypositionColumn != null) {
+          if (canvasObjects[j].ypositionColumn != null && canvasObjects[j].typename != 'Graph') {
             let evaluatable = canvasObjects[j].ypositionColumn;
             let value = i
             let ypos;
@@ -599,12 +634,19 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             } else {
               ypos = eval(canvasObjects[j].ypositionColumn)
             }
+            if (graph.ypositionColumn != null) {
+              if (canvas == 'valcanvas') {
+                ypos = ypos + eval(graph.ypositionColumn.replace('rowData', 'validationdata'))
+              } else {
+                ypos = ypos + eval(graph.ypositionColumn)
+              }
+            }
             if (canvasObjects[j].typename == 'Ellipse')
-              obj.set('top', (selectionrect.height * selectionrect.scaleY) - (ypos - (graph.top + (graph.height*graph.scaleY) - (selectionrect.top + (selectionrect.height * selectionrect.scaleY)))) - (obj.ry * 2));
+              obj.set('top', (selectionrect.height * selectionrect.scaleY) - (ypos - (maingraph.top + (maingraph.height * maingraph.scaleY) - (selectionrect.top + (selectionrect.height * selectionrect.scaleY)))) - (obj.ry * 2));
             else if (canvasObjects[j].typename == 'Circle')
-              obj.set('top', (selectionrect.height * selectionrect.scaleY) - (ypos - (graph.top + (graph.height*graph.scaleY) - (selectionrect.top + (selectionrect.height * selectionrect.scaleY)))) - (obj.radius * 2));
+              obj.set('top', (selectionrect.height * selectionrect.scaleY) - (ypos - (maingraph.top + (maingraph.height * maingraph.scaleY) - (selectionrect.top + (selectionrect.height * selectionrect.scaleY)))) - (obj.radius * 2));
             else
-              obj.set('top', (selectionrect.height * selectionrect.scaleY) - (ypos - (graph.top + (graph.height*graph.scaleY) - (selectionrect.top + (selectionrect.height * selectionrect.scaleY))))- obj.height);
+              obj.set('top', (selectionrect.height * selectionrect.scaleY) - (ypos - (maingraph.top + (maingraph.height * maingraph.scaleY) - (selectionrect.top + (selectionrect.height * selectionrect.scaleY)))) - obj.height);
 
             rightcanvas.renderAll();
           }
@@ -643,7 +685,6 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         }
         this.rightcanvases.push(rightcanvas)
 
-        //rightcanvas.add(rect);
       }
       this.loading = false
     }, 1000);
@@ -656,6 +697,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     this.selectedObject.stroke = value
     this.color = value
     this.canvas.renderAll();
+    this.selectedObject.mappername = null;
   }
 
   lratioChange(val) {
@@ -685,7 +727,11 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   }
 
   changeLengthOperand(value) {
-    this.selectedObject.set('height', eval(this.length + this.lengthOperator + value));
+    if (this.selectedObject.typename == 'Line')
+      this.selectedObject.set('width', eval(this.length + this.lengthOperator + value));
+    else
+      this.selectedObject.set('height', eval(this.length + this.lengthOperator + value));
+
     if (this.selectedObject.heightColumn != null) {
       this.selectedObject.heightColumn = this.selectedObject.heightColumn.replace(this.lengthOperand, value)
     }
@@ -698,7 +744,11 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   }
 
   changeLengthOperator(value) {
-    this.selectedObject.set('height', eval(this.length + value + this.lengthOperand));
+    if (this.selectedObject.typename == 'Line')
+      this.selectedObject.set('width', eval(this.length + value + this.lengthOperand));
+    else
+      this.selectedObject.set('height', eval(this.length + value + this.lengthOperand));
+
     if (this.selectedObject.heightColumn != null) {
       this.selectedObject.heightColumn = this.selectedObject.heightColumn.replace(this.lengthOperator, value)
     }
@@ -711,7 +761,11 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   }
 
   changelength(value) {
-    this.selectedObject.set('height', eval(parseFloat(value) + this.lengthOperator + this.lengthOperand));
+    if (this.selectedObject.typename == 'Line')
+      this.selectedObject.set('width', eval(parseFloat(value) + this.lengthOperator + this.lengthOperand));
+    else
+      this.selectedObject.set('height', eval(parseFloat(value) + this.lengthOperator + this.lengthOperand));
+
     this.selectedObject.heightColumn = value + this.lengthOperator + this.lengthOperand;
     this.selectedObject.mappedheight = '';
     this.selectedObject.setCoords();
@@ -793,8 +847,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   changeside(value) {
     this.selectedObject.set('width', eval(parseFloat(value) + this.sideOperator + this.sideOperand))
     this.selectedObject.set('height', eval(parseFloat(value) + this.sideOperator + this.sideOperand))
-    this.selectedObject.widthColumn = null;
-    this.selectedObject.heightColumn = null;
+    this.selectedObject.sideColumn = null;
     this.selectedObject.mappedside = ''
     this.area = this.selectedObject.height * this.selectedObject.width
     this.selectedObject.setCoords();
@@ -802,6 +855,81 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     this.selectedObject.areaColumn = null;
     this.selectedObject.mappedarea = '';
     this.side = value;
+  }
+  
+  changeArea(value) {
+    if (this.selectedObject.typename == 'Rectangle') {
+      this.length = (Math.sqrt(eval(value) / (this.lratio * this.wratio))) * this.lratio
+      this.width = (Math.sqrt(eval(value) / (this.lratio * this.wratio))) * this.wratio
+      this.selectedObject.mappedwidth = ''
+      this.selectedObject.mappedheight = ''
+      this.area = value
+      this.selectedObject.set('height', this.length);
+      this.selectedObject.set('width', this.width);
+      this.selectedObject.areaColumn = null;
+      this.selectedObject.mappedarea = '';
+      this.selectedObject.lratio = this.lratio;
+      this.selectedObject.wratio = this.wratio;
+      this.canvas.renderAll()
+
+      this.selectedObject.heightColumn = null;
+      this.selectedObject.mappedheight = '';
+      this.selectedObject.widthColumn = null;
+      this.selectedObject.mappedwidth = '';
+      this.lengthOperand = 1;
+      this.widthOperand = 1;
+      this.lengthOperator = '*'
+      this.widthOperator = '*'
+    }
+    else if (this.selectedObject.typename == 'Square') {
+      this.side = Math.sqrt(value);
+      this.selectedObject.mappedside = '';
+      this.area = value;
+      this.selectedObject.set('height', this.side);
+      this.selectedObject.set('width', this.side);
+      this.selectedObject.areaColumn = null;
+      this.selectedObject.mappedarea = '';
+      this.canvas.renderAll()
+
+      this.selectedObject.sideColumn = null;
+      this.selectedObject.mappedside = '';
+      this.sideOperand = 1;
+      this.sideOperator = '*';
+    }
+    else if (this.selectedObject.typename == 'Circle') {
+      this.radius = Math.sqrt(value / 3.14);
+      this.area = value;
+      this.selectedObject.set('radius', this.radius);
+      this.selectedObject.areaColumn = null;
+      this.selectedObject.mappedarea = '';
+      this.canvas.renderAll()
+
+      this.selectedObject.radiusColumn = null;
+      this.selectedObject.mappedradius = '';
+      this.radiusOperand = 1;
+      this.radiusOperator = '*';
+    }
+    else if (this.selectedObject.typename == 'Ellipse') {
+      this.radiusx = (Math.sqrt(value / (this.rxRatio * this.ryRatio))) * this.rxRatio
+      this.radiusy = (Math.sqrt(value / (this.lratio * this.wratio))) * this.ryRatio
+      this.area = value
+      this.selectedObject.set('rx', this.radiusx);
+      this.selectedObject.set('ry', this.radiusy);
+      this.selectedObject.areaColumn = null;
+      this.selectedObject.rxRatio = this.rxRatio;
+      this.selectedObject.ryRatio = this.ryRatio;
+      this.selectedObject.mappedarea = '';
+      this.canvas.renderAll()
+
+      this.selectedObject.ryRatioColumn = null;
+      this.selectedObject.mappedradiusx = '';
+      this.selectedObject.rxRatioColumn = null;
+      this.selectedObject.mappedradiusy = '';
+      this.radiusxOperand = 1;
+      this.radiusyOperand = 1;
+      this.radiusxOperator = '*'
+      this.radiusyOperator = '*'
+    }
   }
 
   changeRadiusOperator(value) {
@@ -951,7 +1079,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   }
 
   changex(value) {
-    this.selectedObject.set('left', eval(parseFloat(value) + this.xPositionOperator + this.xPositionOperand) + this.graph.left);
+    this.selectedObject.set('left', eval(parseFloat(value) + this.xPositionOperator + this.xPositionOperand) + this.graph.left+4);
     this.selectedObject.setCoords();
     this.selectedObject.xpositionColumn = null;
     this.selectedObject.mappedxposition = '';
@@ -960,7 +1088,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   }
 
   changexOperator(value) {
-    this.selectedObject.set('left', eval(this.xposition + value + this.xPositionOperand) + this.graph.left);
+    this.selectedObject.set('left', eval(this.xposition + value + this.xPositionOperand) + this.graph.left+4);
     if (this.selectedObject.xpositionColumn != null) {
       this.selectedObject.xpositionColumn = this.selectedObject.xpositionColumn.replace(this.xPositionOperator, value)
     }
@@ -970,7 +1098,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   }
 
   changexOperand(value) {
-    this.selectedObject.set('left', eval(this.xposition + this.xPositionOperator + value) + this.graph.left);
+    this.selectedObject.set('left', eval(this.xposition + this.xPositionOperator + value) + this.graph.left+4);
     if (this.selectedObject.xpositionColumn != null) {
       this.selectedObject.xpositionColumn = this.selectedObject.xpositionColumn.replace(this.xPositionOperand, value)
     }
@@ -980,7 +1108,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   }
 
   changey(value) {
-    this.selectedObject.set('top', this.graph.top + (this.graph.height * this.graph.scaleY) - eval(parseFloat(value) + this.yPositionOperator + this.yPositionOperand) - this.selectedObject.height);
+    this.selectedObject.set('top', this.graph.top + (this.graph.height * this.graph.scaleY) - eval(parseFloat(value) + this.yPositionOperator + this.yPositionOperand) - (this.selectedObject.height * this.selectedObject.scaleY) - 4);
     this.selectedObject.ypositionColumn = null
     this.selectedObject.setCoords();
     this.selectedObject.mappedyposition = '';
@@ -989,7 +1117,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   }
 
   changeyOperator(value) {
-    this.selectedObject.set('top', this.graph.top + (this.graph.height * this.graph.scaleY) - eval(this.yposition + value + this.yPositionOperand) - this.selectedObject.height);
+    this.selectedObject.set('top', this.graph.top + (this.graph.height * this.graph.scaleY) - eval(this.yposition + value + this.yPositionOperand) - (this.selectedObject.height * this.selectedObject.scaleY)-4);
     if (this.selectedObject.ypositionColumn != null) {
       this.selectedObject.ypositionColumn = this.selectedObject.ypositionColumn.replace(this.yPositionOperator, value)
     }
@@ -999,7 +1127,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   }
 
   changeyOperand(value) {
-    this.selectedObject.set('top', this.graph.top + (this.graph.height * this.graph.scaleY) - eval(this.yposition + this.yPositionOperator + value) - this.selectedObject.height);
+    this.selectedObject.set('top', this.graph.top + (this.graph.height * this.graph.scaleY) - eval(this.yposition + this.yPositionOperator + value) - (this.selectedObject.height * this.selectedObject.scaleY)-4);
     if (this.selectedObject.ypositionColumn != null) {
       this.selectedObject.ypositionColumn = this.selectedObject.ypositionColumn.replace(this.yPositionOperand, value)
     }
@@ -1011,10 +1139,15 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
   changeRow(value) {
     this.rowIndex = value;
     this.canvas.getObjects().forEach(obj => {
+      let maingraph = this.canvas.getObjects().find(x => x.ID == 'Graph 1');
       let graph = this.selectedObject.graphname == null ? this.canvas.getObjects().find(x => x.ID == 'Graph 1') : this.canvas.getObjects().find(x => x.ID == obj.graphname);
 
       if (obj.heightColumn != null) {
-        obj.set('height', eval(obj.heightColumn));
+        if (obj.typename == 'Line')
+          obj.set('width', eval(obj.heightColumn));
+        else
+          obj.set('height', eval(obj.heightColumn));
+
         this.length = eval(obj.heightColumn.split(/\*\d/)[0].split(/\/\d/)[0])
       }
       if (obj.widthColumn != null) {
@@ -1043,11 +1176,21 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         this.side = eval(obj.sideColumn.split(/\*\d/)[0].split(/\/\d/)[0])
       }
       if (obj.xpositionColumn != null) {
-        obj.set('left', graph.left + eval(obj.xpositionColumn))
+        let xpos=eval(obj.xpositionColumn)
+        if (graph.xpositionColumn != null) {
+          xpos += eval(graph.xpositionColumn)
+        }
+        obj.set('left', maingraph.left + xpos + 4)
+        
         this.xposition = eval(obj.xpositionColumn.split(/\*\d/)[0].split(/\/\d/)[0])
       }
       if (obj.ypositionColumn != null) {
-        obj.set('top', graph.top + (graph.height * graph.scaleY) - eval(obj.ypositionColumn) - obj.height)
+        let ypos = eval(obj.ypositionColumn)
+        if (graph.ypositionColumn != null) {
+          ypos += eval(graph.ypositionColumn)
+        }
+
+        obj.set('top', maingraph.top + (maingraph.height * maingraph.scaleY) - ypos - (obj.height * obj.scaleY) - 4)
         this.yposition = eval(obj.ypositionColumn.split(/\*\d/)[0].split(/\/\d/)[0])
       }
       if (obj.areaColumn != null) {
@@ -1100,18 +1243,18 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
     this.selectedObject.graphname = val;
     let value = this.rowIndex
     if (this.selectedObject.xpositionColumn != null) {
-      this.xposition = eval(this.selectedObject.xpositionColumn) ;
+      this.xposition = eval(this.selectedObject.xpositionColumn);
       this.selectedObject.set('left', eval(this.selectedObject.xpositionColumn) + this.graph.left);
     }
     else {
       this.xposition = this.selectedObject.left - this.graph.left;
     }
     if (this.selectedObject.ypositionColumn != null) {
-        this.yposition = eval(this.selectedObject.ypositionColumn)
-        this.selectedObject.set('top', this.graph.top + (this.graph.height * this.graph.scaleY) - eval(this.selectedObject.ypositionColumn) - (this.selectedObject.height * this.selectedObject.scaleY))
-      }
-      else {
-        this.yposition = this.graph.top + (this.graph.height * this.graph.scaleY) - this.selectedObject.top - (this.selectedObject.height * this.selectedObject.scaleY);
+      this.yposition = eval(this.selectedObject.ypositionColumn)
+      this.selectedObject.set('top', this.graph.top + (this.graph.height * this.graph.scaleY) - eval(this.selectedObject.ypositionColumn) - (this.selectedObject.height * this.selectedObject.scaleY))
+    }
+    else {
+      this.yposition = this.graph.top + (this.graph.height * this.graph.scaleY) - this.selectedObject.top - (this.selectedObject.height * this.selectedObject.scaleY);
     }
     this.selectedObject.setCoords();
     this.canvas.renderAll()
@@ -1169,7 +1312,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
         if (this.selectedObject.xpositionColumn != null) {
           if (this.selectedObject.xpositionColumn.indexOf('*') > -1) {
-            this.xposition = eval(this.selectedObject.xpositionColumn.split(/\*\d/)[0])
+            this.xposition = eval(this.selectedObject.xpositionColumn.split(/\*\d/)[0]) 
             this.xPositionOperator = '*';
             this.xPositionOperand = this.selectedObject.xpositionColumn.split('*')[1]
           }
@@ -1180,7 +1323,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           }
         }
         else {
-          this.xposition = this.selectedObject.left - this.graph.left
+          this.xposition = this.selectedObject.left - this.graph.left - 4
           this.selectedObject.mappedxposition = ''
         }
         if (this.selectedObject.ypositionColumn != null) {
@@ -1196,19 +1339,19 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           }
         }
         else {
-          this.yposition = this.graph.top + (this.graph.height * this.graph.scaleY) - this.selectedObject.top - this.selectedObject.height;
+          this.yposition = this.graph.top + (this.graph.height * this.graph.scaleY) - this.selectedObject.top - (this.selectedObject.height * this.selectedObject.scaleY) - 4;
           this.selectedObject.mappedyposition = ''
         }
 
-        if (this.selectedObject.typename == 'Rectangle' || this.selectedObject.typename == 'Line') {
+        if (this.selectedObject.typename == 'Rectangle' ) {
           if (this.selectedObject.areaColumn != null) {
             this.length = (Math.sqrt(eval(this.selectedObject.areaColumn) / (this.selectedObject.lratio * this.selectedObject.wratio))) * this.selectedObject.lratio
             this.width = (Math.sqrt(eval(this.selectedObject.areaColumn) / (this.selectedObject.lratio * this.selectedObject.wratio))) * this.selectedObject.wratio
             this.area = eval(this.selectedObject.areaColumn)
             this.lengthOperator = '*';
-            this.lengthOperand = '1';
+            this.lengthOperand = 1;
             this.widthOperator = '*';
-            this.widthOperand = '1';
+            this.widthOperand = 1;
           }
           else {
             if (this.selectedObject.heightColumn != null) {
@@ -1261,19 +1404,55 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
               this.selectedObject.mappedwidth = ''
               this.selectedObject.mappedarea = ''
             }
-            this.area = this.width * this.length;
+            this.area = eval(this.width + this.widthOperator + this.widthOperand) * eval(this.length + this.lengthOperator + this.lengthOperand);
           }
 
           this.visibility = { 'position': true, 'color': true, 'length': true, 'width': true, 'side': false, 'radius': false, 'area': true, 'rotation': true, 'graph': true }
+          if (this.selectedObject.typename == 'Line') {
+            this.visibility = { 'position': true, 'color': true, 'length': true, 'width': false, 'side': false, 'radius': false, 'area': false, 'rotation': true, 'graph': true }
+          }
+          this.selectedObject.selectable = true;
         }
-        else if (this.selectedObject.typename == 'Line') {
 
-          this.visibility = { 'position': true, 'color': true, 'length': true, 'width': false, 'side': false, 'radius': false, 'area': false, 'rotation': true, 'graph': true }
+        if (this.selectedObject.typename == 'Line') {
+
+          if (this.selectedObject.heightColumn != null) {
+            if (this.selectedObject.heightColumn.indexOf('*') > -1) {
+              this.length = eval(this.selectedObject.heightColumn.split(/\*\d/)[0])
+              this.lengthOperator = '*';
+              this.lengthOperand = this.selectedObject.heightColumn.split('*')[1]
+            }
+            else {
+              this.length = eval(this.selectedObject.heightColumn.split(/\/\d/)[0])
+              this.lengthOperator = '/';
+              this.lengthOperand = this.selectedObject.heightColumn.split('/')[1]
+            }
+          }
+          else {
+            this.lengthOperand = 10;
+            this.lengthOperator = '*';
+            if (this.lengthOperator == '*') {
+              this.length = this.selectedObject.width / this.lengthOperand;
+            }
+            else if (this.lengthOperator == '/') {
+              this.length = this.selectedObject.width * this.lengthOperand;
+            }
+            this.selectedObject.heightColumn = this.length + this.lengthOperator + this.lengthOperand;
+            this.selectedObject.mappedheight = ''
+            this.selectedObject.mappedarea = ''
+          }
+          
+
+          this.visibility = { 'position': true, 'color': true, 'length': true, 'width': true, 'side': false, 'radius': false, 'area': true, 'rotation': true, 'graph': true }
+          if (this.selectedObject.typename == 'Line') {
+            this.visibility = { 'position': true, 'color': true, 'length': true, 'width': false, 'side': false, 'radius': false, 'area': false, 'rotation': true, 'graph': true }
+          }
+          this.selectedObject.selectable = true;
         }
+
         else if (this.selectedObject.typename == 'Graph') {
-          this.xposition = this.selectedObject.left;
-          this.yposition = this.selectedObject.top;
-          this.visibility = { 'position': true, 'color': false, 'length': false, 'width': false, 'side': false, 'radius': false, 'area': false, 'rotation': false }
+          
+          this.visibility = { 'position': true, 'color': false, 'length': false, 'width': false, 'side': false, 'radius': false, 'area': false, 'rotation': false , 'graph':true}
         }
         else if (this.selectedObject.typename == 'Square') {
 
@@ -1283,7 +1462,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             this.selectedObject.mappedside = ''
             this.area = this.side * this.side
             this.sideOperator = '*';
-            this.sideOperand = '1';
+            this.sideOperand = 1;
           }
           else if (this.selectedObject.sideColumn != null) {
             if (this.selectedObject.sideColumn.indexOf('*') > -1) {
@@ -1310,7 +1489,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             this.selectedObject.mappedside = ''
             this.selectedObject.mappedarea = ''
           }
-          this.area = this.side * this.side;
+          this.area = eval((this.side +this.sideOperator + this.sideOperand) +'*'+ (this.side + this.sideOperator + this.sideOperand));
           this.visibility = { 'position': true, 'color': true, 'length': false, 'width': false, 'side': true, 'radius': false, 'area': true, 'rotation': true, 'graph': true }
         }
         else if (this.selectedObject.typename == 'Circle') {
@@ -1348,8 +1527,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
               this.selectedObject.mappedradius = ''
               this.selectedObject.mappedarea = ''
             }
-            this.area = this.width * this.length;
-            this.area = 3.14 * this.radius * this.radius;
+            this.area = 3.14 * eval((this.radius + this.radiusOperator + this.radiusOperand) + '*' + (this.radius + this.radiusOperator + this.radiusOperand));
           }
 
           this.visibility = { 'position': true, 'color': true, 'length': false, 'width': false, 'side': false, 'radius': true, 'area': true, 'rotation': false, 'graph': true }
@@ -1360,9 +1538,9 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             this.radiusy = (Math.sqrt(eval(this.selectedObject.areaColumn) / (3.14 * this.selectedObject.rxRatio * this.selectedObject.ryRatio))) * this.selectedObject.ryRatio;
             this.area = eval(this.selectedObject.areaColumn)
             this.radiusxOperator = '*';
-            this.radiusxOperand = '1';
+            this.radiusxOperand = 1;
             this.radiusyOperator = '*';
-            this.radiusyOperand = '1';
+            this.radiusyOperand = 1;
           }
           else {
             if (this.selectedObject.radiusxColumn != null) {
@@ -1415,7 +1593,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
               this.selectedObject.mappedradiusy = ''
               this.selectedObject.mappedarea = ''
             }
-            this.area = 3.14 * this.radiusx * this.radiusy;
+            this.area = 3.14 * eval((this.radiusx + this.radiusxOperator + this.radiusxOperand) + '*' + (this.radiusy + this.radiusyOperator + this.radiusyOperand));
           }
 
           this.visibility = { 'position': true, 'color': true, 'length': false, 'width': false, 'side': false, 'radiusx': true, 'radiusy': true, 'area': true, 'rotation': true, 'graph': true }
@@ -1528,7 +1706,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
           this.bottomcanvases.push(this.bottomcanvas)
         }
-        if (source.belongsto.indexOf('mapper') > -1) {
+        else if (source.belongsto.indexOf('mapper') > -1) {
           let outputport = this.bottomcanvas.getObjects().find(x => x.belongsto == source.belongsto && x.typename == 'outputport')
           let a = new fabric.Rect({
             left: outputport.left + 60,
@@ -1772,7 +1950,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
             this.radiusx = (Math.sqrt(eval(this.selectedObject.areaColumn) / (this.selectedObject.rxRatio * this.selectedObject.ryRatio * 3.14))) * this.selectedObject.rxRatio
             this.radiusxOperator = '*'
             this.radiusxOperand = 1;
-            this.radiusy = (Math.sqrt(eval(this.selectedObject.areaColumn) / (this.selectedObject.rxRatio * this.selectedObject.ryRatio*3.14))) * this.selectedObject.ryRatio
+            this.radiusy = (Math.sqrt(eval(this.selectedObject.areaColumn) / (this.selectedObject.rxRatio * this.selectedObject.ryRatio * 3.14))) * this.selectedObject.ryRatio
             this.radiusyOperator = '*'
             this.radiusyOperand = 1;
 
@@ -2116,7 +2294,11 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
         evaluatable = '(' + evaluatable + ')'
 
         this.length = eval(evaluatable)
-        this.selectedObject.set('height', eval(evaluatable + this.lengthOperator + this.lengthOperand));
+        if (this.selectedObject.typename == 'Line')
+          this.selectedObject.set('width', eval(evaluatable + this.lengthOperator + this.lengthOperand));
+        else 
+          this.selectedObject.set('height', eval(evaluatable + this.lengthOperator + this.lengthOperand));
+
         this.selectedObject.heightColumn = evaluatable + this.lengthOperator + this.lengthOperand;
         this.selectedObject.mappedheight = ui.draggable[0].innerText;
         this.selectedObject.setCoords();
@@ -2139,7 +2321,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
         this.xposition = eval(evaluatable)
         let graph = this.graphs.find(x => x.ID == this.selectedObject.graphname);
-        this.selectedObject.set('left', eval(evaluatable + this.xPositionOperator + this.xPositionOperand) + graph.left);
+        this.selectedObject.set('left', eval(evaluatable + this.xPositionOperator + this.xPositionOperand) + graph.left+5);
         this.selectedObject.xpositionColumn = evaluatable + this.xPositionOperator + this.xPositionOperand;
         this.selectedObject.mappedxposition = ui.draggable[0].innerText;
         this.selectedObject.setCoords();
@@ -2162,7 +2344,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
         this.yposition = eval(evaluatable)
         let graph = this.graphs.find(x => x.ID == this.selectedObject.graphname);
-        this.selectedObject.set('top', graph.top + (graph.height * graph.scaleY) - eval(evaluatable + this.yPositionOperator + this.yPositionOperand) - this.selectedObject.height);
+        this.selectedObject.set('top', graph.top + (graph.height * graph.scaleY) - eval(evaluatable + this.yPositionOperator + this.yPositionOperand) - (this.selectedObject.height * this.selectedObject.scaleY)-4);
         this.selectedObject.ypositionColumn = evaluatable + this.yPositionOperator + this.yPositionOperand;
         this.selectedObject.mappedyposition = ui.draggable[0].innerText;
 
@@ -2303,6 +2485,9 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           evaluatable = evaluatable.replace(new RegExp(this.keys[i], 'g'), 'parseFloat(this.rowData[value]["' + this.keys[i] + '"])');
         }
         evaluatable = '(' + evaluatable + ')'
+        this.selectedObject.set('scaleX', 1)
+        this.selectedObject.set('scaleY', 1)
+
         if (this.selectedObject.typename == 'Rectangle') {
           this.length = (Math.sqrt(eval(evaluatable) / (this.lratio * this.wratio))) * this.lratio
           this.width = (Math.sqrt(eval(evaluatable) / (this.lratio * this.wratio))) * this.wratio
@@ -2321,8 +2506,10 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           this.selectedObject.mappedheight = '';
           this.selectedObject.widthColumn = null;
           this.selectedObject.mappedwidth = '';
-          this.lengthOperand = '1';
-          this.widthOperand = '1';
+          this.lengthOperand = 1;
+          this.widthOperand = 1;
+          this.lengthOperator = '*'
+          this.widthOperator = '*'
         }
         else if (this.selectedObject.typename == 'Square') {
           this.side = Math.sqrt(eval(evaluatable));
@@ -2336,7 +2523,8 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
 
           this.selectedObject.sideColumn = null;
           this.selectedObject.mappedside = '';
-          this.sideOperand = '1';
+          this.sideOperand = 1;
+          this.sideOperator = '*';
         }
         else if (this.selectedObject.typename == 'Circle') {
           this.radius = Math.sqrt(eval(evaluatable) / 3.14);
@@ -2349,6 +2537,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           this.selectedObject.radiusColumn = null;
           this.selectedObject.mappedradius = '';
           this.radiusOperand = 1;
+          this.radiusOperator = '*';
         }
         else if (this.selectedObject.typename == 'Ellipse') {
           this.radiusx = (Math.sqrt(eval(evaluatable) / (this.rxRatio * this.ryRatio))) * this.rxRatio
@@ -2366,9 +2555,12 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           this.selectedObject.mappedradiusx = '';
           this.selectedObject.rxRatioColumn = null;
           this.selectedObject.mappedradiusy = '';
-          this.radiusxOperand = '1';
-          this.radiusyOperand = '1';
+          this.radiusxOperand = 1;
+          this.radiusyOperand = 1;
+          this.radiusxOperator = '*'
+          this.radiusyOperator = '*'
         }
+        this.selectedObject.setCoords();
       }
     });
 
@@ -2570,7 +2762,7 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           }
         }
         else if (ui.draggable[0].id == 'mapperWidget') {
-          let mapperheight = 150
+          let mapperheight = 200
           let belongto = 'mapper ' + (this.bottomcanvas.getObjects().filter(x => x.mainname != null && x.mainname == 'mapper').length + 1);
 
           let leftinput = new fabric.Circle({
@@ -2953,9 +3145,10 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
           shape.ID = 'Ellipse ' + (this.canvas.getObjects().filter(x => x.typename == 'Ellipse').length + 1);
         }
         if (ui.draggable[0].id == 'pathMarkPrototype') {
-          shape.width = 0;
+          shape.set('height', 2);
+          shape.set('width',100)
           shape.typename = 'Line'
-          shape.angle = -90;
+          shape.angle = 0;
           shape.ID = 'Line ' + (this.canvas.getObjects().filter(x => x.typename == 'Line').length + 1);
         }
         this.canvas.add(shape);
@@ -2963,17 +3156,103 @@ export class DrawVisualComponent implements OnInit, AfterViewInit {
       }
     });
     this.canvas.on('object:moving', (event) => {
-      this.xposition = event.target.left - this.graph.left;
-      this.yposition = this.graph.top + (this.graph.height * this.graph.scaleY) - event.target.top - (event.target.height * event.target.scaleY);
+      this.xposition = event.target.left - this.graph.left - 4;
+      this.yposition = this.graph.top + (this.graph.height * this.graph.scaleY) - event.target.top - (event.target.height * event.target.scaleY) - 4;
+      this.xPositionOperand = 1;
+      this.yPositionOperand = 1;
       this.selectedObject.xpositionColumn = null
       this.selectedObject.ypositionColumn = null
-      this.selectedObject.mappedxPosition = '';
-      this.selectedObject.mappedyPosition = '';
+      this.selectedObject.mappedxposition = '';
+      this.selectedObject.mappedyposition = '';
+      this.selectedObject.areaColumn = null;
+      this.selectedObject.mappedarea = '';
     });
     this.canvas.on('object:scaling', (event) => {
-      this.length = event.target.getHeight();
-      this.width = event.target.getWidth();
-      this.area = this.length * this.width;
+      if (this.selectedObject.typename == 'Rectangle') {
+        this.length = event.target.getHeight();
+        this.width = event.target.getWidth();
+        this.area = this.length * this.width;
+        this.selectedObject.areaColumn = null;
+        this.selectedObject.mappedarea = '';
+        this.selectedObject.heightColumn = null;
+        this.selectedObject.mappedheight = '';
+        this.selectedObject.widthColumn = null;
+        this.selectedObject.mappedwidth = '';
+        this.lengthOperator = '*'
+        this.lengthOperand = 1;
+        this.widthOperator = '*';
+        this.widthOperand = 1;
+      }
+      else if (this.selectedObject.typename == 'Square') {
+        this.side = event.target.getHeight();
+        this.selectedObject.set('width', this.side)
+        this.selectedObject.set('height', this.side)
+
+        this.area = this.side * this.side;
+        this.selectedObject.areaColumn = null;
+        this.selectedObject.mappedarea = '';
+        this.selectedObject.sideColumn = null;
+        this.selectedObject.mappedside = '';
+        this.canvas.renderAll();
+
+        this.sideOperator = '*';
+        this.sideOperand = 1;
+      }
+      else if (this.selectedObject.typename == 'Square') {
+        this.side = event.target.getHeight();
+        this.selectedObject.set('width', this.side)
+        this.selectedObject.set('height', this.side)
+
+        this.area = this.side * this.side;
+        this.selectedObject.areaColumn = null;
+        this.selectedObject.mappedarea = '';
+        this.selectedObject.sideColumn = null;
+        this.selectedObject.mappedside = '';
+        this.canvas.renderAll();
+
+        this.sideOperator = '*';
+        this.sideOperand = 1;
+      }
+      else if (this.selectedObject.typename == 'Circle') {
+        this.radius = event.target.getRadiusX();
+        this.selectedObject.set('radius', this.radius)
+
+        this.area = 3.14 * this.radius * this.radius;
+        this.selectedObject.areaColumn = null;
+        this.selectedObject.mappedradius = '';
+        this.selectedObject.radiusColumn = null;
+        this.canvas.renderAll();
+
+        this.radiusOperator = '*';
+        this.radiusOperand = 1;
+      }
+      else if (this.selectedObject.typename == 'Line') {
+        this.length = event.target.getWidth();
+
+        this.selectedObject.set('width', 2)
+        this.selectedObject.heightColumn = null;
+        this.selectedObject.mappedheight = '';
+        this.lengthOperator = '*'
+        this.lengthOperand = 1;
+      }
+      else if (this.selectedObject.typename == 'Ellipse') {
+        this.radiusx = event.target.getRx();
+        this.radiusy = event.target.getRy();
+
+        this.area = 3.14 * this.radiusx * this.radiusy;
+        this.selectedObject.areaColumn = null;
+        this.selectedObject.mappedradiusx = '';
+        this.selectedObject.radiusxColumn = null;
+        this.selectedObject.mappedradiusy = '';
+        this.selectedObject.radiusyColumn = null;
+        this.canvas.renderAll();
+
+        this.radiusxOperator = '*';
+        this.radiusxOperand = 1;
+
+        this.radiusyOperator = '*';
+        this.radiusyOperand = 1;
+      }
     });
   }
 

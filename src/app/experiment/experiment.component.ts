@@ -23,8 +23,8 @@ export class ExperimentComponent implements OnInit {
   trainPercent: number = 70;
   testPercent: number = 30;
   loadImage(e) {
-    this.imgHeight = e.path[0].naturalHeight;
-    this.imgWidth = e.path[0].naturalWidth;
+    this.imgHeight = e.srcElement.clientHeight;
+    this.imgWidth = e.srcElement.clientWidth;
   }
 
   revertDataSelection(col) {
@@ -58,6 +58,7 @@ export class ExperimentComponent implements OnInit {
   url: string = 'http://localhost:5000/';
   trainlogs: any ;
   compareResults: boolean = false;
+
   train() {
     const headers = new HttpHeaders().set('Access-Control-Allow-Origin', '*');
     let interval = setInterval(() => {

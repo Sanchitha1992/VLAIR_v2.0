@@ -21,7 +21,7 @@
               {{val.key}}
             </th>
           </tr>
-          <tr *ngFor="let row of rowData;let i =index">
+          <tr *ngFor="let row of rowData;let i =index" [style.background-color]="i==highlightOnHoverIndex ? 'yellow' : 'white'">
             <td><input type="radio" name="rowIndex" [value]="i" [ngModel]="rowIndex" (ngModelChange)="changeRow($event)" /></td>
             <td *ngFor="let val of row|keyvalue">
               {{val.value}}
@@ -33,90 +33,78 @@
     <div style="flex:72.5%">
       <div style="height:320px;">
         <div style="display:flex;">
-          <div style="flex:82.5%;">
-            <div class="inlinediv" style="padding-left:3px;padding-right:13px;padding-top:1px;cursor:default">
-              <ul>
-                <li><img src="assets/images/left_arrow.png" width="25" height="25" style="margin-left:10px" (click)="goback()" /></li>
-              </ul>
+          <div style="width:80%;">
+            <div class="inlinediv" style="padding-right:8px;cursor:default">
+
+              <img src="assets/images/left_arrow.png" width="20" height="20" style="margin:15px" (click)="goback()" />
               <div style="text-align:center;padding-left:9px">Previous</div>
             </div>
-            <div class="inlinediv" style="padding-left:15px;padding-right:15px;padding-top:1px;cursor:default">
-              <ul [style.background-color]="selection==true ? 'lightgrey' : 'white'">
-                <li id="selectionPrototype" (click)="changeselection()" class="circularBorder"><a><i class="fa fa-square" style="font-size:25px"></i></a></li>
-              </ul>
+            <div class="inlinediv" style="cursor:default">
+              <div [style.background-color]="selection==true ? 'lightgrey' : 'white'" style="margin-left:10px;margin-right:10px">
+                <i class="fa fa-square" style="font-size:20px;margin:15px" (click)="changeselection()"></i>
+              </div>
               <div style="text-align:center">View Port</div>
             </div>
-            <div class="inlinediv" style="padding-left:5px;padding-right:13px;padding-top:1px;cursor:default">
-              <ul>
-                <li><img src="assets/images/coordinate.png" width="25" height="25" style="margin-left:10px" (click)="createCoordinate()" /></li>
-              </ul>
+            <div class="inlinediv" style="padding-right:8px;cursor:default">
+              <img src="assets/images/coordinate.png" width="20" height="20" style="margin:15px" (click)="createCoordinate()" />
               <div style="text-align:center;padding-left:5px;">Coordinates</div>
             </div>
-            <div class="inlinediv" style="padding-left:5px;padding-right:13px;padding-top:1px;margin-top:10px;cursor:pointer" (click)="undo()">
-              <ul>
-                <li><img src="assets/images/undo_new.png" width="25" height="25" style="margin-left:10px" /></li>
-              </ul>
-
+            <div class="inlinediv" style="padding-right:8px;cursor:pointer">
+              <img src="assets/images/undo_new.png" width="20" height="20" style="margin:15px" (click)="delete()" />
               <div style="text-align:center;padding-left:5px;">Delete</div>
             </div>
-            <div class="inlinediv" style="padding-left:5px;padding-right:13px;cursor:pointer;padding-top:1px" (click)="clearAll(canvas)">
-              <ul>
-                <li><img src="assets/images/clear all.jpg" width="25" height="25" style="margin-left:10px" /></li>
-              </ul>
-              <div style="text-align:center;padding-left:5px;">Clear All</div>
+            <div class="inlinediv" style="padding-right:8px;cursor:pointer;">
+              <img src="assets/images/clear all.jpg" width="20" height="20" style="margin:15px" (click)="clearAll(canvas)" />
+              <div style="text-align:center;padding-left:1px;">Clear All</div>
             </div>
-            <div class="inlinediv">
-              <ul class="menu nonSelection" style="padding:3px">
-                <li id="rectanglePrototype" draggable="true" class="dragElement circularBorder"><a><i class="mark-rectangle" style="font-size: 20px;"></i></a></li>
-                <li id="squarePrototype" draggable="true" class="dragElement circularBorder"><a><i class="mark-square" style="font-size: 20px;"></i></a></li>
-                <li id="circlePrototype" draggable="true" class="dragElement circularBorder" style="margin-right: 1px; margin-bottom: 0.5px;"><a><i class="mark-circle" style="font-size: 20px;"></i></a></li>
-                <li id="pathMarkPrototype" draggable="true" class="dragElement circularBorder"><a><i class="mark-pathMark" style="font-size: 20px;"></i></a></li>
-                <li id="ellipsePrototype" draggable="true" class="dragElement circularBorder"><a><i class="mark-ellipse" style="font-size: 20px;"></i></a></li>
-              </ul>
+            <div class="inlinediv" style="padding-left:1px;padding-right:1px">
+              <div id="rectanglePrototype" style="margin:14px 10px 14px 10px;" draggable="true" class="dragElement circularBorder inlinediv"><i class="mark-rectangle" style="font-size: 20px;"></i></div>
+              <div id="squarePrototype" draggable="true" style="margin:14px 10px 14px 10px;" class="dragElement circularBorder inlinediv"><i class="mark-square" style="font-size: 20px;"></i></div>
+              <div id="circlePrototype" draggable="true" style="margin:14px 10px 14px 10px;" class="dragElement circularBorder inlinediv"><i class="mark-circle" style="font-size: 20px;"></i></div>
+              <div id="pathMarkPrototype" draggable="true" style="margin:14px 10px 14px 10px;" class="dragElement circularBorder inlinediv"><i class="mark-pathMark" style="font-size: 20px;"></i></div>
+              <div id="ellipsePrototype" draggable="true" style="margin:14px 10px 14px 10px;" class="dragElement circularBorder inlinediv"><i class="mark-ellipse" style="font-size: 20px;"></i></div>
               <div style="text-align:center;">
                 Shapes
               </div>
             </div>
-            <div class="inlinediv" style="padding-top: 16px;padding-left:5px;padding-right:5px">
-              <ul class="menu nonSelection">
-                <li>
-                  <select style="font-size:12px;padding-top: 1.5px" [ngModel]="canvasMode" (ngModelChange)="onCanvasMode($event)">
-                    <option>Single</option>
-                    <option>Collective</option>
-                  </select>
-                </li>
-              </ul>
-              <div style="text-align:center;padding-top: 8px;">View Mode</div>
+            <div class="inlinediv" style="padding-top: 10px;padding-left:5px;padding-right:5px">
+              <div style="margin:10px">
+                <select style="font-size:10px" [ngModel]="canvasMode" (ngModelChange)="onCanvasMode($event)">
+                  <option>Single</option>
+                  <option>Collective</option>
+                </select>
+              </div>
+              <div style="text-align:center;padding-top:3px;">View Mode</div>
             </div>
-            <div class="inlinediv" style="padding-left:15px;padding-right:15px;padding-bottom:23px;padding-top:12px;cursor:pointer">
-              <div style="display: inline-block; background-color: black; color: white;padding:3px;" class="keys" (click)="apply()">
+            <div class="inlinediv" style="padding-top: 10px;padding-left:5px;padding-right:5px;background-color: black;color: white;" (click)="apply()">
+              <div style="margin:12px">
                 Apply All
               </div>
+              <div style="text-align:center;padding-top:3px;">&nbsp;</div>
             </div>
-            <div class="inlinediv" style="padding-left:5px;padding-right:13px;padding-top:1px;cursor:default">
-              <ul>
-                <li><img src="assets/images/right_arrow.png" width="25" height="25" style="margin-left:10px" (click)="navigateML()" /></li>
-              </ul>
-              <div style="text-align:center;padding-left:5px;">Next</div>
+            <div class="inlinediv" style="padding-right:8px;cursor:default">
+              <img src="assets/images/right_arrow.png" width="20" height="20" style="margin:15px" (click)="navigateML()"  />
+              <div style="text-align:center;padding-left:9px">Next</div>
             </div>
             <canvas id="maincanvas" style="width:100%;height:100%"></canvas>
           </div>
-          <div style="flex:17.5%;height:320px;overflow:auto;border:black 1px solid;border-bottom: 0px;border-top:0px" [style.display]="selectedObject!=null?'block':'none'">
-            <div>
+          <div style="width:30%;height:320px;overflow:auto;" [style.display]="selectedObject!=null?'block':'none'">
+            <div style="border: black 1px solid; border-bottom: 0px; border-top: 0px">
               <div style="text-align:center" [style.display]="visibility!=null && visibility['position']==true?'block':'none'">
                 <div>
                   <span style="font-size:12px">
                     <b>
                       {{selectedObject!=null?selectedObject.typename:''}}:
-                      <input type="text" *ngIf="selectedObject!=null" [(ngModel)]="selectedObject.ID" style="width:70px" />
+                      <input type="text" *ngIf="selectedObject!=null" [(ngModel)]="selectedObject.ID" style="width:90px" />
                     </b>
                   </span>
                 </div>
                 <hr />
               </div>
-              <div [style.display]="visibility!=null && visibility['position']==true?'block':'none'">
-                <div style="font-weight:bold;text-align:left">&nbsp;Position:</div>
-                <div id="divxposition" style="margin-left: 10px;height:30px">
+
+              <div [style.display]="visibility!=null && visibility['position']==true?'block':'none'" class="row" style="margin:0px">
+                <div style="font-weight:bold;">&nbsp;Position:</div>
+                <div id="divxposition" style="margin-left: 10px;height:30px" class="col">
                   <span>X:</span>
                   <input id="xposition" [style.background-color]="selectedObject?.mappedxposition!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedxposition!=''?'white':'black'"
                          [title]="selectedObject?.mappedxposition" type="text" class="rightPanelTextbox" [ngModel]="xposition" (ngModelChange)="changex($event)">
@@ -126,7 +114,9 @@
                   </select>
                   &nbsp;<select [ngModel]="xPositionOperand" (ngModelChange)="changexOperand($event)">
                     <option>1</option>
+                    <option>5</option>
                     <option>10</option>
+                    <option>50</option>
                     <option>100</option>
                     <option>1000</option>
                   </select>
@@ -141,209 +131,215 @@
                   </select>
                   &nbsp;<select [ngModel]="yPositionOperand" (ngModelChange)="changeyOperand($event)">
                     <option>1</option>
+                    <option>5</option>
                     <option>10</option>
+                    <option>50</option>
                     <option>100</option>
                     <option>1000</option>
                   </select>
                 </div>
                 <hr>
               </div>
-            </div>
-            <div [style.display]="visibility!=null && visibility['graph']==true?'block':'none'">
-              <div style="font-weight:bold;text-align:left">
-                &nbsp;Coordinates:
+              <div [style.display]="visibility!=null && visibility['graph']==true?'block':'none'">
+                <div style="font-weight:bold;text-align:left">
+                  &nbsp;Coordinates:
+                </div>
+                <div style="display:flex" id="graphdiv">
+                  <div style="flex:50%;margin-left:10px">
+                    <div *ngIf="selectedObject!=null">
+                      <select [ngModel]="selectedObject.graphname" (ngModelChange)="changeGraph($event)">
+                        <ng-container *ngFor="let graph of graphs">
+                          <option *ngIf="(selectedObject.typename=='Graph' || 1==1) && selectedObject.ID!=graph.ID">{{graph.ID}}</option>
+                        </ng-container>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <hr>
               </div>
-              <div style="display:flex" id="graphdiv">
-                <div style="flex:50%;margin-left:10px">
-                  <div *ngIf="selectedObject!=null">
-                    <select [ngModel]="selectedObject.graphname" (ngModelChange)="changeGraph($event)">
-                      <ng-container *ngFor="let graph of graphs">
-                        <option *ngIf="(selectedObject.typename=='Graph' || 1==1) && selectedObject.ID!=graph.ID">{{graph.ID}}</option>
-                      </ng-container>
+              <div [style.display]="visibility!=null && visibility['color']==true?'block':'none'">
+                <div style="font-weight:bold;text-align:left">
+                  &nbsp;Color:
+                </div>
+                <div style="display:flex" id="colorPaneldiv">
+                  <div style="flex:50%;margin-left:10px">
+                    <input id="colorPanel" type="color" [title]="colorTitle" (ngModelChange)="changeColor($event)" [ngModel]="color" />
+                  </div>
+                </div>
+
+                <hr>
+              </div>
+              <div [style.display]="visibility!=null && visibility['rotation']==true?'block':'none'">
+                <div style="font-weight:bold;text-align:left">
+                  &nbsp;Rotation:
+                </div>
+                <div style="display:flex;height:30px" id="rotationPaneldiv">
+                  <div style="flex:50%;margin-left:10px">
+                    <input id="rotationPanel" [style.background-color]="selectedObject?.mappedrotate!=''?'#3c1361':'white'" [title]="selectedObject?.mappedrotate" [style.color]="selectedObject?.mappedrotate!=''?'white':'#3c1361'"
+                           class="rightPanelTextbox" type="text" (ngModelChange)="changeRotation($event)" [ngModel]="rotation" />
+                  </div>
+                </div>
+
+                <hr>
+              </div>
+              <div [style.display]="visibility!=null && visibility['length']==true?'block':'none'">
+                <div>
+                  <div style="font-weight:bold;text-align:left">&nbsp;Length:</div>
+                </div>
+                <div>
+                  <div id="divlength" style="margin-left:10px;margin-top:5px;height:30px">
+                    <input id="length" [style.background-color]="selectedObject?.mappedheight!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedheight!=''?'white':'black'"
+                           [title]="selectedObject?.mappedheight" type="text" class="rightPanelTextbox" [ngModel]="length" (ngModelChange)="changelength($event)" />
+                    &nbsp;<select [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Rectangle' && this.selectedObject.areaColumn!=null" [ngModel]="lengthOperator" (ngModelChange)="changeLengthOperator($event)">
+                      <option>*</option>
+                      <option>/</option>
+                    </select>
+                    &nbsp;<select [ngModel]="lengthOperand" (ngModelChange)="changeLengthOperand($event)" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Rectangle' && this.selectedObject.areaColumn!=null">
+                      <option>1</option>
+                      <option>5</option>
+                      <option>10</option>
+                      <option>20</option>
+                      <option>100</option>
+                      <option>1000</option>
                     </select>
                   </div>
                 </div>
+                <hr>
               </div>
-
-              <hr>
-            </div>
-            <div [style.display]="visibility!=null && visibility['color']==true?'block':'none'">
-              <div style="font-weight:bold;text-align:left">
-                &nbsp;Color:
-              </div>
-              <div style="display:flex" id="colorPaneldiv">
-                <div style="flex:50%;margin-left:10px">
-                  <input id="colorPanel" type="color" [title]="colorTitle" (ngModelChange)="changeColor($event)" [ngModel]="color" />
+              <div [style.display]="visibility!=null && visibility['width']==true?'block':'none'">
+                <div style="font-weight:bold;text-align:left">
+                  &nbsp;Width:
                 </div>
-              </div>
-
-              <hr>
-            </div>
-            <div [style.display]="visibility!=null && visibility['rotation']==true?'block':'none'">
-              <div style="font-weight:bold;text-align:left" >
-                &nbsp;Rotation:
-              </div>
-              <div style="display:flex;height:30px" id="rotationPaneldiv">
-                <div style="flex:50%;margin-left:10px">
-                  <input id="rotationPanel" [style.background-color]="selectedObject?.mappedrotate!=''?'#3c1361':'white'" [title]="selectedObject?.mappedrotate" [style.color]="selectedObject?.mappedrotate!=''?'white':'#3c1361'"
-                         class="rightPanelTextbox" type="text" (ngModelChange)="changeRotation($event)" [ngModel]="rotation" />
-                </div>
-              </div>
-
-              <hr>
-            </div>
-            <div [style.display]="visibility!=null && visibility['length']==true?'block':'none'">
-              <div>
-                <div style="font-weight:bold;text-align:left">&nbsp;Length:</div>
-              </div>
-              <div>
-                <div id="divlength" style="margin-left:10px;margin-top:5px;height:30px">
-                  <input id="length" [style.background-color]="selectedObject?.mappedheight!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedheight!=''?'white':'black'"
-                         [title]="selectedObject?.mappedheight" type="text" class="rightPanelTextbox" [ngModel]="length" (ngModelChange)="changelength($event)" />
-                  &nbsp;<select [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Rectangle' && this.selectedObject.areaColumn!=null" [ngModel]="lengthOperator" (ngModelChange)="changeLengthOperator($event)">
-                    <option>*</option>
-                    <option>/</option>
-                  </select>
-                  &nbsp;<select [ngModel]="lengthOperand" (ngModelChange)="changeLengthOperand($event)" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Rectangle' && this.selectedObject.areaColumn!=null">
-                    <option>1</option>
-                    <option>10</option>
-                    <option>20</option>
-                    <option>100</option>
-                    <option>1000</option>
-                  </select>
-                </div>
-              </div>
-              <hr>
-            </div>
-            <div [style.display]="visibility!=null && visibility['width']==true?'block':'none'">
-              <div style="font-weight:bold;text-align:left">
-                &nbsp;Width:
-              </div>
-              <div>
-                <div id="divwidth" style="margin-left: 10px; margin-top: 5px; height: 30px">
-                  <input id="width" [style.background-color]="selectedObject?.mappedwidth!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedwidth!=''?'white':'black'"
-                         [title]="selectedObject?.mappedwidth" type="text" class="rightPanelTextbox" [ngModel]="width" (ngModelChange)="changewidth($event)" />
-                  &nbsp;<select [ngModel]="widthOperator" (ngModelChange)="changeWidthOperator($event)" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Rectangle' && this.selectedObject.areaColumn!=null">
-                    <option>*</option>
-                    <option>/</option>
-                  </select>
-                  &nbsp;<select [ngModel]="widthOperand" (ngModelChange)="changeWidthOperand($event)" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Rectangle' && this.selectedObject.areaColumn!=null">
-                    <option>1</option>
-                    <option>10</option>
-                    <option>20</option>
-                    <option>100</option>
-                    <option>1000</option>
-                  </select>
-                </div>
-              </div>
-              <hr>
-            </div>
-            <div [style.display]="visibility!=null && visibility['side']==true?'block':'none'">
-              <div style="font-weight:bold;text-align:left">
-                &nbsp;Side:
-              </div>
-              <div>
-                <div id="divside" style="margin-left: 10px; margin-top: 5px; height: 30px">
-                  <input id="side" [style.background-color]="selectedObject?.mappedside!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedside!=''?'white':'black'"
-                         type="text" class="rightPanelTextbox" [ngModel]="side" (ngModelChange)="changeside($event)" [title]="selectedObject?.mappedside"> &nbsp;<select [ngModel]="sideOperator" (ngModelChange)="changeSideOperator($event)" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Square' && this.selectedObject.areaColumn!=null">
-                    <option>*</option>
-                    <option>/</option>
-                  </select>
-                  &nbsp;<select [ngModel]="sideOperand" (ngModelChange)="changeSideOperand($event)" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Square' && this.selectedObject.areaColumn!=null">
-                    <option>1</option>
-                    <option>10</option>
-                    <option>100</option>
-                    <option>1000</option>
-                  </select>
-                </div>
-              </div>
-              <hr>
-            </div>
-            <div [style.display]="visibility!=null && visibility['radius']==true?'block':'none'">
-              <div style="font-weight:bold;text-align:left">
-                &nbsp;Radius:
-              </div>
-              <div>
-                <div id="divradius" style="margin-left: 10px; margin-top: 5px; height: 30px">
-                  <input [style.background-color]="selectedObject?.mappedradius!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedradius!=''?'white':'black'"
-                         id="radius" type="text" class="rightPanelTextbox" [title]="selectedObject?.mappedradius" [ngModel]="radius" (ngModelChange)="changeradius($event)" />
-                  &nbsp;<select [ngModel]="radiusOperator" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Circle' && this.selectedObject.areaColumn!=null"  (ngModelChange)="changeRadiusOperator($event)">
-                    <option>*</option>
-                    <option>/</option>
-                  </select>
-                  &nbsp;<select [ngModel]="radiusOperand" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Circle' && this.selectedObject.areaColumn!=null"  (ngModelChange)="changeRadiusOperand($event)">
-                    <option>1</option>
-                    <option>10</option>
-                    <option>100</option>
-                    <option>1000</option>
-                  </select>
-                </div>
-              </div>
-              <hr>
-            </div>
-            <div [style.display]="visibility!=null && visibility['radiusx']==true?'block':'none'">
-              <div style="font-weight:bold;text-align:left">
-                &nbsp;Radius x:
-              </div>
-              <div>
-                <div id="divradiusx" style="margin-left: 10px; margin-top: 5px; height: 30px">
-                  <input [style.background-color]="selectedObject?.mappedradiusx!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedradiusx!=''?'white':'black'"
-                         id="radiusx" type="text" class="rightPanelTextbox" [title]="selectedObject?.mappedradiusx" [ngModel]="radiusx" (ngModelChange)="changeradiusx($event)" />
-                  &nbsp;<select [ngModel]="radiusxOperator" (ngModelChange)="changeRadiusxOperator($event)" [disabled]="selectedObject?.areaColumn!=null">
-                    <option>*</option>
-                    <option>/</option>
-                  </select>
-                  &nbsp;<select [ngModel]="radiusxOperand" (ngModelChange)="changeRadiusxOperand($event)" [disabled]="selectedObject?.areaColumn!=null">
-                    <option>1</option>
-                    <option>10</option>
-                    <option>100</option>
-                    <option>1000</option>
-                  </select>
-                </div>
-              </div>
-              <hr>
-            </div>
-            <div [style.display]="visibility!=null && visibility['radiusy']==true?'block':'none'">
-              <div style="font-weight:bold;text-align:left">
-                &nbsp;Radius y:
-              </div>
-              <div>
-                <div id="divradiusy" style="margin-left: 10px; margin-top: 5px; height: 30px">
-                  <input [style.background-color]="selectedObject?.mappedradiusy!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedradiusy!=''?'white':'black'"
-                         id="radiusy" type="text" class="rightPanelTextbox" [title]="selectedObject?.mappedradiusy" [ngModel]="radiusy" (ngModelChange)="changeradiusy($event)" />
-                  &nbsp;<select [ngModel]="radiusyOperator" (ngModelChange)="changeRadiusyOperator($event)" [disabled]="selectedObject?.areaColumn!=null">
-                    <option>*</option>
-                    <option>/</option>
-                  </select>
-                  &nbsp;<select [ngModel]="radiusyOperand"  [disabled]="selectedObject?.areaColumn!=null" (ngModelChange)="changeRadiusyOperand($event)">
-                    <option>1</option>
-                    <option>10</option>
-                    <option>100</option>
-                    <option>1000</option>
-                  </select>
-                </div>
-              </div>
-              <hr>
-            </div>
-            <div id="divarea" [style.display]="visibility!=null && visibility['area']==true?'block':'none'">
-              <div style="font-weight:bold;text-align:left">&nbsp;Area:</div>
-              <div>
-                <div style="margin-left: 10px; margin-top: 5px; height: 30px">
-                  <input id="area" type="text" [style.background-color]="selectedObject?.mappedarea!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedarea!=''?'white':'black'"
-                         class="rightPanelTextbox" [(ngModel)]="area" [title]="selectedObject?.mappedarea" />
-                  <br />
-                  <div *ngIf="selectedObject!=null && selectedObject.typename=='Rectangle' && selectedObject.areaColumn!=null">
-                    <span>Length ratio: </span><input style="width:30px" [ngModel]="lratio" (blur)="lratioChange($event)" />
-                    <br />
-                    <div style="margin-top:5px">
-                      <span>Width ratio: </span><input style="width:30px" [ngModel]="wratio" (blur)="wratioChange($event)" />
-                    </div>
+                <div>
+                  <div id="divwidth" style="margin-left: 10px; margin-top: 5px; height: 30px">
+                    <input id="width" [style.background-color]="selectedObject?.mappedwidth!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedwidth!=''?'white':'black'"
+                           [title]="selectedObject?.mappedwidth" type="text" class="rightPanelTextbox" [ngModel]="width" (ngModelChange)="changewidth($event)" />
+                    &nbsp;<select [ngModel]="widthOperator" (ngModelChange)="changeWidthOperator($event)" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Rectangle' && this.selectedObject.areaColumn!=null">
+                      <option>*</option>
+                      <option>/</option>
+                    </select>
+                    &nbsp;<select [ngModel]="widthOperand" (ngModelChange)="changeWidthOperand($event)" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Rectangle' && this.selectedObject.areaColumn!=null">
+                      <option>1</option>
+                      <option>5</option>
+                      <option>10</option>
+                      <option>20</option>
+                      <option>100</option>
+                      <option>1000</option>
+                    </select>
                   </div>
-                  <div *ngIf="selectedObject!=null && selectedObject.typename=='Ellipse' && selectedObject.areaColumn!=null">
-                    <span>Radius x ratio: </span><input style="width:30px" [ngModel]="rxRatio" (blur)="rxRatioChange($event)" />
+                </div>
+                <hr>
+              </div>
+              <div [style.display]="visibility!=null && visibility['side']==true?'block':'none'">
+                <div style="font-weight:bold;text-align:left">
+                  &nbsp;Side:
+                </div>
+                <div>
+                  <div id="divside" style="margin-left: 10px; margin-top: 5px; height: 30px">
+                    <input id="side" [style.background-color]="selectedObject?.mappedside!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedside!=''?'white':'black'"
+                           type="text" class="rightPanelTextbox" [ngModel]="side" (ngModelChange)="changeside($event)" [title]="selectedObject?.mappedside"> &nbsp;<select [ngModel]="sideOperator" (ngModelChange)="changeSideOperator($event)" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Square' && this.selectedObject.areaColumn!=null">
+                      <option>*</option>
+                      <option>/</option>
+                    </select>
+                    &nbsp;<select [ngModel]="sideOperand" (ngModelChange)="changeSideOperand($event)" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Square' && this.selectedObject.areaColumn!=null">
+                        <option>1</option>
+                        <option>5</option>
+                        <option>10</option>
+                        <option>20</option>
+                        <option>100</option>
+                        <option>1000</option>
+                      </select>
+                  </div>
+                </div>
+                <hr>
+              </div>
+              <div [style.display]="visibility!=null && visibility['radius']==true?'block':'none'">
+                <div style="font-weight:bold;text-align:left">
+                  &nbsp;Radius:
+                </div>
+                <div>
+                  <div id="divradius" style="margin-left: 10px; margin-top: 5px; height: 30px">
+                    <input [style.background-color]="selectedObject?.mappedradius!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedradius!=''?'white':'black'"
+                           id="radius" type="text" class="rightPanelTextbox" [title]="selectedObject?.mappedradius" [ngModel]="radius" (ngModelChange)="changeradius($event)" />
+                    &nbsp;<select [ngModel]="radiusOperator" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Circle' && this.selectedObject.areaColumn!=null" (ngModelChange)="changeRadiusOperator($event)">
+                      <option>*</option>
+                      <option>/</option>
+                    </select>
+                    &nbsp;<select [ngModel]="radiusOperand" [disabled]="this.selectedObject!=null && this.selectedObject.typename=='Circle' && this.selectedObject.areaColumn!=null" (ngModelChange)="changeRadiusOperand($event)">
+                      <option>1</option>
+                      <option>10</option>
+                      <option>100</option>
+                      <option>1000</option>
+                    </select>
+                  </div>
+                </div>
+                <hr>
+              </div>
+              <div [style.display]="visibility!=null && visibility['radiusx']==true?'block':'none'">
+                <div style="font-weight:bold;text-align:left">
+                  &nbsp;Radius x:
+                </div>
+                <div>
+                  <div id="divradiusx" style="margin-left: 10px; margin-top: 5px; height: 30px">
+                    <input [style.background-color]="selectedObject?.mappedradiusx!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedradiusx!=''?'white':'black'"
+                           id="radiusx" type="text" class="rightPanelTextbox" [title]="selectedObject?.mappedradiusx" [ngModel]="radiusx" (ngModelChange)="changeradiusx($event)" />
+                    &nbsp;<select [ngModel]="radiusxOperator" (ngModelChange)="changeRadiusxOperator($event)" [disabled]="selectedObject?.areaColumn!=null">
+                      <option>*</option>
+                      <option>/</option>
+                    </select>
+                    &nbsp;<select [ngModel]="radiusxOperand" (ngModelChange)="changeRadiusxOperand($event)" [disabled]="selectedObject?.areaColumn!=null">
+                      <option>1</option>
+                      <option>10</option>
+                      <option>100</option>
+                      <option>1000</option>
+                    </select>
+                  </div>
+                </div>
+                <hr>
+              </div>
+              <div [style.display]="visibility!=null && visibility['radiusy']==true?'block':'none'">
+                <div style="font-weight:bold;text-align:left">
+                  &nbsp;Radius y:
+                </div>
+                <div>
+                  <div id="divradiusy" style="margin-left: 10px; margin-top: 5px; height: 30px">
+                    <input [style.background-color]="selectedObject?.mappedradiusy!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedradiusy!=''?'white':'black'"
+                           id="radiusy" type="text" class="rightPanelTextbox" [title]="selectedObject?.mappedradiusy" [ngModel]="radiusy" (ngModelChange)="changeradiusy($event)" />
+                    &nbsp;<select [ngModel]="radiusyOperator" (ngModelChange)="changeRadiusyOperator($event)" [disabled]="selectedObject?.areaColumn!=null">
+                      <option>*</option>
+                      <option>/</option>
+                    </select>
+                    &nbsp;<select [ngModel]="radiusyOperand" [disabled]="selectedObject?.areaColumn!=null" (ngModelChange)="changeRadiusyOperand($event)">
+                      <option>1</option>
+                      <option>10</option>
+                      <option>100</option>
+                      <option>1000</option>
+                    </select>
+                  </div>
+                </div>
+                <hr>
+              </div>
+              <div id="divarea" [style.display]="visibility!=null && visibility['area']==true?'block':'none'">
+                <div style="font-weight:bold;text-align:left">&nbsp;Area:</div>
+                <div>
+                  <div style="margin-left: 10px; margin-top: 5px; height: 30px">
+                    <input id="area" type="text" [style.background-color]="selectedObject?.mappedarea!=''?'#3c1361':'white'" [style.color]="selectedObject?.mappedarea!=''?'white':'black'"
+                           class="rightPanelTextbox" [(ngModel)]="area" [title]="selectedObject?.mappedarea" (ngModelChange)="changeArea($event)" />
                     <br />
-                    <div style="margin-top:5px">
-                      <span>Radius y ratio: </span><input style="width:30px" [ngModel]="ryRatio" (blur)="ryRatioChange($event)" />
+                    <div *ngIf="selectedObject!=null && selectedObject.typename=='Rectangle' && selectedObject.areaColumn!=null">
+                      <span>Length ratio: </span><input style="width:30px" [ngModel]="lratio" (blur)="lratioChange($event)" />
+                      <br />
+                      <div style="margin-top:5px">
+                        <span>Width ratio: </span><input style="width:30px" [ngModel]="wratio" (blur)="wratioChange($event)" />
+                      </div>
+                    </div>
+                    <div *ngIf="selectedObject!=null && selectedObject.typename=='Ellipse' && selectedObject.areaColumn!=null">
+                      <span>Radius x ratio: </span><input style="width:30px" [ngModel]="rxRatio" (blur)="rxRatioChange($event)" />
+                      <br />
+                      <div style="margin-top:5px">
+                        <span>Radius y ratio: </span><input style="width:30px" [ngModel]="ryRatio" (blur)="ryRatioChange($event)" />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -357,7 +353,7 @@
           <!--<div style="display:inline-block" *ngIf="midScroll" (click)="scrollLeft()">
             <img src="assets/images/larrow.png" width="23" height="23" style="margin:10px" />
           </div>-->
-          <div style="display:inline-block;width:920px;overflow-x:auto;white-space:nowrap" #keytab id="keytab">
+          <div style="display:inline-block;width:1000px;overflow-x:auto;white-space:nowrap" #keytab id="keytab">
             <ng-container *ngFor="let key of keys;let i=index">
               <div [style.backgroundColor]="keybg[i]" *ngIf="key!=selectedLabel" class="keys" [id]="'id'+keyid[i]">
                 {{key}}
@@ -370,31 +366,33 @@
         </div>
       </div>
       <div style="display:flex">
-        <div style="flex:82.5%">
+        <div style="width:80%">
           <canvas id="bottomcanvas" style="width:100%;height:100%"></canvas>
         </div>
-        <div style="flex:17.5%; border-left: black 1px solid;border-bottom: black 1px solid;">
-          <div style="text-align:center">
-            <div>
-              <div id="addition-operator" draggable="true" style="border:black 1px solid;display:inline-block;padding:2.5px;margin-right:8px;margin-top:10px">
-                <i class="operator-additionIcon" style="font-size: 21px; color: #460073;"></i>
+        <div style="width:20%; border-left: black 1px solid;border-bottom: black 1px solid;">
+          <div style="margin:10px">
+            <div style="text-align:center">
+              <div>
+                <div id="addition-operator" draggable="true" style="border:black 1px solid;display:inline-block;padding:2.5px;margin-right:8px;margin-top:10px">
+                  <i class="operator-additionIcon" style="font-size: 21px; color: #460073;"></i>
+                </div>
+                <div id="subtraction-operator" draggable="true" style="border: black 1px solid; display: inline-block; padding: 2.5px; margin-left:8px;margin-top:10px">
+                  <i class="operator-subtractionIcon" style="font-size: 20px; color: #460073;"></i>
+                </div>
               </div>
-              <div id="subtraction-operator" draggable="true" style="border: black 1px solid; display: inline-block; padding: 2.5px; margin-left:8px;margin-top:10px">
-                <i class="operator-subtractionIcon" style="font-size: 20px; color: #460073;"></i>
+              <div>
+                <div id="multiplication-operator" draggable="true" style="border: black 1px solid; display: inline-block;  padding: 2.5px;margin-left:8px;margin-right:8px;margin-top:10px">
+                  <i class="operator-multiplicationIcon" style="font-size: 20px; color: #460073;"></i>
+                </div>
+                <div id="division-operator" draggable="true" style="border: black 1px solid; display: inline-block; padding: 2.5px;margin-left:8px;margin-right:8px;margin-top:10px">
+                  <i class="operator-divisonIcon" style="font-size: 20px; color: #460073;"></i>
+                </div>
               </div>
             </div>
-            <div>
-              <div id="multiplication-operator" draggable="true" style="border: black 1px solid; display: inline-block;  padding: 2.5px;margin-left:8px;margin-right:8px;margin-top:10px">
-                <i class="operator-multiplicationIcon" style="font-size: 20px; color: #460073;"></i>
-              </div>
-              <div id="division-operator" draggable="true" style="border: black 1px solid; display: inline-block; padding: 2.5px;margin-left:8px;margin-right:8px;margin-top:10px">
-                <i class="operator-divisonIcon" style="font-size: 20px; color: #460073;"></i>
-              </div>
-            </div>
+            <div style="text-align:center;margin-top:5px">Operators</div>
           </div>
-          <div style="text-align:center;margin-top:5px">Operators</div>
-          <hr>
-          <div style="text-align:center;padding-top:15px">
+            <hr>
+          <div style="text-align:center;padding-top:20px">
             <div style="display:inline-block;cursor:pointer" (click)="clearAll(bottomcanvas)">
               <img src="assets/images/clear all.jpg" width="23" height="23" />
               <div style="text-align:center;padding-top:5px">Clear All</div>
@@ -405,7 +403,7 @@
             </div>
           </div>
           <hr>
-          <div style="text-align:center;">
+          <div style="text-align:center;margin:25px">
             <div id="isNumericData" draggable="true" style="border: black 1px solid; display: inline-block; padding: 2.5px; margin: 5px">
               <i class="value-number" style="font-size: 20px; color: #460073;"></i>
             </div>
@@ -424,11 +422,11 @@
     <div id="rightpanel" style="flex:12.5%;border-left:black 1px solid;overflow:auto">
       <div class="loader" *ngIf="loading"></div>
       <div *ngIf="rightcanvasarray!=null">
-        <div class="inlinediv" *ngFor="let key of rightcanvasarray;let i=index">
-          <canvas [id]="'canvas'+i" ></canvas>
+        <div class="inlinediv" *ngFor="let key of rightcanvasarray;let i=index" (mouseenter)="mouseHover(i)" (mouseleave)="highlightOnHoverIndex=-1">
+          <canvas [id]="'canvas'+i"></canvas>
         </div>
         <div class="inlinediv" style="height:0px" *ngFor="let key of validationcanvasarray;let i=index">
-          <canvas [id]="'valcanvas'+i" ></canvas>
+          <canvas [id]="'valcanvas'+i"></canvas>
         </div>
       </div>
     </div>

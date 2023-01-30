@@ -74,7 +74,7 @@ ul, ol {
 }
 
 .inlinediv {
-  display: inline-table;
+  display: inline-block;
   box-shadow: 0 0 8px #96968c38;
   background-color: #fff;
   margin: 2px;
